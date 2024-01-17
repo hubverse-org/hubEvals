@@ -1,0 +1,7 @@
+^\.github$
+^codecov\.yml$
+^hubEvals\.Rproj$
+^\.Rproj\.user$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
