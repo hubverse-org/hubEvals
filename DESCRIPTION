@@ -21,9 +21,15 @@ Authors@R: c(
            email = "rsweger@umass.edu", 
            role = c("aut"))
     )
-Description: Using .
+Description: 
+    Using functionality from the scoringutils package, this software provides
+    basic tools for scoring hubverse forecasts.
 License: MIT + file LICENSE
 Encoding: UTF-8
+Imports: 
+    scoringutils
+Remotes:
+    epiforecasts/scoringutils
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
 URL: https://infectious-disease-modeling-hubs.github.io/hubEvals/
