@@ -1,3 +1,3 @@
-# hubEvals (development version)
+# hubEvals 0.0.0.9000
 
-* Initial CRAN submission.
+* Initial package dev setup.
