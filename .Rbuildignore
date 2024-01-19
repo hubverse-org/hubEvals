@@ -1,3 +1,4 @@
+^data-raw$
 ^\.github$
 ^codecov\.yml$
 ^hubEvals\.Rproj$

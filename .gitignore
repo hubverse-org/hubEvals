@@ -49,3 +49,6 @@ po/*~
 rsconnect/
 .Rproj.user
 docs
+
+# mac OS system files
+*.DS_Store
