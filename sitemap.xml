@@ -22,6 +22,18 @@
     <loc>https://infectious-disease-modeling-hubs.github.io/hubEvals/news/index.html</loc>
   </url>
   <url>
+    <loc>https://infectious-disease-modeling-hubs.github.io/hubEvals/reference/example_mean_model_output.html</loc>
+  </url>
+  <url>
+    <loc>https://infectious-disease-modeling-hubs.github.io/hubEvals/reference/example_median_model_output.html</loc>
+  </url>
+  <url>
+    <loc>https://infectious-disease-modeling-hubs.github.io/hubEvals/reference/example_quantile_model_output.html</loc>
+  </url>
+  <url>
+    <loc>https://infectious-disease-modeling-hubs.github.io/hubEvals/reference/example_target_data.html</loc>
+  </url>
+  <url>
     <loc>https://infectious-disease-modeling-hubs.github.io/hubEvals/reference/index.html</loc>
   </url>
 </urlset>
