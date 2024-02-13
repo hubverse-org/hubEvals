@@ -52,3 +52,6 @@ docs
 
 # mac OS system files
 *.DS_Store
+.DS_Store
+.Rdata
+.secrets

@@ -44,7 +44,7 @@ example_mean_model_output <- example_model_output |>
   dplyr::group_by(origin_date, horizon, location, target, model_id) |>
   dplyr::summarize(
     value = distfromq::make_r_fn(ps = output_type_id, qs = value)(1e5) |>
-              mean(),
+      mean(),
     .groups = "drop"
   ) |>
   dplyr::mutate(

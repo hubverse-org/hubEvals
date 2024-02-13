@@ -8,3 +8,10 @@
 ^pkgdown$
 ^CODE_OF_CONDUCT\.md$
 ^LICENSE\.md$
+^README\.Rmd$
+^\.lintr$
+^\.DS_Store$
+^\.Rhistory$
+^\.Rdata$
+^\.httr-oauth$
+^\.secrets$
