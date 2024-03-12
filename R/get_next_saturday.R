@@ -1,6 +1,6 @@
 #' Get next Saturday
 #'
-#' @param date
+#' @param date Date forecast begins (forecast_date)
 #'
 #' @return Date of next Saturday
 #' @export

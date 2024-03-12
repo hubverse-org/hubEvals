@@ -14,7 +14,8 @@ A data frame with 112 rows and 8 columns:
 \item{location}{character: FIPS codes identifying the location being forecasted.}
 \item{target}{character: The forecast target. All values are "inc covid hosp".}
 \item{output_type}{character: Output type used to represent the forecast. All values are "quantile".}
-\item{output_type_id}{numeric: The probability level for the quantile forecast. One of 0.05, 0.1, 0.25, 0.5, 0.75, 0.9 or 0.95.}
+\item{output_type_id}{numeric: The probability level for the quantile forecast.
+One of 0.05, 0.1, 0.25, 0.5, 0.75, 0.9 or 0.95.}
 \item{value}{integer: The quantile of the forecast distribution.}
 \item{model_id}{character: Identifier for the model that produced the forecast.}
 }

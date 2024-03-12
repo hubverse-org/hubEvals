@@ -30,7 +30,6 @@ dat_for_scores_function <- function(all_dat, obs_data){
         rename(date = target_end_date) %>%
         filter(!is.na(report))
 
-
     dat_for_scores = distinct(dat_for_scores)
     return(dat_for_scores)
 }
