@@ -55,3 +55,4 @@ docs
 .DS_Store
 .Rdata
 .secrets
+.quarto
