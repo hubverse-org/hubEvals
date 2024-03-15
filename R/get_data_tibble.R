@@ -21,7 +21,7 @@ get_data_tibble <- function(output_path, loc_data, weeks.to.eval){
     unique_model_names = data.frame(model = paste0(as.character(unique_model_names[,4]), "-", gsub(".parquet","", as.character(unique_model_names[,5]))),
                                     filename = as.character(filenames),
                                     date.submitted = substr(filenames,1,10),
-                                    next.sat = get_next_saturday(as.Date(substr(filenames,1,10)))) %>%
+                                    next.sat = get_next_sat(as.Date(substr(filenames,1,10)))) %>%
         group_by(model, next.sat) %>%
         summarise(filename = as.character(filename[which.max(as.Date(date.submitted))])) %>%
         ungroup() %>%

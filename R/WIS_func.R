@@ -1,17 +1,24 @@
-
-#' WIS
+#' Function that outputs a data frame with all of the WIS scores
 #'
-#' @param dat_for_scores Data frame containing data to be scored
+#' @param obs_data
 #' @param weeks.to.eval
+#' @param output_path
+#' @param target1
+#' @param loc_data
 #'
 #' @return
 #' @export
 #'
 #' @examples
-
-WIS_func <- function(dat_for_scores, weeks.to.eval){
+WIS_func <- function(obs_data, weeks.to.eval, output_path, target1, loc_data){
 
     require(dplyr)
+
+    proj_data <- get_data_tibble(output_path, loc_data, weeks.to.eval)
+
+    obs_data <- format_obs_data(obs_data, proj_data, target1)
+
+    dat_for_scores <- dat_for_scores_func(proj_data, obs_data)
 
     score_df <- dat_for_scores %>%
         mutate(alpha=ifelse(quantile < 0.500, quantile*2, 2*(1-quantile)), # Sets alpha levels for each interval

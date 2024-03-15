@@ -10,7 +10,7 @@
 #'
 #'
 
-dat_for_scores_function <- function(all_dat, obs_data){
+dat_for_scores_func <- function(all_dat, obs_data){
 
     all_dat = drop_na(all_dat)
 
@@ -22,7 +22,7 @@ dat_for_scores_function <- function(all_dat, obs_data){
                                  quantile<0.5 ~ floor(value),
                                  quantile>0.5 ~ ceiling(value)),
                submission_deadline =
-                   get_next_saturday(as.Date(forecast_date))) %>%
+                   get_next_sat(as.Date(forecast_date))) %>%
         filter(! (type=="quantile" & is.na(quantile))) %>%
         left_join( obs_data %>% rename(report = value_inc),
                    by=c("target_end_date", "location_name", "location", "age_group"))%>%
