@@ -8,7 +8,7 @@
 #' @examples
 #'
 
-get_next_saturday <- function(date) {
+get_next_sat <- function(date) {
     require(lubridate)
     date <- as.Date(date)
     diff <- 7 - wday(date)
