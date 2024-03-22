@@ -12,6 +12,8 @@
 
 dat_for_scores_func <- function(all_dat, obs_data){
 
+    require(tidyr)
+
     all_dat = drop_na(all_dat)
 
     dat_for_scores = all_dat %>%

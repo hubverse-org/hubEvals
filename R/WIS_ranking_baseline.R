@@ -31,14 +31,14 @@ WIS_ranking_baseline = function(df){
                                     Percent.Cov.50 = mean(coverage.50, na.rm = TRUE),
                                     Percent.Cov.95 = mean(coverage.95, na.rm = TRUE))
 
-        step2 = left_join(x = filter(df, model == unique_models[i]), y = filter(df, model == "hub-ensemble"), # CHANGE TO HUB BASELINE
+        step2 = left_join(x = filter(df, model == unique_models[i]), y = filter(df, model == contains("baseline")),
                           by = c("location", "target", "target_end_date")) %>%
             summarise(model = unique(model.x),
                       rel.WIS.skill = mean(WIS.x)/mean(WIS.y))
 
         step3 = left_join(step1, step2, by = "model") %>%
             mutate(frac.forecasts.submitted =
-                       nrow(filter(df, model == unique_models[i]))/nrow(filter(df, model == "hub-ensemble")), # CHANGE TO HUB BASELINE
+                       nrow(filter(df, model == unique_models[i]))/nrow(filter(df, model == contains("baseline"))),
                    frac.locations.submitted = length(unique(step0$location_name))/uniquelocations,
                    frac.locations.fully.forecasted = locations.fully.submitted/uniquelocations,
                    frac.submitted.locations.fully.forecasted = frac.locations.fully.forecasted/frac.locations.submitted

@@ -12,7 +12,7 @@
 #'
 #' @examples
 
-WIS_func <- function(obs_data, weeks.to.eval, output_path, target1, loc_data){
+get_results_data <- function(obs_data, weeks.to.eval, output_path, target1, loc_data){
 
     require(dplyr)
 
