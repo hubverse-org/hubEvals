@@ -1,15 +1,17 @@
 #' Function that outputs a data frame with all of the WIS scores
 #'
-#' @param obs_data
-#' @param weeks.to.eval
-#' @param output_path
-#' @param target1
-#' @param loc_data
+#' @param obs_data Ground truth data file
+#' @param weeks.to.eval Sequence of dates to be evaluated
+#' @param output_path File path to directory where output data are stored
+#' @param target1 Target of interest; for example, 'inc hosp'
+#' @param loc_data Data file containing location information, including FIPS codes and location names
+#'
 #'
 #' @return
 #' @export
 #'
 #' @examples
+
 WIS_func <- function(obs_data, weeks.to.eval, output_path, target1, loc_data){
 
     require(dplyr)

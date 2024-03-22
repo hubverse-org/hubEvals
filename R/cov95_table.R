@@ -1,9 +1,9 @@
 
 #' Creates a 95% prediction interval coverage table
 #'
-#' @param WIS_data
+#' @param WIS_data Data frame of results generated from 'WIS_func' function
 #'
-#' @return
+#' @return Table of 95% prediction interval coverage
 #' @export
 #'
 #' @examples

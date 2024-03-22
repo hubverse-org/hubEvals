@@ -2,7 +2,10 @@
 
 export(WIS_func)
 export(WIS_ranking_baseline)
-export(dat_for_scores_function)
+export(WIS_ranking_location)
+export(cov95_table)
+export(dat_for_scores_func)
+export(format_obs_data)
 export(get_data_tibble)
 export(get_next_sat)
 export(inc_rankings_func)

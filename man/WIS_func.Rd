@@ -2,15 +2,21 @@
 % Please edit documentation in R/WIS_func.R
 \name{WIS_func}
 \alias{WIS_func}
-\title{WIS}
+\title{Function that outputs a data frame with all of the WIS scores}
 \usage{
-WIS_func(dat_for_scores, weeks.to.eval)
+WIS_func(obs_data, weeks.to.eval, output_path, target1, loc_data)
 }
 \arguments{
-\item{dat_for_scores}{Data frame containing data to be scored}
+\item{obs_data}{Ground truth data file}
 
-\item{weeks.to.eval}{}
+\item{weeks.to.eval}{Sequence of dates to be evaluated}
+
+\item{output_path}{File path to directory where output data are stored}
+
+\item{target1}{Target of interest; for example, 'inc hosp'}
+
+\item{loc_data}{Data file containing location information, including FIPS codes and location names}
 }
 \description{
-WIS
+Function that outputs a data frame with all of the WIS scores
 }
