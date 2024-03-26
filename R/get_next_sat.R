@@ -9,9 +9,9 @@
 #'
 
 get_next_sat <- function(date) {
-    require(lubridate)
-    date <- as.Date(date)
-    diff <- 7 - wday(date)
-    new_date <- diff + date
-    return(new_date)
+  require(lubridate)
+  date <- as.Date(date)
+  diff <- 7 - wday(date)
+  new_date <- diff + date
+  return(new_date)
 }

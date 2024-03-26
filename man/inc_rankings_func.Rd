@@ -4,10 +4,10 @@
 \alias{inc_rankings_func}
 \title{Incidence rankings}
 \usage{
-inc_rankings_func(WIS_data)
+inc_rankings_func(wis_data)
 }
 \arguments{
-\item{WIS_data}{Data frame with WIS scoring}
+\item{wis_data}{Data frame with WIS scoring}
 }
 \description{
 Incidence rankings

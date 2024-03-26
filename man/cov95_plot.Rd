@@ -2,13 +2,13 @@
 % Please edit documentation in R/cov95_plot.R
 \name{cov95_plot}
 \alias{cov95_plot}
-\title{Title}
+\title{Plot of 95\% coverage by forecast horizon}
 \usage{
-cov95_plot(WIS_data)
+cov95_plot(wis_data)
 }
 \arguments{
-\item{WIS_data}{}
+\item{wis_data}{}
 }
 \description{
-Title
+Plot of 95\% coverage by forecast horizon
 }

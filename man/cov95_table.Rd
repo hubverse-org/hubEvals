@@ -4,10 +4,10 @@
 \alias{cov95_table}
 \title{Creates a 95\% prediction interval coverage table}
 \usage{
-cov95_table(WIS_data)
+cov95_table(wis_data)
 }
 \arguments{
-\item{WIS_data}{Data frame of results generated from 'WIS_func' function}
+\item{wis_data}{Data frame of results generated from 'WIS_func' function}
 }
 \value{
 Table of 95\% prediction interval coverage

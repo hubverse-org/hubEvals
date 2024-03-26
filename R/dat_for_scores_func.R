@@ -12,26 +12,26 @@
 
 dat_for_scores_func <- function(all_dat, obs_data){
 
-    require(tidyr)
+  require(tidyr)
 
-    all_dat = drop_na(all_dat)
+  all_dat = drop_na(all_dat)
 
-    dat_for_scores = all_dat %>%
-        mutate(target_end_date = as.Date(target_end_date),
-               forecast_date = as.Date(forecast_date),
-               value = value,
-               value = case_when(quantile==0.5 ~ round(value),
-                                 quantile<0.5 ~ floor(value),
-                                 quantile>0.5 ~ ceiling(value)),
-               submission_deadline =
-                   get_next_sat(as.Date(forecast_date))) %>%
-        filter(! (type=="quantile" & is.na(quantile))) %>%
-        left_join( obs_data %>% rename(report = value_inc),
-                   by=c("target_end_date", "location_name", "location", "age_group"))%>%
+  dat_for_scores = all_dat %>%
+    mutate(target_end_date = as.Date(target_end_date),
+           forecast_date = as.Date(forecast_date),
+           value = value,
+           value = case_when(quantile==0.5 ~ round(value),
+                             quantile<0.5 ~ floor(value),
+                             quantile>0.5 ~ ceiling(value)),
+           submission_deadline =
+             get_next_sat(as.Date(forecast_date))) %>%
+    filter(! (type=="quantile" & is.na(quantile))) %>%
+    left_join( obs_data %>% rename(report = value_inc),
+               by=c("target_end_date", "location_name", "location", "age_group"))%>%
 
-        rename(date = target_end_date) %>%
-        filter(!is.na(report))
+    rename(date = target_end_date) %>%
+    filter(!is.na(report))
 
-    dat_for_scores = distinct(dat_for_scores)
-    return(dat_for_scores)
+  dat_for_scores = distinct(dat_for_scores)
+  return(dat_for_scores)
 }

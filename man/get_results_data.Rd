@@ -4,12 +4,12 @@
 \alias{get_results_data}
 \title{Function that outputs a data frame with all of the WIS scores}
 \usage{
-get_results_data(obs_data, weeks.to.eval, output_path, target1, loc_data)
+get_results_data(obs_data, weeks_to_eval, output_path, target1, loc_data)
 }
 \arguments{
 \item{obs_data}{Ground truth data file}
 
-\item{weeks.to.eval}{Sequence of dates to be evaluated}
+\item{weeks_to_eval}{Sequence of dates to be evaluated}
 
 \item{output_path}{File path to directory where output data are stored}
 

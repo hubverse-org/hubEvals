@@ -1,7 +1,7 @@
 
 #' Title
 #'
-#' @param WIS_data
+#' @param wis_data
 #'
 #' @return
 #' @export
@@ -9,37 +9,39 @@
 #' @examples
 
 
-absWIS_fig <- function(WIS_data){
+abswis_fig <- function(wis_data) {
 
-    abs_states <- WIS_data %>% filter(location_name != "US") %>%
-        group_by(model, target_end_date, target) %>%
-        summarise(abs_WIS = mean(WIS)) %>%
-        ungroup() %>% mutate(log_WIS = log10(abs_WIS))
+  require(magrittr)
 
-    # abs_ens <- abs_states %>% filter(model %in% contains("ensemble"))
-    #
-    # '%!in%' <- Negate('%in%')
-    # abs_not_ens <- abs_states %>% filter(model %!in% contains("ensemble"))
-    #
-    # wis_labels <- as_labeller(c(`1 wk ahead inc flu hosp` = "1 Week Ahead",
-    #                                  `4 wk ahead inc flu hosp` = "4 Week Ahead"
-    #                             ))
+  abs_states <- wis_data %>%
+    dplyr::filter(location_name != "US") %>%
+    dplyr::group_by(model, target_end_date, target, horizon) %>%
+    dplyr::summarise(abs_WIS = mean(WIS)) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(log_WIS = log10(abs_WIS))
 
-    #Absolute WIs version - not log scores
-    fig_absWIS <- ggplot(abs_states, aes(x = target_end_date,
-                                      y = abs_WIS, group = model,
-                                      col = model)) +
-        geom_line(size = 1) + geom_point(size = 2) +
-       # scale_color_manual(values = c("#d6936b", "#6baed6")) +
-      #  geom_line(data = abs_not_ens, aes(x = target_end_date, y = abs_WIS, group = model), color = adjustcolor("grey50", .35)) +
-        labs(y = "Absolute WIS",
-             x = "Forecast Target End Date",
-             color = "Model",
-             title = "Absolute WIS by Model") +
-        theme_bw()+
-        scale_x_date(breaks = seq.Date(from = min(abs_states$target_end_date), to= max(abs_states$target_end_date), by = "1 week"), date_labels = "%d %b") +
-        theme(axis.text.x = element_text(angle = 60, hjust = 1), panel.grid = element_blank())
-    #   facet_grid(rows = vars(target), cols = vars(season), labeller = wis_labels,  scales = "free_x")
+  # abs_ens <- abs_states %>% filter(model %in% contains("ensemble"))
+  #
+  # '%!in%' <- Negate('%in%')
+  # abs_not_ens <- abs_states %>% filter(model %!in% contains("ensemble"))
+  #
+  wis_labels <- as_labeller(c(`0` = "0 Weeks Ahead",
+                              `1` = "1 Week Ahead",
+                              `2` = "2 Weeks Ahead",
+                              `3` = "3 Weeks Ahead",
+                              `4` = "4 Weeks Ahead"))
 
-    return(fig_absWIS)
+  fig_absWIS <- ggplot2::ggplot(abs_states, ggplot2::aes(x = target_end_date, y = abs_WIS, group = model, col = model)) +
+    ggplot2::geom_line(size = 1) +
+    ggplot2::geom_point(size = 2) +
+    ggplot2::labs(y = "Absolute WIS",
+         x = "Forecast Target End Date",
+         color = "Model",
+         title = "Absolute WIS by Model") +
+    ggplot2::theme_bw() +
+    ggplot2::scale_x_date(breaks = seq.Date(from = min(abs_states$target_end_date), to= max(abs_states$target_end_date), by = "1 week"), date_labels = "%d %b") +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 60, hjust = 1), panel.grid = ggplot2::element_blank()) +
+    ggplot2::facet_grid(rows = vars(horizon), labeller = wis_labels,  scales = "free_x")
+
+  return(fig_absWIS)
 }

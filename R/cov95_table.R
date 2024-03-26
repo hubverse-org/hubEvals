@@ -1,28 +1,29 @@
 
 #' Creates a 95% prediction interval coverage table
 #'
-#' @param WIS_data Data frame of results generated from 'WIS_func' function
+#' @param wis_data Data frame of results generated from 'WIS_func' function
 #'
 #' @return Table of 95% prediction interval coverage
 #' @export
 #'
 #' @examples
 
-cov95_table <- function(WIS_data){
+cov95_table <- function(wis_data){
 
-    require(knitr)
+  require(magrittr)
 
-    weekly_breakdown <- WIS_data %>% group_by(model) %>% reframe(
-        model = model,
-        Zero_week_Cov = mean(coverage.95[horizon == 0], na.rm = TRUE)*100,
-        One_week_Cov = mean(coverage.95[horizon == 1], na.rm = TRUE)*100,
-        Two_week_Cov = mean(coverage.95[horizon == 2], na.rm = TRUE)*100,
-        Three_week_Cov = mean(coverage.95[horizon == 3], na.rm = TRUE)*100,
-        Four_week_Cov = mean(coverage.95[horizon == 4], na.rm = TRUE)*100
-    ) %>% unique()
+  weekly_breakdown <- wis_data %>%
+    dplyr::group_by(model) %>%
+    dplyr::reframe(model = model,
+            Zero_week_Cov = mean(coverage.95[horizon == 0], na.rm = TRUE)*100,
+            One_week_Cov = mean(coverage.95[horizon == 1], na.rm = TRUE)*100,
+            Two_week_Cov = mean(coverage.95[horizon == 2], na.rm = TRUE)*100,
+            Three_week_Cov = mean(coverage.95[horizon == 3], na.rm = TRUE)*100,
+            Four_week_Cov = mean(coverage.95[horizon == 4], na.rm = TRUE)*100) %>%
+    unique()
 
-    table <- knitr::kable(weekly_breakdown, align = c("lcccccccccc"), caption = "95% Coverage Table", col.names = c("Model","Week 0 Coverage", "1 Wk Coverage", "2 Wk Coverage", "3 Wk Coverage", "4 Wk Coverage")) %>%
-        kableExtra::kable_classic()  #%>%
+  table <- knitr::kable(weekly_breakdown, align = c("lcccccccccc"), caption = "95% Coverage Table", col.names = c("Model","Week 0 Coverage", "1 Wk Coverage", "2 Wk Coverage", "3 Wk Coverage", "4 Wk Coverage")) %>%
+    kableExtra::kable_classic()
 
-    return(table)
+  return(table)
 }
