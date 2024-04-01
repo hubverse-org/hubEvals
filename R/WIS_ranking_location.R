@@ -1,15 +1,17 @@
 #' Title
 #'
-#' @param df
+#' @param wis_data
 #'
 #' @return
 #' @export
 #'
 #' @examples
 
-wis_ranking_location <- function(df){
+wis_ranking_location <- function(wis_data){
 
   require(dplyr)
+
+  df <- wis_data
 
   unique_models = unique(df$model)
   uniquetargets <- length(unique(df$target_end_date))
@@ -27,10 +29,9 @@ wis_ranking_location <- function(df){
                                                             Percent.Cov.50 = mean(coverage.50, na.rm = TRUE),
                                                             Percent.Cov.95 = mean(coverage.95, na.rm = TRUE))
 
-    step2 = left_join(x = filter(df, model == unique_models[i]), y = filter(df, model == "hub-ensemble"), #change to hub-baseline
-                      by = c("location", "target", "target_end_date", "location_name")) %>% group_by(location_name) %>%
-      summarise(model = unique(model.x),
-                relative_WIS = mean(WIS.x)/mean(WIS.y))
+    step2 = wis_data %>% filter(model == unique_models[i]) %>%
+                                  group_by(location_name) %>%
+                                  summarise(model = unique(model))
 
     step3 = left_join(step1, step2, by = c("model", "location_name")) %>%
       # mutate(frac.forecasts.submitted =
@@ -39,7 +40,7 @@ wis_ranking_location <- function(df){
       #        frac.locations.fully.forecasted = locations.fully.submitted/uniquelocations,
       #        frac.submitted.locations.fully.forecasted = frac.locations.fully.forecasted/frac.locations.submitted
       #        ) %>%
-      select(model, location_name, mean.WIS, MAE, Percent.Cov.50, Percent.Cov.95, relative_WIS)
+      select(model, location_name, mean.WIS, MAE, Percent.Cov.50, Percent.Cov.95)
 
     ranking_baseline <- rbind(ranking_baseline, step3)
   }

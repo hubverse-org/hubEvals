@@ -7,7 +7,7 @@
 #' @param loc_data Data file containing location information, including FIPS codes and location names
 #'
 #'
-#' @return
+#' @return Data frame with evaluation results, to be used by figure and table functions
 #' @export
 #'
 #' @examples
@@ -71,8 +71,8 @@ get_results_data <- function(obs_data, weeks_to_eval, output_path, target1, loc_
     ) %>%
     rename(target_end_date = date)
 
-  WIS <- filter(WIS_all, as.Date(forecast_date) >= as.Date(min(weeks_to_eval)), as.Date(forecast_date) <= as.Date(max(weeks_to_eval))) %>%
+  wis_data <- filter(WIS_all, as.Date(forecast_date) >= as.Date(min(weeks_to_eval)), as.Date(forecast_date) <= as.Date(max(weeks_to_eval))) %>%
     {unique(.)}
 
-  return(WIS)
+  return(wis_data)
 }
