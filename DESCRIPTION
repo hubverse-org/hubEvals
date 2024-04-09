@@ -27,7 +27,7 @@ Description:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: 
-    scoringutils
+    scoringutils, dplyr
 Remotes:
     epiforecasts/scoringutils
 Roxygen: list(markdown = TRUE)
