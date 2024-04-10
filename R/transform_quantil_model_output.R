@@ -9,7 +9,7 @@
 #'
 #' @examples
 
-transform_quantile_model_output <- function(proj_data, obs_data) {
+transform_quantil_model_output <- function(proj_data, obs_data) {
 
   proj_data <- proj_data %>%
     dplyr::filter(output_type == "quantile") %>%
@@ -24,7 +24,8 @@ transform_quantile_model_output <- function(proj_data, obs_data) {
                            by = c("target", "location", "target_end_date", "output_type"))
 
   forecast_quantile <- scoringutils::as_forecast(data,
-                                                 forecast_unit = c("model", "location", "reference_date", "target_end_date", "horizon"),
+                                                 forecast_unit = c("model", "location", "reference_date",
+                                                                   "target_end_date", "horizon"),
                                                  forecast_type = "quantile",
                                                  observed = "observation",
                                                  predicted = "value",
