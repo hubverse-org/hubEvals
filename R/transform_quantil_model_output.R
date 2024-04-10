@@ -1,7 +1,9 @@
 #' Transform quantile model output into a forecast object
 #'
-#' @param proj_data Model output projection data frame; requires columns: model_id, target, value, location, target_end_date, horizon, output_type, output_type_id
-#' @param obs_data Observed 'ground truth' data to be compared against forecasts; requires columns: target, observation, location, target_end_date, output_type
+#' @param proj_data Model output projection data frame;
+#' requires columns: model_id, target, value, location, target_end_date, horizon, output_type, output_type_id
+#' @param obs_data Observed 'ground truth' data to be compared against forecasts;
+#' requires columns: target, observation, location, target_end_date, output_type
 #'
 #' @return forecast_quantile
 #'
