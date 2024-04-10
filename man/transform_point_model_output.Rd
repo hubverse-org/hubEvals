@@ -7,9 +7,11 @@
 transform_point_model_output(proj_data, obs_data, type)
 }
 \arguments{
-\item{proj_data}{Model output projection data frame; requires columns: model_id, target, value, location, target_end_date, horizon, output_type}
+\item{proj_data}{Model output projection data frame;
+requires columns: model_id, target, value, location, target_end_date, horizon, output_type}
 
-\item{obs_data}{Observed 'ground truth' data to be compared against forecasts; requires columns: target, observation, location, target_end_date, output_type}
+\item{obs_data}{Observed 'ground truth' data to be compared against forecasts;
+requires columns: target, observation, location, target_end_date, output_type}
 
 \item{type}{Forecast output type: "mean" or "median"}
 }
