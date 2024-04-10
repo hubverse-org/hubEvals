@@ -20,14 +20,14 @@ transform_point_model_output <- function(proj_data, obs_data, type) {
     dplyr::filter(output_type == type)
 
   data <- dplyr::left_join(proj_data, obs_data,
-                           by = c("target","location","target_end_date","output_type"))
+                           by = c("target", "location", "target_end_date", "output_type"))
 
   forecast_point <- scoringutils::as_forecast(data,
-                                                 forecast_unit = c("model","location","reference_date","target_end_date","horizon"),
-                                                 forecast_type = "point",
-                                                 observed = "observation",
-                                                 predicted = "value",
-                                                 model = "model")
+                                              forecast_unit = c("model", "location", "reference_date", "target_end_date", "horizon"),
+                                              forecast_type = "point",
+                                              observed = "observation",
+                                              predicted = "value",
+                                              model = "model")
 
   return(forecast_point)
 }
