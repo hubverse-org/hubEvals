@@ -7,9 +7,9 @@
 transform_quantile_model_output(proj_data, obs_data)
 }
 \arguments{
-\item{proj_data}{Model output projection data frame}
+\item{proj_data}{Model output projection data frame; requires columns: model_id, target, value, location, target_end_date, horizon, output_type, output_type_id}
 
-\item{obs_data}{Observed 'ground truth' data to be compared against forecasts}
+\item{obs_data}{Observed 'ground truth' data to be compared against forecasts; requires columns: target, observation, location, target_end_date, output_type}
 }
 \value{
 forecast_quantile

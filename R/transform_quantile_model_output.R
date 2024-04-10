@@ -1,7 +1,7 @@
 #' Transform quantile model output into a forecast object
 #'
-#' @param proj_data Model output projection data frame
-#' @param obs_data Observed 'ground truth' data to be compared against forecasts
+#' @param proj_data Model output projection data frame; requires columns: model_id, target, value, location, target_end_date, horizon, output_type, output_type_id
+#' @param obs_data Observed 'ground truth' data to be compared against forecasts; requires columns: target, observation, location, target_end_date, output_type
 #'
 #' @return forecast_quantile
 #'
@@ -13,11 +13,12 @@ transform_quantile_model_output <- function(proj_data, obs_data) {
 
   proj_data <- proj_data %>%
     dplyr::filter(output_type == "quantile") %>%
-    dplyr::mutate(output_type_id = as.numeric(output_type_id))
+    dplyr::mutate(output_type_id = as.numeric(output_type_id),
+                  model = model_id)
 
   obs_data <- obs_data %>%
     dplyr::filter(output_type == "quantile") %>%
-    select(-output_type_id)
+    dplyr::select(-output_type_id)
 
   data <- dplyr::left_join(proj_data, obs_data,
                     by = c("target","location","target_end_date","output_type"))
