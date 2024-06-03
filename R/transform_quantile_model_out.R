@@ -11,7 +11,7 @@
 #'
 #' @examples
 
-transform_quantil_model_output <- function(proj_data, obs_data) {
+transform_quantile_model_out <- function(proj_data, obs_data) {
 
   proj_data <- proj_data %>%
     dplyr::filter(output_type == "quantile") %>%

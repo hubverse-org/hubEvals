@@ -37,3 +37,6 @@ Depends:
     R (>= 2.10)
 LazyData: true
 Config/Needs/website: Infectious-Disease-Modeling-Hubs/hubStyle
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
