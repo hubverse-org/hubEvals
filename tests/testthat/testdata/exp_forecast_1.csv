@@ -1,2 +1,2 @@
-predicted,observed,model,location,reference_date,target_end_date,horizon
-4,5,test_model,US,2023-01-14,2023-01-14,0
+predicted,observed,model,location,reference_date,horizon,target_end_date,target
+4,5,test_model,US,2023-01-14,0,2023-01-14,wk inc flu hosp
