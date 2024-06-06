@@ -155,7 +155,7 @@ test_that("hubExamples data set is transformed correctly", {
     output_type = "mean"
   )
 
-  exp_forecast <- utils::read.csv("testdata/exp_forecast_hubExamples.csv") %>%
+  exp_forecast <- utils::read.csv("testdata/exp_forecast_hubExamples_1.csv") %>%
     dplyr::mutate(
       location = as.character(location),
       reference_date = as.Date(reference_date, "%Y-%m-%d"),
