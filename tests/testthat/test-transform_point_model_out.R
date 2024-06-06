@@ -104,13 +104,13 @@ test_that("model_out_tbl_1 has any rows", {
   model_out_tbl_1 <- utils::read.csv("testdata/model_out_tbl_point_1.csv")
   target_data_1 <- utils::read.csv("testdata/target_data_1.csv")
   expect_error(
-  suppressWarnings(transform_point_model_out(
-    model_out_tbl = model_out_tbl_1[0, ],
-    target_data = target_data_1,
-    output_type = "mean"
-  )),
-  regexp = "Must have at least 1 rows, but has 0 rows."
-)
+    suppressWarnings(transform_point_model_out(
+      model_out_tbl = model_out_tbl_1[0, ],
+      target_data = target_data_1,
+      output_type = "mean"
+    )),
+    regexp = "Must have at least 1 rows, but has 0 rows."
+  )
 })
 
 test_that("model_out_tbl columns match target_data columns", {
