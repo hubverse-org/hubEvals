@@ -10,12 +10,6 @@
 #'
 #' @examples
 transform_point_model_out <- function(model_out_tbl, target_data, output_type) {
-  type <- output_type
-
-  # if (nrow(model_out_tbl) == 0) {
-  #   cli::cli_warn(c("Model output tibble has zero rows"))
-  # }
-
   if ((!inherits(output_type, "character")) || (!output_type %in% c("mean", "median"))) {
     cli::cli_abort(
       "invalid 'output_type': {.val {output_type}} Must be 'mean' or 'median'"
@@ -46,9 +40,17 @@ transform_point_model_out <- function(model_out_tbl, target_data, output_type) {
     )
   }
 
+  if (!c("observation") %in% colnames(target_data)) {
+    cli::cli_abort(
+      "target_data does not have observation column"
+    )
+  }
+
   if (!inherits(model_out_tbl, "model_out_tbl")) {
     model_out_tbl <- hubUtils::as_model_out_tbl(model_out_tbl)
   }
+
+  type <- output_type
 
   model_out_tbl <- model_out_tbl %>%
     dplyr::filter(output_type == type) %>%
