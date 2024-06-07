@@ -7,9 +7,7 @@
 #'
 #' @importFrom dplyr %>%
 #'
-#' @examples
 transform_quantile_model_out <- function(model_out_tbl, target_data) {
-
   # check that: model_out_tbl contains columns: model_id, output_type, output_type_id, value
   req_cols <- c("model_id", "output_type", "output_type_id", "value")
   if (!all(req_cols %in% colnames(model_out_tbl))) {
