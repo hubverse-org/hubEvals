@@ -4,9 +4,6 @@
 #' @param target_data Observed 'ground truth' data to be compared against forecasts
 #'
 #' @return forecast_quantile
-#'
-#' @importFrom dplyr %>%
-#'
 transform_quantile_model_out <- function(model_out_tbl, target_data) {
   # check that: model_out_tbl contains columns: model_id, output_type, output_type_id, value
   req_cols <- c("model_id", "output_type", "output_type_id", "value")
@@ -41,14 +38,14 @@ transform_quantile_model_out <- function(model_out_tbl, target_data) {
     model_out_tbl <- hubUtils::as_model_out_tbl(model_out_tbl)
   }
 
-  model_out_tbl <- model_out_tbl %>%
-    dplyr::filter(output_type == "quantile") %>%
-    dplyr::mutate(output_type_id = as.numeric(output_type_id)) %>%
+  model_out_tbl <- model_out_tbl |>
+    dplyr::filter(output_type == "quantile") |>
+    dplyr::mutate(output_type_id = as.numeric(output_type_id)) |>
     dplyr::rename(model = model_id)
 
   if (c("output_type") %in% colnames(target_data)) {
-    target_data <- target_data %>%
-      dplyr::filter(output_type == "quantile") %>%
+    target_data <- target_data |>
+      dplyr::filter(output_type == "quantile") |>
       dplyr::select(-c("output_type", "output_type_id"))
   }
 

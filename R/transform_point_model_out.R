@@ -5,9 +5,6 @@
 #' @param output_type Forecast output type: "mean" or "median"
 #'
 #' @return forecast_point
-#'
-#' @importFrom dplyr %>%
-#'
 transform_point_model_out <- function(model_out_tbl, target_data, output_type) {
   if ((!inherits(output_type, "character")) || (!output_type %in% c("mean", "median"))) {
     cli::cli_abort(
@@ -51,13 +48,13 @@ transform_point_model_out <- function(model_out_tbl, target_data, output_type) {
 
   type <- output_type
 
-  model_out_tbl <- model_out_tbl %>%
-    dplyr::filter(output_type == type) %>%
+  model_out_tbl <- model_out_tbl |>
+    dplyr::filter(output_type == type) |>
     dplyr::rename(model = model_id)
 
   if (c("output_type") %in% colnames(target_data)) {
-    target_data <- target_data %>%
-      dplyr::filter(output_type == type) %>%
+    target_data <- target_data |>
+      dplyr::filter(output_type == type) |>
       dplyr::select(-c("output_type", "output_type_id"))
   }
 

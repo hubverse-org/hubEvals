@@ -58,7 +58,7 @@ test_that("model_out_tbl_1 output is valid", {
 
 test_that("test target_data has observation column", {
   model_out_tbl_1 <- utils::read.csv("testdata/model_out_tbl_point_1.csv")
-  target_data_1 <- utils::read.csv("testdata/target_data_1.csv") %>%
+  target_data_1 <- utils::read.csv("testdata/target_data_1.csv") |>
     dplyr::select(-c("observation"))
   expect_error(
     suppressMessages(transform_point_model_out(
@@ -74,7 +74,7 @@ test_that("test target_data has observation column", {
 test_that("model_out_tbl_1 columns are valid", {
   # Task IDs: location, reference_date, target_end_date, target
 
-  model_out_tbl_1 <- utils::read.csv("testdata/model_out_tbl_point_1.csv") %>%
+  model_out_tbl_1 <- utils::read.csv("testdata/model_out_tbl_point_1.csv") |>
     dplyr::rename(loc = location, trgt = target, date = target_end_date)
 
   target_data_1 <- utils::read.csv("testdata/target_data_1.csv")
@@ -83,7 +83,7 @@ test_that("model_out_tbl_1 columns are valid", {
     target_data = target_data_1,
     output_type = "mean"
   )
-  exp_forecast <- utils::read.csv("testdata/exp_forecast_1.csv") %>%
+  exp_forecast <- utils::read.csv("testdata/exp_forecast_1.csv") |>
     dplyr::rename(loc = location, trgt = target, date = target_end_date)
   class(exp_forecast) <- c("forecast_point", "data.table", "data.frame")
   expect_equal(act_forecast, exp_forecast)
@@ -119,7 +119,7 @@ test_that("model_out_tbl columns match target_data columns", {
 
   expect_error(
     suppressMessages(transform_point_model_out(
-      model_out_tbl = model_out_tbl_1 %>%
+      model_out_tbl = model_out_tbl_1 |>
         dplyr::select(-c("location")),
       target_data = target_data_1,
       output_type = "mean"
@@ -155,7 +155,7 @@ test_that("hubExamples data set is transformed correctly", {
     output_type = "mean"
   )
 
-  exp_forecast <- utils::read.csv("testdata/exp_forecast_hubExamples_1.csv") %>%
+  exp_forecast <- utils::read.csv("testdata/exp_forecast_hubExamples_1.csv") |>
     dplyr::mutate(
       location = as.character(location),
       reference_date = as.Date(reference_date, "%Y-%m-%d"),
