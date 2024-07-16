@@ -1,10 +1,15 @@
-#' Transform mean/median model output into a forecast object
+#' Transform either mean or median model output into a point forecast object:
+#'
 #'
 #' @param model_out_tbl Forecast model output tibble
 #' @param target_data Observed 'ground truth' data to be compared against forecasts
 #' @param output_type Forecast output type: "mean" or "median"
 #'
 #' @return forecast_point
+#'
+#' @details This function transforms a forecast output tibble from the Hubverse
+#' format (with either "mean" or "median" output type) to a scoringutils "point"
+#' forecast object
 transform_point_model_out <- function(model_out_tbl, target_data, output_type) {
   if ((!inherits(output_type, "character")) || (!output_type %in% c("mean", "median"))) {
     cli::cli_abort(

@@ -2,7 +2,7 @@
 % Please edit documentation in R/transform_point_model_out.R
 \name{transform_point_model_out}
 \alias{transform_point_model_out}
-\title{Transform mean/median model output into a forecast object}
+\title{Transform either mean or median model output into a point forecast object:}
 \usage{
 transform_point_model_out(model_out_tbl, target_data, output_type)
 }
@@ -17,5 +17,10 @@ transform_point_model_out(model_out_tbl, target_data, output_type)
 forecast_point
 }
 \description{
-Transform mean/median model output into a forecast object
+Transform either mean or median model output into a point forecast object:
+}
+\details{
+This function transforms a forecast output tibble from the Hubverse
+format (with "mean" or "median" output types) to a scoringutils "point"
+forecast object
 }
