@@ -1,4 +1,7 @@
-#' Transform mean/median model output into a forecast object
+#' Transform either mean or median model output into a point forecast object:
+#' This function transforms forecast outputs from the Hubverse of "mean" or "median"
+#' output types to a scoringutils "point" forecast
+#'
 #'
 #' @param model_out_tbl Forecast model output tibble
 #' @param target_data Observed 'ground truth' data to be compared against forecasts
