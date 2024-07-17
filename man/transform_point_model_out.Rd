@@ -21,6 +21,6 @@ Transform either mean or median model output into a point forecast object:
 }
 \details{
 This function transforms a forecast output tibble from the Hubverse
-format (with "mean" or "median" output types) to a scoringutils "point"
+format (with either "mean" or "median" output type) to a scoringutils "point"
 forecast object
 }

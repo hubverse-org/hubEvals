@@ -106,7 +106,7 @@ test_that("many-to-one relationship exists between model_out_tbl and target_data
 
 test_that("hubExamples data set is transformed correctly", {
   # forecast_outputs.rda & forecast_target_observations.rda are stored in hubExamples:
-  # https://github.com/Infectious-Disease-Modeling-Hubs/hubExamples/tree/main
+  # https://github.com/hubverse-org/hubExamples/tree/main
   load("testdata/forecast_outputs.rda") # sets forecast_outputs
   load("testdata/forecast_target_observations.rda") # sets forecast_target_observations
   model_out_tbl <- forecast_outputs
