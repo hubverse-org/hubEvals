@@ -32,8 +32,8 @@ Remotes:
     epiforecasts/scoringutils
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3
-URL: https://infectious-disease-modeling-hubs.github.io/hubEvals/
+URL: https://hubverse-org.github.io/hubEvals/
 Depends: 
     R (>= 2.10)
 LazyData: true
-Config/Needs/website: Infectious-Disease-Modeling-Hubs/hubStyle
+Config/Needs/website: hubverse-org/hubStyle
