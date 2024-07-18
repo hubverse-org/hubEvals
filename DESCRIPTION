@@ -31,7 +31,7 @@ Description:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: 
-    scoringutils,
+    scoringutils (>= 1.2.2.9000),
     dplyr,
     hubUtils,
     cli
