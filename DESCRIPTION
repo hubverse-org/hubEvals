@@ -19,6 +19,10 @@ Authors@R: c(
     person(given = "Becky", 
            family = "Sweger",
            email = "rsweger@umass.edu", 
+           role = c("aut")),
+    person(given = "Kimberlyn", 
+           family = "Roosa",
+           email = "kimberlyn626@gmail.com", 
            role = c("aut"))
     )
 Description: 
@@ -27,13 +31,20 @@ Description:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: 
-    scoringutils
+    scoringutils (>= 1.2.2.9000),
+    dplyr,
+    hubUtils,
+    cli
 Remotes:
-    epiforecasts/scoringutils
+    epiforecasts/scoringutils,
+    hubverse-org/hubUtils
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 URL: https://hubverse-org.github.io/hubEvals/
 Depends: 
     R (>= 2.10)
 LazyData: true
 Config/Needs/website: hubverse-org/hubStyle
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

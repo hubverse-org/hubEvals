@@ -1,0 +1,2 @@
+model_id,location,reference_date,horizon,target_end_date,target,output_type,output_type_id,value,model_abbr,team_abbr
+test_model,US,2023-01-14,0,2023-01-14,wk inc flu hosp,mean,NA,4,,
