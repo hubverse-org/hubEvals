@@ -14,12 +14,12 @@ knitr::opts_chunk$set(
 ```
 
 
-# hubEvals <a href="https://Infectious-Disease-Modeling-Hubs.github.io/hubEvals/"><img src="man/figures/logo.svg" align="right" height="131" alt="hubEvals website" /></a>
+# hubEvals <a href="https://hubverse-org.github.io/hubEvals/"><img src="man/figures/logo.svg" align="right" height="131" alt="hubEvals website" /></a>
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![CRAN status](https://www.r-pkg.org/badges/version/hubEvals)](https://CRAN.R-project.org/package=hubEvals)
-[![R-CMD-check](https://github.com/Infectious-Disease-Modeling-Hubs/hubEvals/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Infectious-Disease-Modeling-Hubs/hubEvals/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/hubverse-org/hubEvals/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/hubverse-org/hubEvals/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of hubEvals is to provide tools for evaluating infectious disease model outputs. This package is part of the [Hubverse](https://hubverse.org) project, which aims to provide a suite of tools for infectious disease modeling hubs.
@@ -30,7 +30,7 @@ You can install the development version of hubEvals from [GitHub](https://github
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("Infectious-Disease-Modeling-Hubs/hubEvals")
+remotes::install_github("hubverse-org/hubEvals")
 ```
 
 ## Example
