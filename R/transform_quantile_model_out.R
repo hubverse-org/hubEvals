@@ -54,9 +54,8 @@ transform_quantile_model_out <- function(model_out_tbl, target_data) {
     relationship = "many-to-one"
   )
 
-  forecast_quantile <- scoringutils::as_forecast(data,
+  forecast_quantile <- scoringutils::as_forecast_quantile(data,
     forecast_unit = c("model", task_id_cols),
-    forecast_type = "quantile",
     observed = "observation",
     predicted = "value",
     model = "model",
