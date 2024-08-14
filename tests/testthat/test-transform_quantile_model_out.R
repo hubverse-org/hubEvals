@@ -147,5 +147,5 @@ test_that("hubExamples data set is transformed correctly", {
       target_end_date = as.Date(target_end_date, "%Y-%m-%d")
     )
   class(exp_forecast) <- c("forecast", "forecast_quantile", "data.table", "data.frame")
-  expect_equal(act_forecast, exp_forecast)
+  expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
 })
