@@ -4,12 +4,12 @@
 \alias{transform_quantile_model_out}
 \title{Transform quantile model output into a forecast object}
 \usage{
-transform_quantile_model_out(model_out_tbl, target_data)
+transform_quantile_model_out(model_out_tbl, target_observations)
 }
 \arguments{
-\item{model_out_tbl}{Forecast model output tibble}
+\item{model_out_tbl}{Model output tibble with predictions}
 
-\item{target_data}{Observed 'ground truth' data to be compared against forecasts}
+\item{target_observations}{Observed 'ground truth' data to be compared against predictions}
 }
 \value{
 forecast_quantile
