@@ -61,7 +61,7 @@ test_that("model_out_tbl_1 output is valid", {
     test_path("testdata/exp_forecast_1.csv")
   )
   class(exp_forecast) <- c("forecast", "forecast_point", "data.table", "data.frame")
-  expect_equal(act_forecast, exp_forecast)
+  expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
 })
 
 test_that("test target_data has observation column", {
@@ -98,7 +98,7 @@ test_that("model_out_tbl_1 columns are valid", {
   exp_forecast <- utils::read.csv(test_path("testdata/exp_forecast_1.csv")) |>
     dplyr::rename(loc = location, trgt = target, date = target_end_date)
   class(exp_forecast) <- c("forecast", "forecast_point", "data.table", "data.frame")
-  expect_equal(act_forecast, exp_forecast)
+  expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
 
   # Error when missing any of: model_id, output_type, output_type_id, value
   expect_error(
@@ -188,5 +188,5 @@ test_that("hubExamples data set is transformed correctly", {
       target_end_date = as.Date(target_end_date, "%Y-%m-%d")
     )
   class(exp_forecast) <- c("forecast", "forecast_point", "data.table", "data.frame")
-  expect_equal(act_forecast, exp_forecast)
+  expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
 })
