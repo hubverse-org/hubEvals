@@ -22,7 +22,7 @@ test_that("inputs are valid", {
   )
 
   # all clear
-   model_out_tbl_1 <- utils::read.csv(
+  model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
   target_observations_1 <- utils::read.csv(
@@ -74,7 +74,7 @@ test_that("model_out_tbl columns match target_observations columns", {
   expect_error(
     suppressMessages(validate_model_out_target_obs(
       model_out_tbl = model_out_tbl_1 |>
-          dplyr::rename(loc = location, trgt = target, date = target_end_date),
+        dplyr::rename(loc = location, trgt = target, date = target_end_date),
       target_observations = target_observations_1
     )),
     regexp = "model_out_tbl and target_observations do not have compatible columns"
