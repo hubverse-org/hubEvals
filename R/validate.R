@@ -55,3 +55,31 @@ validate_model_out_target_obs <- function(model_out_tbl, target_observations) {
 
   return(model_out_tbl)
 }
+
+
+#' Check that model_out_tble has a single `output_type` that is one of the
+#' `output_types` that is supported by this function.
+#'
+#' @return if valid, the output_type in model_out_tbl
+#'
+#' @noRd
+validate_output_type <- function(model_out_tbl) {
+  output_type <- unique(model_out_tbl$output_type)
+  if (length(output_type) != 1) {
+    cli::cli_abort(
+      "model_out_tbl must contain a single output_type, but it has multiple:
+      {.val {output_type}}"
+    )
+  }
+
+  supported_types <- c("mean", "median", "pmf", "quantile")
+  if (!output_type %in% supported_types) {
+    cli::cli_abort(
+      "Provided `model_out_tbl` contains `output_type` {.val {output_type}};
+      hubEvals currently only supports the following types:
+      {.val {supported_types}}"
+    )
+  }
+
+  return(output_type)
+}
