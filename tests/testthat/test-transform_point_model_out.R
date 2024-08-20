@@ -51,6 +51,7 @@ test_that("model_out_tbl_1 columns are valid", {
 
   target_observations_1 <- utils::read.csv(test_path("testdata/target_data_1.csv")) |>
     dplyr::rename(loc = location, date = target_end_date)
+
   act_forecast <- transform_point_model_out(
     model_out_tbl = model_out_tbl_1,
     target_observations = target_observations_1,
