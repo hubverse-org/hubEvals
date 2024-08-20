@@ -1,26 +1,4 @@
 test_that("inputs are valid", {
-  expect_error(
-    transform_point_model_out(
-      model_out_tbl = NULL,
-      target_observations = NULL,
-      output_type = "mean"
-    )
-  )
-  expect_error(
-    suppressMessages(transform_point_model_out(
-      model_out_tbl = data.frame(),
-      target_observations = NULL,
-      output_type = "mean"
-    ))
-  )
-  expect_error(
-    suppressMessages(transform_point_model_out(
-      model_out_tbl = data.frame(),
-      target_observations = data.frame(),
-      output_type = "mean"
-    ))
-  )
-
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
@@ -60,26 +38,8 @@ test_that("model_out_tbl_1 output is valid", {
   exp_forecast <- utils::read.csv(
     test_path("testdata/exp_forecast_1.csv")
   )
-  class(exp_forecast) <- c("forecast", "forecast_point", "data.table", "data.frame")
-  expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
-})
-
-test_that("test target_observations has observation column", {
-  model_out_tbl_1 <- utils::read.csv(
-    test_path("testdata/model_out_tbl_point_1.csv")
-  )
-  target_observations_1 <- utils::read.csv(
-    test_path("testdata/target_data_1.csv")
-  ) |>
-    dplyr::select(-c("observation"))
-  expect_error(
-    suppressMessages(transform_point_model_out(
-      model_out_tbl = model_out_tbl_1,
-      target_observations = target_observations_1,
-      output_type = "mean"
-    )),
-    regexp = "target_observations does not have observation column"
-  )
+  class(exp_forecast) <- c("forecast_point", "forecast", "data.table", "data.frame")
+  expect_equal(act_forecast, exp_forecast)
 })
 
 
@@ -89,7 +49,8 @@ test_that("model_out_tbl_1 columns are valid", {
   model_out_tbl_1 <- utils::read.csv(test_path("testdata/model_out_tbl_point_1.csv")) |>
     dplyr::rename(loc = location, trgt = target, date = target_end_date)
 
-  target_observations_1 <- utils::read.csv(test_path("testdata/target_data_1.csv"))
+  target_observations_1 <- utils::read.csv(test_path("testdata/target_data_1.csv")) |>
+    dplyr::rename(loc = location, date = target_end_date)
   act_forecast <- transform_point_model_out(
     model_out_tbl = model_out_tbl_1,
     target_observations = target_observations_1,
@@ -97,22 +58,12 @@ test_that("model_out_tbl_1 columns are valid", {
   )
   exp_forecast <- utils::read.csv(test_path("testdata/exp_forecast_1.csv")) |>
     dplyr::rename(loc = location, trgt = target, date = target_end_date)
-  class(exp_forecast) <- c("forecast", "forecast_point", "data.table", "data.frame")
+  class(exp_forecast) <- c("forecast_point", "forecast", "data.table", "data.frame")
   expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
-
-  # Error when missing any of: model_id, output_type, output_type_id, value
-  expect_error(
-    suppressMessages(transform_point_model_out(
-      model_out_tbl = data.frame(),
-      target_observations = data.frame(),
-      output_type = "mean"
-    )),
-    regexp = "model_out_tbl does not contain required columns"
-  )
 })
 
 test_that("model_out_tbl_1 has any rows", {
-  # Error is thrown by hubUtils::as_model_out_tbl()
+  # Error is thrown by scoringutils::assert_forecast_generic()
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
@@ -129,24 +80,6 @@ test_that("model_out_tbl_1 has any rows", {
   )
 })
 
-test_that("model_out_tbl columns match target_observations columns", {
-  model_out_tbl_1 <- utils::read.csv(
-    test_path("testdata/model_out_tbl_point_1.csv")
-  )
-  target_observations_1 <- utils::read.csv(
-    test_path("testdata/target_data_1.csv")
-  )
-
-  expect_error(
-    suppressMessages(transform_point_model_out(
-      model_out_tbl = model_out_tbl_1 |>
-        dplyr::select(-c("location")),
-      target_observations = target_observations_1,
-      output_type = "mean"
-    )),
-    regexp = "model_out_tbl and target_observations do not have compatible columns"
-  )
-})
 
 test_that("many-to-one relationship exists between model_out_tbl and target_observations", {
   model_out_tbl_1 <- utils::read.csv(
@@ -187,6 +120,6 @@ test_that("hubExamples data set is transformed correctly", {
       reference_date = as.Date(reference_date, "%Y-%m-%d"),
       target_end_date = as.Date(target_end_date, "%Y-%m-%d")
     )
-  class(exp_forecast) <- c("forecast", "forecast_point", "data.table", "data.frame")
-  expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
+  class(exp_forecast) <- c("forecast_point", "forecast", "data.table", "data.frame")
+  expect_equal(act_forecast, exp_forecast)
 })
