@@ -7,17 +7,18 @@
 #' increasing order of the levels.
 #'
 #' @return forecast_quantile
+#' @importFrom rlang .data
 transform_pmf_model_out <- function(model_out_tbl, target_observations, output_type_id_order = NULL) {
   model_out_tbl <- validate_model_out_target_obs(model_out_tbl, target_observations)
 
   # subset both model_out_tbl and target_observations to output_type == "pmf"
   model_out_tbl <- model_out_tbl |>
-    dplyr::filter(output_type == "pmf")
+    dplyr::filter(.data[["output_type"]] == "pmf")
 
   if (c("output_type") %in% colnames(target_observations)) {
     target_observations <- target_observations |>
-      dplyr::filter(output_type == "pmf") |>
-      dplyr::select(-output_type)
+      dplyr::filter(.data[["output_type"]] == "pmf") |>
+      dplyr::select(-c("output_type"))
   }
 
   # validate or set output_type_id_order
@@ -35,7 +36,7 @@ transform_pmf_model_out <- function(model_out_tbl, target_observations, output_t
 
   # assemble data in scoringutils format
   model_out_tbl <- model_out_tbl |>
-    dplyr::rename(model = model_id)
+    dplyr::rename(model = "model_id")
 
   data <- dplyr::left_join(
     model_out_tbl, target_observations,
@@ -44,9 +45,9 @@ transform_pmf_model_out <- function(model_out_tbl, target_observations, output_t
   ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(task_id_cols, "model")))) |>
     dplyr::mutate(
-      observation = output_type_id[rlang::.data[["observation"]] == 1],
-      observation = factor(rlang::.data[["observation"]], levels = output_type_id_order, ordered = is_ordinal),
-      output_type_id = factor(rlang::.data[["output_type_id"]], levels = output_type_id_order, ordered = is_ordinal)
+      observation = .data[["output_type_id"]][.data[["observation"]] == 1],
+      observation = factor(.data[["observation"]], levels = output_type_id_order, ordered = is_ordinal),
+      output_type_id = factor(.data[["output_type_id"]], levels = output_type_id_order, ordered = is_ordinal)
     )
 
   forecast_pmf <- scoringutils::as_forecast_nominal(
