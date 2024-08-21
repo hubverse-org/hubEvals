@@ -44,9 +44,9 @@ transform_pmf_model_out <- function(model_out_tbl, target_observations, output_t
   ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(task_id_cols, "model")))) |>
     dplyr::mutate(
-      observation = output_type_id[observation == 1],
-      observation = factor(observation, levels = output_type_id_order, ordered = is_ordinal),
-      output_type_id = factor(output_type_id, levels = output_type_id_order, ordered = is_ordinal)
+      observation = output_type_id[rlang::.data[["observation"]] == 1],
+      observation = factor(rlang::.data[["observation"]], levels = output_type_id_order, ordered = is_ordinal),
+      output_type_id = factor(rlang::.data[["output_type_id"]], levels = output_type_id_order, ordered = is_ordinal)
     )
 
   forecast_pmf <- scoringutils::as_forecast_nominal(

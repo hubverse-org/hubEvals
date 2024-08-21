@@ -39,10 +39,11 @@ Description:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports: 
-    scoringutils (>= 1.2.2.9000),
+    cli,
     dplyr,
     hubUtils,
-    cli
+    rlang,
+    scoringutils (>= 1.2.2.9000)
 Remotes:
     epiforecasts/scoringutils,
     hubverse-org/hubUtils

@@ -12,7 +12,8 @@ model_out_tbl <- expand.grid(
 ) |>
   dplyr::mutate(
     target_date = reference_date + 7 * horizon,
-    value = row_number()) |>
+    value = row_number()
+  ) |>
   dplyr::group_by(model_id, location, reference_date, target_date) |>
   dplyr::mutate(value = value / sum(value)) |>
   dplyr::ungroup()
@@ -27,7 +28,7 @@ model_out_tbl |>
 observed_categories <- data.frame(
   location = c("US", "US", "US", "US", "01", "01", "01", "01"),
   target_date = as.Date(c("2020-01-14", "2020-01-21", "2020-01-28", "2020-02-04",
-                  "2020-01-14", "2020-01-21", "2020-01-28", "2020-02-04")),
+                          "2020-01-14", "2020-01-21", "2020-01-28", "2020-02-04")),
   output_type_id = c("cat", "dog", "cat", "bird", "bird", "dog", "dog", "cat"),
   observation = 1,
   stringsAsFactors = FALSE
