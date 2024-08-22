@@ -65,7 +65,7 @@ test_that("an error is thrown if target_observations is missing observation colu
 })
 
 
-test_that("model_out_tbl columns match target_observations columns", {
+test_that("an error is thrown if model_out_tbl columns do not match target_observations columns", {
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
