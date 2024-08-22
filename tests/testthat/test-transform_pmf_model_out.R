@@ -7,7 +7,7 @@
 # By construction, model_out_tbl and target_observations are valid inputs to transform_pmf_model_out,
 # and exp_forecast is the expected return value from transform_pmf_model_out
 
-test_that("model_out_tbl_1 output is valid", {
+test_that("transform_pmf_model_out succeeds with valid inputs", {
   model_out_tbl <- readRDS(test_path("testdata", "pmf_test_model_out_tbl.rds"))
   target_observations <- readRDS(test_path("testdata", "pmf_test_target_observations.rds"))
   exp_forecast <- readRDS(test_path("testdata", "pmf_test_expected_merged_forecast.rds"))
@@ -21,7 +21,7 @@ test_that("model_out_tbl_1 output is valid", {
 })
 
 
-test_that("model_out_tbl_1 output doesn't depend on specific column names for task id variables", {
+test_that("transform_pmf_model_out doesn't depend on specific column names for task id variables", {
   model_out_tbl <- readRDS(test_path("testdata", "pmf_test_model_out_tbl.rds")) |>
     dplyr::rename(loc = location, date = target_date)
   target_observations <- readRDS(test_path("testdata", "pmf_test_target_observations.rds")) |>
@@ -38,8 +38,8 @@ test_that("model_out_tbl_1 output doesn't depend on specific column names for ta
 })
 
 
-test_that("model_out_tbl_1 has any rows", {
-  # Error is thrown by scoringutils::assert_forecast_generic()
+test_that("transform_pmf_model_out throws an error if model_out_tbl has no rows", {
+  # Error is thrown by checkmate::assert_data_frame() via scoringutils::assert_forecast_generic()
   model_out_tbl <- readRDS(test_path("testdata", "pmf_test_model_out_tbl.rds"))
   target_observations <- readRDS(test_path("testdata", "pmf_test_target_observations.rds"))
   expect_error(
