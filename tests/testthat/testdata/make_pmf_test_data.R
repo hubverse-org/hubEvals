@@ -68,6 +68,14 @@ exp_forecast <- model_out_tbl |>
 class(exp_forecast) <- c("forecast_nominal", "forecast", "data.table", "data.frame")
 
 
-saveRDS(model_out_tbl, "tests/testthat/testdata/pmf_test_model_out_tbl.rds")
-saveRDS(target_observations, "tests/testthat/testdata/pmf_test_target_observations.rds")
-saveRDS(exp_forecast, "tests/testthat/testdata/pmf_test_expected_merged_forecast.rds")
+dput_fun <- function(obj, path = stdout()) {
+  x <- get(obj)
+  if (!is.function(x)) {
+    x <- paste(capture.output(dput(x)), collapse = "\n  ")
+    res <- glue::glue("# nolint start\npmf_test_{obj} <- function() {{\n  {dput(x)}\n}}\n# nolint end")
+    writeLines(res, path)
+  }
+}
+dput_fun("model_out_tbl", "tests/testthat/helper-pmf_test_model_out_tbl.R")
+dput_fun("target_observations", "tests/testthat/helper-pmf_test_target_observations.R")
+dput_fun("exp_forecast", "tests/testthat/helper-pmf_test_expected_merged_forecast.R")

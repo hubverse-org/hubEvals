@@ -48,7 +48,8 @@ transform_pmf_model_out <- function(model_out_tbl, target_observations, output_t
       observation = .data[["output_type_id"]][.data[["observation"]] == 1],
       observation = factor(.data[["observation"]], levels = output_type_id_order, ordered = is_ordinal),
       output_type_id = factor(.data[["output_type_id"]], levels = output_type_id_order, ordered = is_ordinal)
-    )
+    ) |>
+    dplyr::ungroup()
 
   forecast_pmf <- scoringutils::as_forecast_nominal(
     data,
