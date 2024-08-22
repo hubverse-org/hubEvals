@@ -38,10 +38,12 @@ Description:
     basic tools for scoring hubverse forecasts.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Imports: 
+Imports:
+    checkmate, 
     cli,
     dplyr,
     hubUtils,
+    purrr,
     rlang,
     scoringutils (>= 1.2.2.9000)
 Remotes:
