@@ -1,3 +1,4 @@
+# nolint start
 pmf_test_exp_forecast <- function() {
   structure(list(predicted_label = structure(c(1L, 1L, 1L, 1L, 
   1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 1L, 
@@ -78,3 +79,4 @@ pmf_test_exp_forecast <- function() {
   -72L), class = c("forecast_nominal", "forecast", "data.table", 
   "data.frame"))
 }
+# nolint end

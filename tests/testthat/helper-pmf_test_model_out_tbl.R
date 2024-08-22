@@ -1,3 +1,4 @@
+# nolint start
 pmf_test_model_out_tbl <- function() {
   structure(list(model_id = c("model_A", "model_B", "model_A", 
   "model_B", "model_A", "model_B", "model_A", "model_B", "model_A", 
@@ -83,3 +84,4 @@ pmf_test_model_out_tbl <- function() {
       )), class = c("tbl_df", "tbl", "data.frame"), row.names = c(NA, 
   -72L))
 }
+# nolint end

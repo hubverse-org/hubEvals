@@ -1,3 +1,4 @@
+# nolint start
 pmf_test_target_observations <- function() {
   structure(list(location = c("US", "01", "US", "01", "US", "01", 
   "US", "01", "US", "01", "US", "01", "US", "01", "US", "01", "US", 
@@ -12,3 +13,4 @@ pmf_test_target_observations <- function() {
   0)), row.names = c(NA, -24L), class = c("tbl_df", "tbl", "data.frame"
   ))
 }
+# nolint end

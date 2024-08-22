@@ -72,7 +72,7 @@ dput_fun <- function(obj, path = stdout()) {
   x <- get(obj)
   if (!is.function(x)) {
     x <- paste(capture.output(dput(x)), collapse = "\n  ")
-    res <- glue::glue("pmf_test_{obj} <- function() {{\n  {dput(x)}\n}}")
+    res <- glue::glue("# nolint start\npmf_test_{obj} <- function() {{\n  {dput(x)}\n}}\n# nolint end")
     writeLines(res, path)
   }
 }
