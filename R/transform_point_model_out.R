@@ -24,7 +24,7 @@ transform_point_model_out <- function(model_out_tbl, target_observations, output
 
   model_out_tbl <- model_out_tbl |>
     dplyr::filter(output_type == type) |>
-    dplyr::rename(model = model_id)
+    dplyr::rename(model = "model_id")
 
   if (c("output_type") %in% colnames(target_observations)) {
     target_observations <- target_observations |>

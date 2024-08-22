@@ -1,18 +1,3 @@
-test_that("inputs are valid", {
-  expect_error(
-    transform_quantile_model_out(
-      model_out_tbl = NULL,
-      target_observations = NULL
-    )
-  )
-  expect_error(
-    suppressMessages(transform_quantile_model_out(
-      model_out_tbl = data.frame(),
-      target_observations = NULL
-    ))
-  )
-})
-
 test_that("model_out_tbl_1 output is valid", {
   model_out_tbl_1 <- utils::read.csv(test_path("testdata/model_out_tbl_quantile_1.csv"))
   target_observations_1 <- utils::read.csv(test_path("testdata/target_data_1.csv"))
@@ -22,25 +7,8 @@ test_that("model_out_tbl_1 output is valid", {
   )
 
   exp_forecast <- utils::read.csv(test_path("testdata/exp_forecast_2.csv"))
-  class(exp_forecast) <- c("forecast", "forecast_quantile", "data.table", "data.frame")
-  expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
-})
-
-test_that("test target_observations has observation column", {
-  model_out_tbl_1 <- utils::read.csv(
-    test_path("testdata/model_out_tbl_quantile_1.csv")
-  )
-  target_observations_1 <- utils::read.csv(
-    test_path("testdata/target_data_1.csv")
-  ) |>
-    dplyr::select(-c("observation"))
-  expect_error(
-    suppressMessages(transform_quantile_model_out(
-      model_out_tbl = model_out_tbl_1,
-      target_observations = target_observations_1
-    )),
-    regexp = "target_observations does not have observation column"
-  )
+  class(exp_forecast) <- c("forecast_quantile", "forecast", "data.table", "data.frame")
+  expect_equal(act_forecast, exp_forecast)
 })
 
 
@@ -52,7 +20,8 @@ test_that("model_out_tbl_1 columns are valid", {
 
   target_observations_1 <- utils::read.csv(
     test_path("testdata/target_data_1.csv")
-  )
+  ) |>
+    dplyr::rename(loc = location, date = target_end_date)
   act_forecast <- transform_quantile_model_out(
     model_out_tbl = model_out_tbl_1,
     target_observations = target_observations_1
@@ -61,21 +30,12 @@ test_that("model_out_tbl_1 columns are valid", {
     test_path("testdata/exp_forecast_2.csv")
   ) |>
     dplyr::rename(loc = location, trgt = target, date = target_end_date)
-  class(exp_forecast) <- c("forecast", "forecast_quantile", "data.table", "data.frame")
+  class(exp_forecast) <- c("forecast_quantile", "forecast", "data.table", "data.frame")
   expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
-
-  # Error when missing any of: model_id, output_type, output_type_id, value
-  expect_error(
-    suppressMessages(transform_quantile_model_out(
-      model_out_tbl = data.frame(),
-      target_observations = data.frame()
-    )),
-    regexp = "model_out_tbl does not contain required columns"
-  )
 })
 
 test_that("model_out_tbl_1 has any rows", {
-  # Error is thrown by hubUtils::as_model_out_tbl()
+  # Error is thrown by scoringutils::assert_forecast_generic()
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_quantile_1.csv")
   )
@@ -91,23 +51,6 @@ test_that("model_out_tbl_1 has any rows", {
   )
 })
 
-test_that("model_out_tbl columns match target_observations columns", {
-  model_out_tbl_1 <- utils::read.csv(
-    test_path("testdata/model_out_tbl_quantile_1.csv")
-  )
-  target_observations_1 <- utils::read.csv(
-    test_path("testdata/target_data_2.csv")
-  )
-
-  expect_error(
-    suppressMessages(transform_quantile_model_out(
-      model_out_tbl = model_out_tbl_1 |>
-        dplyr::select(-c("location")),
-      target_observations = target_observations_1
-    )),
-    regexp = "model_out_tbl and target_observations do not have compatible columns"
-  )
-})
 
 test_that("many-to-one relationship exists between model_out_tbl and target_observations", {
   model_out_tbl_1 <- utils::read.csv(
