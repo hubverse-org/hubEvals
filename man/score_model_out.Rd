@@ -2,29 +2,83 @@
 % Please edit documentation in R/score_model_out.R
 \name{score_model_out}
 \alias{score_model_out}
-\title{Score model output predictions against observed data}
+\title{Score model output predictions with a single \code{output_type} against observed data}
 \usage{
 score_model_out(
   model_out_tbl,
   target_observations,
   metrics = NULL,
-  by = NULL,
+  summarize = TRUE,
+  by = "model_id",
   output_type_id_order = NULL
 )
 }
 \arguments{
 \item{model_out_tbl}{Model output tibble with predictions}
 
-\item{target_observations}{Observed 'ground truth' data to be compared against predictions}
+\item{target_observations}{Observed 'ground truth' data to be compared to
+predictions}
 
-\item{metrics}{Optional list of scoring metrics to computeq}
+\item{metrics}{Optional list of scoring metrics to compute. See details for more.}
 
-\item{output_type_id_order}{For ordinal variables in pmf format, this is a vector of levels for pmf forecasts, in
-increasing order of the levels. For all other output types, this is ignored.}
+\item{summarize}{boolean indicator of whether summaries of forecast scores
+should be computed. Defaults to \code{TRUE}.}
+
+\item{by}{character vector naming columns to summarize by. For example,
+specifying \code{by = "model_id"} (the default) will compute average scores for
+each model.}
+
+\item{output_type_id_order}{For ordinal variables in pmf format, this is a
+vector of levels for pmf forecasts, in increasing order of the levels. For
+all other output types, this is ignored.}
 }
 \value{
 forecast_quantile
 }
 \description{
-Score model output predictions against observed data
+Score model output predictions with a single \code{output_type} against observed data
+}
+\details{
+If \code{metrics} is \code{NULL} (the default), this function chooses
+appropriate metrics based on the \code{output_type} contained in the \code{model_out_tbl}:
+\itemize{
+\item For \code{output_type == "quantile"}, we use the default metrics provided by
+\code{scoringutils::metrics_quantile()}: "wis", "overprediction", "underprediction",
+"dispersion", "bias", "interval_coverage_50", "interval_coverage_90",
+"interval_coverage_deviation", and "ae_median"
+\item For \code{output_type == "pmf"} and \code{output_type_id_order} is \code{NULL} (indicating
+that the predicted variable is a nominal variable), we use the default metrics
+provided by \code{scoringutils::metrics_nominal()}, currently just "log_score"
+\item For \code{output_type == "median"}, we use "ae_point"
+\item For \code{output_type == "mean"}, we use "se_point"
+}
+
+It is also possible to directly provide a list of metrics, e.g. as would be
+created by one of those function calls.  Alternatively, a character vector of
+scoring metrics can be provided. In this case, the following options are supported:
+\itemize{
+\item \code{output_type == "median"} and \code{output_type == "median"}:
+\itemize{
+\item "ae": absolute error of a point prediction (generally recommended for the median)
+\item "se": squared error of a point prediction (generally recommended for the mean)
+}
+\item \code{output_type == "quantile"}:
+\itemize{
+\item "ae_median": absolute error of the predictive median (i.e., the quantile at probability level 0.5)
+\item "wis": weighted interval score (WIS) of a collection of quantile predictions
+\item "overprediction": The component of WIS measuring the extent to which
+predictions fell above the observation.
+\item "underprediction": The component of WIS measuring the extent to which
+predictions fell below the observation.
+\item "dispersion":  The component of WIS measuring the dispersion of forecast
+distributions.
+\item "interval_coverage_XX": interval coverage at the "XX" level. For example,
+"interval_coverage_95" is the 95\% interval coverage rate, which would be calculated
+based on quantiles at the probability levels 0.025 and 0.975.
+}
+\item \code{output_type == "pmf"}:
+\itemize{
+\item "log_score": log score
+}
+}
 }
