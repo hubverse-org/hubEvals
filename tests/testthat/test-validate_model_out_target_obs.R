@@ -1,4 +1,4 @@
-test_that("inputs are valid", {
+test_that("validate_model_out_target_obs() throw errors for invalid inputs", {
   expect_error(
     validate_model_out_target_obs(
       model_out_tbl = NULL,
