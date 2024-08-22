@@ -132,7 +132,7 @@ get_metrics_default <- function(output_type, output_type_id_order) {
     # we have already validated `output_type`, so this case should not be
     # triggered; this case is just double checking in case we add something new
     # later, to ensure we update this function.
-    supported_types <- c("mean", "median", "pmf", "quantile")
+    supported_types <- c("mean", "median", "pmf", "quantile") # nolint object_use_linter
     cli::cli_abort(
       "Provided `model_out_tbl` contains `output_type` {.val {output_type}};
       hubEvals currently only supports the following types:
@@ -217,7 +217,7 @@ get_metrics_character <- function(metrics, output_type) {
     # we have already validated `output_type`, so this case should not be
     # triggered; this case is just double checking in case we add something new
     # later, to ensure we update this function.
-    supported_types <- c("mean", "median", "pmf", "quantile")
+    supported_types <- c("mean", "median", "pmf", "quantile") # nolint object_use_linter
     cli::cli_abort(
       "Provided `model_out_tbl` contains `output_type` {.val {output_type}};
       hubEvals currently only supports the following types:
