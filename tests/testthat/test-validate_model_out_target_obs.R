@@ -100,4 +100,3 @@ cli::test_that_cli("validate_model_out_target_obs() throws warning for unexpecte
     )
   )
 })
-

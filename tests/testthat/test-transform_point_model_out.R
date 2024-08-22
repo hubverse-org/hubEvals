@@ -43,7 +43,7 @@ test_that("model_out_tbl_1 output is valid", {
 })
 
 
-test_that("model_out_tbl_1 columns are valid", {
+cli::test_that_cli("transform_point_model_out() throws warning for unexpected columns", {
   # Task IDs: location, reference_date, target_end_date, target
 
   model_out_tbl_1 <- utils::read.csv(test_path("testdata/model_out_tbl_point_1.csv")) |>
@@ -51,16 +51,14 @@ test_that("model_out_tbl_1 columns are valid", {
 
   target_observations_1 <- utils::read.csv(test_path("testdata/target_data_1.csv")) |>
     dplyr::rename(date = target_end_date) # leave location column unchanged
-  suppressWarnings({
-    expect_warning(
-      transform_point_model_out(
-        model_out_tbl = model_out_tbl_1,
-        target_observations = target_observations_1,
-        output_type = "mean"
-      ),
-      regexp = "unexpected column"
+
+  expect_snapshot(
+    transform_point_model_out(
+      model_out_tbl = model_out_tbl_1,
+      target_observations = target_observations_1,
+      output_type = "mean"
     )
-  })
+  )
 })
 
 test_that("transform_point_model_out() works with modified column names", {
@@ -82,7 +80,7 @@ test_that("transform_point_model_out() works with modified column names", {
   expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
 })
 
-test_that("model_out_tbl_1 has any rows", {
+test_that("Errors is thrown when model_out_tbl_1 has no rows", {
   # Error is thrown by checkmate::assert_data_frame() via scoringutils::assert_forecast_generic()
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
