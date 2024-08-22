@@ -20,7 +20,9 @@ test_that("validate_model_out_target_obs() throw errors for invalid inputs", {
     )),
     regexp = "model_out_tbl does not contain required columns: model_id, output_type, output_type_id, value"
   )
+})
 
+test_that("valdiate_model_out_target_obs() works as expected for valid inputs", {
   # all clear
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
