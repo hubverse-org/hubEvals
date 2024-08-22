@@ -1,4 +1,4 @@
-test_that("inputs are valid", {
+test_that("validate_model_out_target_obs() throw errors for invalid inputs", {
   expect_error(
     validate_model_out_target_obs(
       model_out_tbl = NULL,
@@ -20,7 +20,9 @@ test_that("inputs are valid", {
     )),
     regexp = "model_out_tbl does not contain required columns: model_id, output_type, output_type_id, value"
   )
+})
 
+test_that("valdiate_model_out_target_obs() works as expected for valid inputs", {
   # all clear
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
@@ -45,7 +47,7 @@ test_that("inputs are valid", {
 })
 
 
-test_that("test target_observations has observation column", {
+test_that("an error is thrown if target_observations is missing observation column", {
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
@@ -63,7 +65,7 @@ test_that("test target_observations has observation column", {
 })
 
 
-test_that("model_out_tbl columns match target_observations columns", {
+test_that("an error is thrown if model_out_tbl columns do not match target_observations columns", {
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
@@ -80,13 +82,22 @@ test_that("model_out_tbl columns match target_observations columns", {
     regexp = "model_out_tbl and target_observations do not have compatible columns"
   )
 
-  cli::test_that_cli("alert", {
-    expect_snapshot(
-      val_result <- validate_model_out_target_obs(
-        model_out_tbl = model_out_tbl_1 |>
-          dplyr::rename(loc = location),
-        target_observations = target_observations_1
-      )
-    )
-  })
+})
+
+
+test_that("validate_model_out_target_obs() throws error for unexpected columns", {
+  model_out_tbl_1 <- utils::read.csv(
+    test_path("testdata/model_out_tbl_point_1.csv")
+  )
+  target_observations_1 <- utils::read.csv(
+    test_path("testdata/target_data_1.csv")
+  )
+  expect_error(
+    suppressMessages(validate_model_out_target_obs(
+      model_out_tbl = model_out_tbl_1 |>
+        dplyr::rename(loc = location),
+      target_observations = target_observations_1
+    )),
+    regexp = "unexpected column"
+  )
 })
