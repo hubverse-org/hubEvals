@@ -64,7 +64,7 @@ test_that("model_out_tbl_1 columns are valid", {
 })
 
 test_that("model_out_tbl_1 has any rows", {
-  # Error is thrown by scoringutils::assert_forecast_generic()
+  # Error is thrown by checkmate::assert_data_frame() via scoringutils::assert_forecast_generic()
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
