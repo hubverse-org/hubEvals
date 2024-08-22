@@ -1,6 +1,5 @@
-# This file uses test fixture data that is created by in
-# tests/testthat/testdata/make_pmf_test_data.R, and can be loaded by calling the
-# calls
+# This file uses test fixture data that is created in
+# tests/testthat/testdata/make_pmf_test_data.R, and can be loaded by the calls
 #
 # model_out_tbl <- pmf_test_model_out_tbl()
 # target_observations <- pmf_test_target_observations()
