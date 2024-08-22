@@ -47,7 +47,7 @@ test_that("valdiate_model_out_target_obs() works as expected for valid inputs", 
 })
 
 
-test_that("test target_observations has observation column", {
+test_that("an error is thrown if target_observations is missing observation column", {
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
