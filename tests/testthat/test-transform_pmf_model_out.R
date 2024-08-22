@@ -19,7 +19,20 @@ test_that("transform_pmf_model_out succeeds with valid inputs", {
 
   expect_equal(act_forecast, exp_forecast)
 })
+test_that("output_type_id_order is unsupported (fix when supported)", {
+  model_out_tbl <- readRDS(test_path("testdata", "pmf_test_model_out_tbl.rds"))
+  target_observations <- readRDS(test_path("testdata", "pmf_test_target_observations.rds"))
+  exp_forecast <- readRDS(test_path("testdata", "pmf_test_expected_merged_forecast.rds"))
 
+  expect_error(
+    act_forecast <- transform_pmf_model_out(
+      model_out_tbl = model_out_tbl,
+      target_observations = target_observations,
+      output_type_id_order = "excellence"
+    ),
+    regexp = "unsupported"
+  )
+})
 
 test_that("transform_pmf_model_out doesn't depend on specific column names for task id variables", {
   model_out_tbl <- readRDS(test_path("testdata", "pmf_test_model_out_tbl.rds")) |>
