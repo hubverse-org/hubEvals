@@ -47,7 +47,7 @@ test_that("transform_pmf_model_out doesn't depend on specific column names for t
     target_observations = target_observations
   )
 
-  expect_equal(act_forecast, exp_forecast, ignore_attr = "groups")
+  expect_equal(act_forecast, exp_forecast)
 })
 
 
