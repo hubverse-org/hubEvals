@@ -43,7 +43,8 @@ test_that("model_out_tbl_1 output is valid", {
 })
 
 
-cli::test_that_cli("transform_point_model_out() throws warning for unexpected columns", {
+
+test_that("transform_point_model_out() throws error for unexpected columns", {
   # Task IDs: location, reference_date, target_end_date, target
 
   model_out_tbl_1 <- utils::read.csv(test_path("testdata/model_out_tbl_point_1.csv")) |>
@@ -52,12 +53,13 @@ cli::test_that_cli("transform_point_model_out() throws warning for unexpected co
   target_observations_1 <- utils::read.csv(test_path("testdata/target_data_1.csv")) |>
     dplyr::rename(date = target_end_date) # leave location column unchanged
 
-  expect_snapshot(
-    transform_point_model_out(
+  expect_error(
+    suppressMessages(transform_point_model_out(
       model_out_tbl = model_out_tbl_1,
       target_observations = target_observations_1,
       output_type = "mean"
-    )
+    )),
+    regexp = "unexpected column"
   )
 })
 

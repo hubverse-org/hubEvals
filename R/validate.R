@@ -46,7 +46,7 @@ validate_model_out_target_obs <- function(model_out_tbl, target_observations) {
   expected_cols_superset <- c(task_id_cols, "output_type", "output_type_id", "observation")
   unexpected_cols <- t_o_cols[!t_o_cols %in% expected_cols_superset]
   if (length(unexpected_cols) > 0) {
-    cli::cli_alert_warning(
+    cli::cli_abort(
       c(
         "`target_observations` had {length(unexpected_cols)} unexpected column{?s} {.val {unexpected_cols}};",
         " expected the columns of `target_observations` to be a subset of {.val {expected_cols_superset}}."

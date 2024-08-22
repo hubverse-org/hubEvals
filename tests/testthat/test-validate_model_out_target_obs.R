@@ -85,18 +85,19 @@ test_that("an error is thrown if model_out_tbl columns do not match target_obser
 })
 
 
-cli::test_that_cli("validate_model_out_target_obs() throws warning for unexpected columns", {
+test_that("validate_model_out_target_obs() throws error for unexpected columns", {
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
   target_observations_1 <- utils::read.csv(
     test_path("testdata/target_data_1.csv")
   )
-  expect_snapshot(
-    val_result <- validate_model_out_target_obs(
+  expect_error(
+    suppressMessages(validate_model_out_target_obs(
       model_out_tbl = model_out_tbl_1 |>
         dplyr::rename(loc = location),
       target_observations = target_observations_1
-    )
+    )),
+    regexp = "unexpected column"
   )
 })
