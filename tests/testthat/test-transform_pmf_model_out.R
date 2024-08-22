@@ -17,7 +17,7 @@ test_that("transform_pmf_model_out succeeds with valid inputs", {
     target_observations = target_observations
   )
 
-  expect_equal(act_forecast, exp_forecast, ignore_attr = "groups")
+  expect_equal(act_forecast, exp_forecast)
 })
 
 
