@@ -10,13 +10,13 @@ transform_quantile_model_out <- function(model_out_tbl, target_observations) {
   task_id_cols <- get_task_id_cols(model_out_tbl)
 
   model_out_tbl <- model_out_tbl |>
-    dplyr::filter(output_type == "quantile") |>
-    dplyr::mutate(output_type_id = as.numeric(output_type_id)) |>
-    dplyr::rename(model = model_id)
+    dplyr::filter(.data[["output_type"]] == "quantile") |>
+    dplyr::mutate(output_type_id = as.numeric(.data[["output_type_id"]])) |>
+    dplyr::rename(model = "model_id")
 
   if (c("output_type") %in% colnames(target_observations)) {
     target_observations <- target_observations |>
-      dplyr::filter(output_type == "quantile") |>
+      dplyr::filter(.data[["output_type"]] == "quantile") |>
       dplyr::select(-c("output_type", "output_type_id"))
   }
 
