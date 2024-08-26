@@ -427,6 +427,7 @@ test_that("score_model_out errors when model_out_tbl has multiple output_types",
 
 
 test_that("score_model_out errors when invalid interval levels are requested", {
+  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   load(test_path("testdata/forecast_outputs.rda")) # sets forecast_outputs
   load(test_path("testdata/forecast_target_observations.rda")) # sets forecast_target_observations
 
