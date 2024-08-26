@@ -192,8 +192,8 @@ get_metrics_character <- function(metrics, output_type) {
     if (length(invalid_metrics) > 0) {
       cli::cli_abort(
         c(
-          "`metrics` had {length(invalid_metrics)} unsupported metric{?s} for",
-          " `output_type` {.val{output_type}}: {.val {invalid_metrics}};",
+          "`metrics` had {length(invalid_metrics)} unsupported metric{?s} for
+          `output_type` {.val {output_type}}: {.val {invalid_metrics}};",
           " supported metrics include {.val {valid_metrics}}."
         )
       )
