@@ -185,7 +185,7 @@ get_metrics_character <- function(metrics, output_type) {
     other_metric_fns <- scoringutils::metrics_quantile(select = other_metrics)
 
     metric_fns <- c(other_metric_fns, interval_metric_fns)[metrics]
-    return(metric_fns)
+    metrics <- metric_fns
   } else if (output_type == "pmf") {
     valid_metrics <- c("log_score")
     invalid_metrics <- metrics[!metrics %in% valid_metrics]
