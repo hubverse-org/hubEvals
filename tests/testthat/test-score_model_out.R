@@ -126,6 +126,7 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, charact
 
 
 test_that("score_model_out succeeds with valid inputs: mean output_type, function metrics, custom by", {
+  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   load(test_path("testdata/forecast_outputs.rda")) # sets forecast_outputs
   load(test_path("testdata/forecast_target_observations.rda")) # sets forecast_target_observations
 
