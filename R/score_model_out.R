@@ -165,17 +165,12 @@ get_metrics_character <- function(metrics, output_type) {
     # validate metrics
     valid_metrics <- c("ae_median", "wis", "overprediction", "underprediction", "dispersion")
     invalid_metrics <- other_metrics[!other_metrics %in% valid_metrics]
-    valid_metrics <- c(valid_metrics, "interval_coverage_XY")
-    if (length(invalid_metrics) > 0) {
-      cli::cli_abort(
-        c(
-          "`metrics` had {length(invalid_metrics)} unsupported metric{?s} for",
-          " `output_type` {.val {output_type}}: {.val {invalid_metrics}};",
-          " supported metrics include {.val {valid_metrics}}",
-          " where `XY` denotes the coverage level, e.g. \"interval_coverage_95\"."
-        )
-      )
-    }
+    error_if_invalid_metrics(
+      valid_metrics = c(valid_metrics, "interval_coverage_XY"),
+      invalid_metrics = invalid_metrics,
+      output_type = output_type,
+      comment = c("i" = "NOTE: `XY` denotes the coverage level, e.g. {.val interval_coverage_95}.")
+    )
 
     # assemble metric functions
     interval_metric_fns <- lapply(
@@ -194,28 +189,14 @@ get_metrics_character <- function(metrics, output_type) {
   } else if (output_type == "pmf") {
     valid_metrics <- c("log_score")
     invalid_metrics <- metrics[!metrics %in% valid_metrics]
-    if (length(invalid_metrics) > 0) {
-      cli::cli_abort(
-        c(
-          "`metrics` had {length(invalid_metrics)} unsupported metric{?s} for
-          `output_type` {.val {output_type}}: {.val {invalid_metrics}};",
-          " supported metrics include {.val {valid_metrics}}."
-        )
-      )
-    }
+    error_if_invalid_metrics(valid_metrics, invalid_metrics, output_type)
+
     metrics <- scoringutils::metrics_nominal(select = metrics)
   } else if (output_type %in% c("median", "mean")) {
     valid_metrics <- c("ae_point", "se_point")
     invalid_metrics <- metrics[!metrics %in% valid_metrics]
-    if (length(invalid_metrics) > 0) {
-      cli::cli_abort(
-        c(
-          "`metrics` had {length(invalid_metrics)} unsupported metric{?s} for",
-          " `output_type` {.val{output_type}}: {.val {invalid_metrics}};",
-          " supported metrics include {.val {valid_metrics}}."
-        )
-      )
-    }
+    error_if_invalid_metrics(valid_metrics, invalid_metrics, output_type)
+
     metrics <- scoringutils::metrics_point(select = metrics)
   } else {
     # we have already validated `output_type`, so this case should not be
@@ -225,4 +206,19 @@ get_metrics_character <- function(metrics, output_type) {
   }
 
   return(metrics)
+}
+
+
+error_if_invalid_metrics <- function(valid_metrics, invalid_metrics, output_type, comment = NULL) {
+  n <- length(invalid_metrics)
+  if (n > 0) {
+    cli::cli_abort(
+      c(
+        "`metrics` had {n} unsupported metric{?s} for 
+        {.arg output_type} {.val {output_type}}: {.strong {.val {invalid_metrics}}};
+        supported metrics include {.val {valid_metrics}}.",
+        comment
+      )
+    )
+  }
 }
