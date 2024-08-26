@@ -120,15 +120,14 @@ get_metrics <- function(metrics, output_type, output_type_id_order) {
 #'
 #' @noRd
 get_metrics_default <- function(output_type, output_type_id_order) {
-  if (output_type == "quantile") {
-    metrics <- scoringutils::metrics_quantile()
-  } else if (output_type == "pmf") {
-    metrics <- scoringutils::metrics_nominal()
-  } else if (output_type == "mean") {
-    metrics <- scoringutils::metrics_point(select = "se_point")
-  } else if (output_type == "median") {
-    metrics <- scoringutils::metrics_point(select = "ae_point")
-  } else {
+  metrics <- switch(output_type,
+    quantile = scoringutils::metrics_quantile(),
+    pmf = scoringutils::metrics_nominal(),
+    mean = scoringutils::metrics_point(select = "se_point"),
+    median = scoringutils::metrics_point(select = "ae_point"),
+    NULL # default
+  )
+  if (is.null(metrics)) {
     # we have already validated `output_type`, so this case should not be
     # triggered; this case is just double checking in case we add something new
     # later, to ensure we update this function.
