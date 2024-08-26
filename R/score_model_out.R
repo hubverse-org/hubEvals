@@ -60,13 +60,13 @@ score_model_out <- function(model_out_tbl, target_observations, metrics = NULL,
   metrics <- get_metrics(metrics, output_type, output_type_id_order)
 
   # assemble data for scoringutils and select output_type-specific metrics
-  if (output_type == "quantile") {
-    su_data <- transform_quantile_model_out(model_out_tbl, target_observations)
-  } else if (output_type == "pmf") {
-    su_data <- transform_pmf_model_out(model_out_tbl, target_observations, output_type_id_order)
-  } else if (output_type %in% c("mean", "median")) {
-    su_data <- transform_point_model_out(model_out_tbl, target_observations, output_type)
-  }
+  su_data <- switch(output_type,
+    quantile = transform_quantile_model_out(model_out_tbl, target_observations),
+    pmf = transform_pmf_model_out(model_out_tbl, target_observations, output_type_id_order),
+    mean = transform_point_model_out(model_out_tbl, target_observations, output_type),
+    median = transform_point_model_out(model_out_tbl, target_observations, output_type),
+    NULL # default, should not happen because of the validation above
+  )
 
   # compute scores
   scores <- scoringutils::score(su_data, metrics)
