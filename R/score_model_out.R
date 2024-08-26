@@ -51,6 +51,32 @@
 #' only validates that a list of functions has been provided; no checks for the
 #' statistical validity of these metric functions are done.
 #'
+#' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
+#' # compute WIS and interval coverage rates at 80% and 90% levels based on
+#' # quantile forecasts, summarized by the mean score for each model
+#' quantile_scores <- score_model_out(
+#'   model_out_tbl = hubExamples::forecast_outputs |>
+#'     dplyr::filter(.data[["output_type"]] == "quantile"),
+#'   target_observations = hubExamples::forecast_target_observations,
+#'   metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
+#'   by = c("model_id")
+#' )
+#' quantile_scores
+#'
+#' # compute log scores based on pmf predictions for categorical targets,
+#' # summarized by the mean score for each combination of model and location.
+#' # Note: if the model_out_tbl had forecasts for multiple targets using a
+#' # pmf output_type with different bins, it would be necessary to score the
+#' # predictions for those targets separately.
+#' pmf_scores <- score_model_out(
+#'   model_out_tbl = hubExamples::forecast_outputs |>
+#'     dplyr::filter(.data[["output_type"]] == "pmf"),
+#'   target_observations = hubExamples::forecast_target_observations,
+#'   metrics = "log_score",
+#'   by = c("model_id", "location", "horizon")
+#' )
+#' head(pmf_scores)
+#'
 #' @return forecast_quantile
 #'
 #' @export
@@ -64,7 +90,7 @@ score_model_out <- function(model_out_tbl, target_observations, metrics = NULL,
   # get/validate the scoring metrics
   metrics <- get_metrics(metrics, output_type, output_type_id_order)
 
-  # assemble data for scoringutils and select output_type-specific metrics
+  # assemble data for scoringutils
   su_data <- switch(output_type,
     quantile = transform_quantile_model_out(model_out_tbl, target_observations),
     pmf = transform_pmf_model_out(model_out_tbl, target_observations, output_type_id_order),
@@ -77,10 +103,7 @@ score_model_out <- function(model_out_tbl, target_observations, metrics = NULL,
   scores <- scoringutils::score(su_data, metrics)
 
   # switch back to hubverse naming conventions for model name
-  scores <- dplyr::rename(
-    scores,
-    model_id = "model"
-  )
+  scores <- dplyr::rename(scores, model_id = "model")
 
   # if present, drop predicted and observed columns
   drop_cols <- c("predicted", "observed")

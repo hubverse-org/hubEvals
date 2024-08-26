@@ -87,3 +87,31 @@ the \verb{scoringutils::metrics_*} methods. Note that in this case, \code{hubEva
 only validates that a list of functions has been provided; no checks for the
 statistical validity of these metric functions are done.
 }
+\examples{
+\dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# compute WIS and interval coverage rates at 80\% and 90\% levels based on
+# quantile forecasts, summarized by the mean score for each model
+quantile_scores <- score_model_out(
+  model_out_tbl = hubExamples::forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile"),
+  target_observations = hubExamples::forecast_target_observations,
+  metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
+  by = c("model_id")
+)
+quantile_scores
+
+# compute log scores based on pmf predictions for categorical targets,
+# summarized by the mean score for each combination of model and location.
+# Note: if the model_out_tbl had forecasts for multiple targets using a
+# pmf output_type with different bins, it would be necessary to score the
+# predictions for those targets separately.
+pmf_scores <- score_model_out(
+  model_out_tbl = hubExamples::forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "pmf"),
+  target_observations = hubExamples::forecast_target_observations,
+  metrics = "log_score",
+  by = c("model_id", "location", "horizon")
+)
+head(pmf_scores)
+\dontshow{\}) # examplesIf}
+}
