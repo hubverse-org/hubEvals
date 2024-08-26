@@ -83,6 +83,13 @@ validate_output_type <- function(model_out_tbl) {
     )
   }
 
+  error_if_invalid_output_type(output_type)
+
+  return(output_type)
+}
+
+
+error_if_invalid_output_type <- function(output_type) {
   supported_types <- c("mean", "median", "pmf", "quantile")
   if (!output_type %in% supported_types) {
     cli::cli_abort(
@@ -91,6 +98,4 @@ validate_output_type <- function(model_out_tbl) {
       {.val {supported_types}}"
     )
   }
-
-  return(output_type)
 }

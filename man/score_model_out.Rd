@@ -53,9 +53,8 @@ provided by \code{scoringutils::metrics_nominal()}, currently just "log_score"
 \item For \code{output_type == "mean"}, we use "se_point"
 }
 
-It is also possible to directly provide a list of metrics, e.g. as would be
-created by one of those function calls.  Alternatively, a character vector of
-scoring metrics can be provided. In this case, the following options are supported:
+Alternatively, a character vector of scoring metrics can be provided. In this
+case, the following options are supported:
 \itemize{
 \item \code{output_type == "median"} and \code{output_type == "median"}:
 \itemize{
@@ -81,4 +80,10 @@ based on quantiles at the probability levels 0.025 and 0.975.
 \item "log_score": log score
 }
 }
+
+For more flexibility, it is also possible to directly provide a list of
+functions to compute the desired metrics, e.g. as would be created by one of
+the \verb{scoringutils::metrics_*} methods. Note that in this case, \code{hubEvals}
+only validates that a list of functions has been provided; no checks for the
+statistical validity of these metric functions are done.
 }

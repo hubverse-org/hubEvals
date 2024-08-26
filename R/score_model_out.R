@@ -25,9 +25,8 @@
 #' - For `output_type == "median"`, we use "ae_point"
 #' - For `output_type == "mean"`, we use "se_point"
 #'
-#' It is also possible to directly provide a list of metrics, e.g. as would be
-#' created by one of those function calls.  Alternatively, a character vector of
-#' scoring metrics can be provided. In this case, the following options are supported:
+#' Alternatively, a character vector of scoring metrics can be provided. In this
+#' case, the following options are supported:
 #' - `output_type == "median"` and `output_type == "median"`:
 #'     - "ae": absolute error of a point prediction (generally recommended for the median)
 #'     - "se": squared error of a point prediction (generally recommended for the mean)
@@ -45,6 +44,12 @@
 #' based on quantiles at the probability levels 0.025 and 0.975.
 #' - `output_type == "pmf"`:
 #'     - "log_score": log score
+#'
+#' For more flexibility, it is also possible to directly provide a list of
+#' functions to compute the desired metrics, e.g. as would be created by one of
+#' the `scoringutils::metrics_*` methods. Note that in this case, `hubEvals`
+#' only validates that a list of functions has been provided; no checks for the
+#' statistical validity of these metric functions are done.
 #'
 #' @return forecast_quantile
 #'
@@ -216,12 +221,7 @@ get_metrics_character <- function(metrics, output_type) {
     # we have already validated `output_type`, so this case should not be
     # triggered; this case is just double checking in case we add something new
     # later, to ensure we update this function.
-    supported_types <- c("mean", "median", "pmf", "quantile") # nolint object_use_linter
-    cli::cli_abort(
-      "Provided `model_out_tbl` contains `output_type` {.val {output_type}};
-      hubEvals currently only supports the following types:
-      {.val {supported_types}}"
-    )
+    error_if_invalid_output_type(output_type)
   }
 
   return(metrics)
