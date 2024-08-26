@@ -352,7 +352,8 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
       interval_coverage_80 = as.logical((sum(.data[["q_coverage_80_lower"]], na.rm = TRUE) == 1) *
                                           (sum(.data[["q_coverage_80_upper"]], na.rm = TRUE) == 1)),
       interval_coverage_90 = as.logical((sum(.data[["q_coverage_90_lower"]], na.rm = TRUE) == 1) *
-                                          (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1))
+                                          (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1)),
+      .groups = "drop"
     )
 
   # same column names, number of rows, and score values
