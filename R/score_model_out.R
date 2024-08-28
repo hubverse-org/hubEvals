@@ -6,7 +6,7 @@
 #' @param metrics Optional list of scoring metrics to compute. See details for more.
 #' @param summarize Boolean indicator of whether summaries of forecast scores
 #' should be computed. Defaults to `TRUE`.
-#' @param by character vector naming columns to summarize by. For example,
+#' @param by Character vector naming columns to summarize by. For example,
 #' specifying `by = "model_id"` (the default) will compute average scores for
 #' each model.
 #' @param output_type_id_order For ordinal variables in pmf format, this is a
