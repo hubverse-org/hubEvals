@@ -15,22 +15,23 @@
 #'
 #' @details If `metrics` is `NULL` (the default), this function chooses
 #' appropriate metrics based on the `output_type` contained in the `model_out_tbl`:
-#' - For `output_type == "quantile"`, we use the default metrics provided by
-#' `scoringutils::metrics_quantile()`: "wis", "overprediction", "underprediction",
-#' "dispersion", "bias", "interval_coverage_50", "interval_coverage_90",
-#' "interval_coverage_deviation", and "ae_median"
-#' - For `output_type == "pmf"` and `output_type_id_order` is `NULL` (indicating
-#' that the predicted variable is a nominal variable), we use the default metrics
-#' provided by `scoringutils::metrics_nominal()`, currently just "log_score"
-#' - For `output_type == "median"`, we use "ae_point"
-#' - For `output_type == "mean"`, we use "se_point"
+#' \itemize{
+#'   \item For `output_type == "quantile"`, we use the default metrics provided by
+#' `scoringutils::metrics_quantile()`: `r names(scoringutils::metrics_quantile())`
+#'   \item For `output_type == "pmf"` and `output_type_id_order` is `NULL` (indicating
+#' that the predicted variable is a nominal variable), we use the default metric
+#' provided by `scoringutils::metrics_nominal()`,
+#' `r names(scoringutils::metrics_nominal())`
+#'   \item For `output_type == "median"`, we use "ae_point"
+#'   \item For `output_type == "mean"`, we use "se_point"
+#' }
 #'
 #' Alternatively, a character vector of scoring metrics can be provided. In this
 #' case, the following options are supported:
-#' - `output_type == "median"` and `output_type == "median"`:
-#'     - "ae": absolute error of a point prediction (generally recommended for the median)
-#'     - "se": squared error of a point prediction (generally recommended for the mean)
-#' - `output_type == "quantile"`:
+#'   - `output_type == "median"` and `output_type == "mean"`:
+#'     - "ae_point": absolute error of a point prediction (generally recommended for the median)
+#'     - "se_point": squared error of a point prediction (generally recommended for the mean)
+#'   - `output_type == "quantile"`:
 #'     - "ae_median": absolute error of the predictive median (i.e., the quantile at probability level 0.5)
 #'     - "wis": weighted interval score (WIS) of a collection of quantile predictions
 #'     - "overprediction": The component of WIS measuring the extent to which
@@ -42,7 +43,7 @@
 #'     - "interval_coverage_XX": interval coverage at the "XX" level. For example,
 #' "interval_coverage_95" is the 95% interval coverage rate, which would be calculated
 #' based on quantiles at the probability levels 0.025 and 0.975.
-#' - `output_type == "pmf"`:
+#'   - `output_type == "pmf"`:
 #'     - "log_score": log score
 #'
 #' For more flexibility, it is also possible to directly provide a list of

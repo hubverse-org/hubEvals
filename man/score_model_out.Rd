@@ -43,12 +43,11 @@ If \code{metrics} is \code{NULL} (the default), this function chooses
 appropriate metrics based on the \code{output_type} contained in the \code{model_out_tbl}:
 \itemize{
 \item For \code{output_type == "quantile"}, we use the default metrics provided by
-\code{scoringutils::metrics_quantile()}: "wis", "overprediction", "underprediction",
-"dispersion", "bias", "interval_coverage_50", "interval_coverage_90",
-"interval_coverage_deviation", and "ae_median"
+\code{scoringutils::metrics_quantile()}: wis, overprediction, underprediction, dispersion, bias, interval_coverage_50, interval_coverage_90, interval_coverage_deviation, ae_median
 \item For \code{output_type == "pmf"} and \code{output_type_id_order} is \code{NULL} (indicating
-that the predicted variable is a nominal variable), we use the default metrics
-provided by \code{scoringutils::metrics_nominal()}, currently just "log_score"
+that the predicted variable is a nominal variable), we use the default metric
+provided by \code{scoringutils::metrics_nominal()},
+log_score
 \item For \code{output_type == "median"}, we use "ae_point"
 \item For \code{output_type == "mean"}, we use "se_point"
 }
@@ -56,10 +55,10 @@ provided by \code{scoringutils::metrics_nominal()}, currently just "log_score"
 Alternatively, a character vector of scoring metrics can be provided. In this
 case, the following options are supported:
 \itemize{
-\item \code{output_type == "median"} and \code{output_type == "median"}:
+\item \code{output_type == "median"} and \code{output_type == "mean"}:
 \itemize{
-\item "ae": absolute error of a point prediction (generally recommended for the median)
-\item "se": squared error of a point prediction (generally recommended for the mean)
+\item "ae_point": absolute error of a point prediction (generally recommended for the median)
+\item "se_point": squared error of a point prediction (generally recommended for the mean)
 }
 \item \code{output_type == "quantile"}:
 \itemize{
