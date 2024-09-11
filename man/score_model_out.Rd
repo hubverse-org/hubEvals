@@ -19,12 +19,12 @@ score_model_out(
 \item{target_observations}{Observed 'ground truth' data to be compared to
 predictions}
 
-\item{metrics}{Optional list of scoring metrics to compute. See details for more.}
+\item{metrics}{Optional character vector of scoring metrics to compute. See details for more.}
 
-\item{summarize}{boolean indicator of whether summaries of forecast scores
+\item{summarize}{Boolean indicator of whether summaries of forecast scores
 should be computed. Defaults to \code{TRUE}.}
 
-\item{by}{character vector naming columns to summarize by. For example,
+\item{by}{Character vector naming columns to summarize by. For example,
 specifying \code{by = "model_id"} (the default) will compute average scores for
 each model.}
 
@@ -79,12 +79,6 @@ based on quantiles at the probability levels 0.025 and 0.975.
 \item "log_score": log score
 }
 }
-
-For more flexibility, it is also possible to directly provide a list of
-functions to compute the desired metrics, e.g. as would be created by one of
-the \verb{scoringutils::metrics_*} methods. Note that in this case, \code{hubEvals}
-only validates that a list of functions has been provided; no checks for the
-statistical validity of these metric functions are done.
 }
 \examples{
 \dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -95,7 +89,7 @@ quantile_scores <- score_model_out(
     dplyr::filter(.data[["output_type"]] == "quantile"),
   target_observations = hubExamples::forecast_target_observations,
   metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
-  by = c("model_id")
+  by = "model_id"
 )
 quantile_scores
 
