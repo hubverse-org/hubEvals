@@ -125,54 +125,6 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, charact
 })
 
 
-test_that("score_model_out succeeds with valid inputs: mean output_type, function metrics, custom by", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  load(test_path("testdata/forecast_outputs.rda")) # sets forecast_outputs
-  load(test_path("testdata/forecast_target_observations.rda")) # sets forecast_target_observations
-
-  act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
-    target_observations = forecast_target_observations,
-    metrics = scoringutils::metrics_point(),
-    by = c("model_id", "location")
-  )
-
-  exp_scores <- forecast_outputs |>
-    dplyr::filter(.data[["output_type"]] == "mean") |>
-    dplyr::left_join(
-      forecast_target_observations |>
-        dplyr::filter(.data[["output_type"]] == "mean"),
-      by = c("location", "target_end_date", "target")
-    ) |>
-    dplyr::mutate(
-      ae = abs(.data[["value"]] - .data[["observation"]]),
-      se = (.data[["value"]] - .data[["observation"]])^2,
-      pe = abs(.data[["value"]] - .data[["observation"]]) / abs(.data[["observation"]])
-    ) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location")
-    ))) |>
-    dplyr::summarize(
-      ae_point = mean(.data[["ae"]]),
-      se_point = mean(.data[["se"]]),
-      ape = mean(.data[["pe"]]),
-      .groups = "drop"
-    )
-
-  # same column names, number of rows, and score values
-  expect_equal(colnames(act_scores), colnames(exp_scores))
-  expect_equal(nrow(act_scores), nrow(exp_scores))
-  merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
-    by = c("model_id", "location")
-  )
-  expect_equal(nrow(act_scores), nrow(merged_scores))
-  expect_equal(merged_scores$ae_point.x, merged_scores$ae_point.y)
-  expect_equal(merged_scores$se_point.x, merged_scores$se_point.y)
-  expect_equal(merged_scores$ape.x, merged_scores$ape.y)
-})
-
-
 test_that("score_model_out succeeds with valid inputs: median output_type, default metrics, summarize FALSE", {
   # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   load(test_path("testdata/forecast_outputs.rda")) # sets forecast_outputs
@@ -482,7 +434,17 @@ test_that("score_model_out errors when invalid metrics are requested", {
       target_observations = forecast_target_observations,
       metrics = list(5, 6, "asdf")
     ),
-    regexp = "Assertion on 'metrics' failed"
+    regexp = "`metrics` must be either `NULL` or a character vector of supported metrics."
+  )
+
+  expect_error(
+    score_model_out(
+      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
+      target_observations = forecast_target_observations,
+      metrics = scoringutils::metrics_point(),
+      by = c("model_id", "location")
+    ),
+    regexp = "`metrics` must be either `NULL` or a character vector of supported metrics."
   )
 })
 

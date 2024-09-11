@@ -3,7 +3,7 @@
 #' @param model_out_tbl Model output tibble with predictions
 #' @param target_observations Observed 'ground truth' data to be compared to
 #' predictions
-#' @param metrics Optional list of scoring metrics to compute. See details for more.
+#' @param metrics Optional character vector of scoring metrics to compute. See details for more.
 #' @param summarize Boolean indicator of whether summaries of forecast scores
 #' should be computed. Defaults to `TRUE`.
 #' @param by Character vector naming columns to summarize by. For example,
@@ -46,12 +46,6 @@
 #'   - `output_type == "pmf"`:
 #'     - "log_score": log score
 #'
-#' For more flexibility, it is also possible to directly provide a list of
-#' functions to compute the desired metrics, e.g. as would be created by one of
-#' the `scoringutils::metrics_*` methods. Note that in this case, `hubEvals`
-#' only validates that a list of functions has been provided; no checks for the
-#' statistical validity of these metric functions are done.
-#'
 #' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
 #' # compute WIS and interval coverage rates at 80% and 90% levels based on
 #' # quantile forecasts, summarized by the mean score for each model
@@ -60,7 +54,7 @@
 #'     dplyr::filter(.data[["output_type"]] == "quantile"),
 #'   target_observations = hubExamples::forecast_target_observations,
 #'   metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
-#'   by = c("model_id")
+#'   by = "model_id"
 #' )
 #' quantile_scores
 #'
@@ -133,10 +127,9 @@ get_metrics <- function(metrics, output_type, output_type_id_order) {
   } else if (is.character(metrics)) {
     return(get_metrics_character(metrics, output_type))
   } else {
-    # We do a minimal preliminary check that the provided `metrics` is a list of
-    # functions, leaving further checks to scoringutils
-    checkmate::assert_list(metrics, types = "function")
-    return(metrics)
+    cli::cli_abort(
+      "{.arg metrics} must be either `NULL` or a character vector of supported metrics."
+    )
   }
 }
 
