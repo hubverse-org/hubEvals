@@ -38,14 +38,17 @@ Description:
     basic tools for scoring hubverse forecasts.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Imports: 
+Imports:
+    checkmate, 
     cli,
     dplyr,
     hubUtils,
+    purrr,
     rlang,
     scoringutils (>= 1.2.2.9000)
 Remotes:
     epiforecasts/scoringutils,
+    hubverse-org/hubExamples,
     hubverse-org/hubUtils
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
@@ -55,5 +58,6 @@ Depends:
 LazyData: true
 Config/Needs/website: hubverse-org/hubStyle
 Suggests: 
+    hubExamples,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
