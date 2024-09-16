@@ -43,13 +43,16 @@ If \code{metrics} is \code{NULL} (the default), this function chooses
 appropriate metrics based on the \code{output_type} contained in the \code{model_out_tbl}:
 \itemize{
 \item For \code{output_type == "quantile"}, we use the default metrics provided by
-\code{scoringutils::metrics_quantile()}: wis, overprediction, underprediction, dispersion, bias, interval_coverage_50, interval_coverage_90, interval_coverage_deviation, ae_median
+\code{scoringutils}:
+\verb{r names(scoringutils::get_metrics(scoringutils::example_quantile))}
 \item For \code{output_type == "pmf"} and \code{output_type_id_order} is \code{NULL} (indicating
 that the predicted variable is a nominal variable), we use the default metric
-provided by \code{scoringutils::metrics_nominal()},
-log_score
+provided by \code{scoringutils}:,
+\verb{r names(scoringutils::get_metrics(scoringutils::example_nominal))}
+\itemize{
 \item For \code{output_type == "median"}, we use "ae_point"
 \item For \code{output_type == "mean"}, we use "se_point"
+}
 }
 
 Alternatively, a character vector of scoring metrics can be provided. In this
@@ -79,6 +82,9 @@ based on quantiles at the probability levels 0.025 and 0.975.
 \item "log_score": log score
 }
 }
+
+See \code{\link[scoringutils:get_metrics]{scoringutils::get_metrics()}} for more details on the default meterics
+used by \code{scoringutils}.
 }
 \examples{
 \dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
