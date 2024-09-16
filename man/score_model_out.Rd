@@ -114,6 +114,6 @@ head(pmf_scores)
 \dontshow{\}) # examplesIf}
 }
 \references{
-#' Making and Evaluating Point Forecasts, Gneiting, Tilmann, 2011,
+Making and Evaluating Point Forecasts, Gneiting, Tilmann, 2011,
 Journal of the American Statistical Association.
 }
