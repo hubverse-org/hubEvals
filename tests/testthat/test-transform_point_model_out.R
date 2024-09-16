@@ -146,5 +146,3 @@ test_that("hubExamples data set is transformed correctly", {
   )
   expect_equal(as.data.frame(act_forecast), as.data.frame(exp_forecast))
 })
-
-

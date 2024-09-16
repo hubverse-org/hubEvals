@@ -464,4 +464,3 @@ test_that("score_model_out errors when an unsupported output_type is provided", 
     regexp = "only supports the following types"
   )
 })
-
