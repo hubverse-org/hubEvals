@@ -2,7 +2,7 @@
 % Please edit documentation in R/score_model_out.R
 \name{score_model_out}
 \alias{score_model_out}
-\title{Score model output predictions with a single \code{output_type} against observed data}
+\title{Score model output predictions}
 \usage{
 score_model_out(
   model_out_tbl,
@@ -19,7 +19,9 @@ score_model_out(
 \item{target_observations}{Observed 'ground truth' data to be compared to
 predictions}
 
-\item{metrics}{Optional character vector of scoring metrics to compute. See details for more.}
+\item{metrics}{Character vector of scoring metrics to compute. If \code{NULL}
+(the default), appropriate metrics are chosen automatically. See details
+for more.}
 
 \item{summarize}{Boolean indicator of whether summaries of forecast scores
 should be computed. Defaults to \code{TRUE}.}
@@ -33,57 +35,55 @@ vector of levels for pmf forecasts, in increasing order of the levels. For
 all other output types, this is ignored.}
 }
 \value{
-forecast_quantile
+A data.table with scores
 }
 \description{
-Score model output predictions with a single \code{output_type} against observed data
+Scores model outputs with a single \code{output_type} against observed data.
 }
 \details{
-If \code{metrics} is \code{NULL} (the default), this function chooses
-appropriate metrics based on the \code{output_type} contained in the \code{model_out_tbl}:
+Default metrics are provided by the \code{scoringutils} package. You can select
+metrics by passing in a character vector of metric names to the \code{metrics}
+argument.
 
-\itemize{
-\item For \code{output_type == "quantile"}, we use the default metrics provided by
-\code{scoringutils}:
-wis, overprediction, underprediction, dispersion, bias, interval_coverage_50, interval_coverage_90, interval_coverage_deviation, ae_median
-\item For \code{output_type == "pmf"} and \code{output_type_id_order} is \code{NULL} (indicating
-that the predicted variable is a nominal variable), we use the default metric
-provided by \code{scoringutils}:
-log_score
-\item For \code{output_type == "median"}, we use "ae_point"
-\item For \code{output_type == "mean"}, we use "se_point"
-}
+The following metrics can be selected (all are used by default) for the
+different \code{output_type}s:
 
-Alternatively, a character vector of scoring metrics can be provided. In this
-case, the following options are supported:
+\strong{Quantile forecasts:} (\code{output_type == "quantile"})
 \itemize{
-\item \code{output_type == "median"} and \code{output_type == "mean"}:
-\itemize{
-\item "ae_point": absolute error of a point prediction (generally recommended for the median)
-\item "se_point": squared error of a point prediction (generally recommended for the mean)
-}
-\item \code{output_type == "quantile"}:
-\itemize{
-\item "ae_median": absolute error of the predictive median (i.e., the quantile at probability level 0.5)
-\item "wis": weighted interval score (WIS) of a collection of quantile predictions
-\item "overprediction": The component of WIS measuring the extent to which
-predictions fell above the observation.
-\item "underprediction": The component of WIS measuring the extent to which
-predictions fell below the observation.
-\item "dispersion":  The component of WIS measuring the dispersion of forecast
-distributions.
+\item wis
+\item overprediction
+\item underprediction
+\item dispersion
+\item bias
+\item interval_coverage_deviation
+\item ae_median
 \item "interval_coverage_XX": interval coverage at the "XX" level. For example,
 "interval_coverage_95" is the 95\% interval coverage rate, which would be calculated
 based on quantiles at the probability levels 0.025 and 0.975.
 }
-\item \code{output_type == "pmf"}:
+
+See \link[scoringutils:get_metrics.forecast_quantile]{scoringutils::get_metrics.forecast_quantile} for details.
+
+\strong{Nominal forecasts:} (\code{output_type == "pmf"} and \code{output_type_id_order} is \code{NULL})
 \itemize{
-\item "log_score": log score
-}
+\item log_score
 }
 
-See \code{\link[scoringutils:get_metrics]{scoringutils::get_metrics()}} for more details on the default metrics
-used by \code{scoringutils}.
+(scoring for ordinal forecasts will be added in the future).
+
+See \link[scoringutils:get_metrics.forecast_nominal]{scoringutils::get_metrics.forecast_nominal} for details.
+
+\strong{Median forecasts:} (\code{output_type == "median"})
+\itemize{
+\item ae_point: absolute error of the point forecast (recommended for the median, see Gneiting (2011))
+}
+
+See \link[scoringutils:get_metrics.forecast_point]{scoringutils::get_metrics.forecast_point} for details.
+
+\strong{Mean forecasts:} (\code{output_type == "mean"})
+\itemize{
+\item \code{se_point}: squared error of the point forecast (recommended for the mean, see Gneiting (2011))
+}
 }
 \examples{
 \dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -112,4 +112,8 @@ pmf_scores <- score_model_out(
 )
 head(pmf_scores)
 \dontshow{\}) # examplesIf}
+}
+\references{
+#' Making and Evaluating Point Forecasts, Gneiting, Tilmann, 2011,
+Journal of the American Statistical Association.
 }

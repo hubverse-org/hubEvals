@@ -107,7 +107,6 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, charact
       c("model_id", "location")
     ))) |>
     dplyr::summarize(
-      ae_point = mean(.data[["ae"]]),
       se_point = mean(.data[["se"]]),
       .groups = "drop"
     )
@@ -380,7 +379,7 @@ test_that("score_model_out errors when model_out_tbl has multiple output_types",
 })
 
 
-test_that("score_model_out errors when invalid interval levels are requested", {
+test_that("score_model_out works with all kinds of interval levels are requested", {
   # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   load(test_path("testdata/forecast_outputs.rda")) # sets forecast_outputs
   load(test_path("testdata/forecast_target_observations.rda")) # sets forecast_target_observations
@@ -389,27 +388,36 @@ test_that("score_model_out errors when invalid interval levels are requested", {
     score_model_out(
       model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
       target_observations = forecast_target_observations,
-      metrics = "interval_level_5"
+      metrics = "interval_coverage_5d2a"
     ),
-    regexp = "unsupported metric"
+    regexp = "must be a number between 0 and 100"
+  )
+
+  expect_warning(
+    score_model_out(
+      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      target_observations = forecast_target_observations,
+      metrics = "interval_coverage_55"
+    ),
+    "To compute the interval coverage for an interval range of" #scoringutils warning
   )
 
   expect_error(
     score_model_out(
       model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
       target_observations = forecast_target_observations,
-      metrics = "interval_level_100"
+      metrics = "interval_coverage_100"
     ),
-    regexp = "unsupported metric"
+    regexp = "must be a number between 0 and 100"
   )
 
-  expect_error(
+  expect_warning(
     score_model_out(
       model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
       target_observations = forecast_target_observations,
-      metrics = "interval_level_XY"
+      metrics = "interval_coverage_5.3"
     ),
-    regexp = "unsupported metric"
+    "To compute the interval coverage for an interval range of" #scoringutils warning
   )
 })
 
@@ -425,7 +433,7 @@ test_that("score_model_out errors when invalid metrics are requested", {
       target_observations = forecast_target_observations,
       metrics = "log_score"
     ),
-    regexp = "unsupported metric"
+    regexp = "has additional elements"
   )
 
   expect_error(
@@ -434,7 +442,8 @@ test_that("score_model_out errors when invalid metrics are requested", {
       target_observations = forecast_target_observations,
       metrics = list(5, 6, "asdf")
     ),
-    regexp = "`metrics` must be either `NULL` or a character vector of supported metrics."
+    regexp =
+      "^Assertion on 'c\\(select, exclude\\)' failed: Must be of type 'character' \\(or 'NULL'\\), not 'list'\\.$"
   )
 
   expect_error(
@@ -444,7 +453,8 @@ test_that("score_model_out errors when invalid metrics are requested", {
       metrics = scoringutils::get_metrics(scoringutils::example_point),
       by = c("model_id", "location")
     ),
-    regexp = "`metrics` must be either `NULL` or a character vector of supported metrics."
+    regexp =
+      "^Assertion on 'c\\(select, exclude\\)' failed: Must be of type 'character' \\(or 'NULL'\\), not 'list'\\.$"
   )
 })
 
