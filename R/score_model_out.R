@@ -16,15 +16,17 @@
 #' @details If `metrics` is `NULL` (the default), this function chooses
 #' appropriate metrics based on the `output_type` contained in the `model_out_tbl`:
 #'
-#' - For `output_type == "quantile"`, we use the default metrics provided by
+#' \itemize{
+#' \item For `output_type == "quantile"`, we use the default metrics provided by
 #' `scoringutils`:
 #' `r names(scoringutils::get_metrics(scoringutils::example_quantile))`
-#' - For `output_type == "pmf"` and `output_type_id_order` is `NULL` (indicating
+#' \item For `output_type == "pmf"` and `output_type_id_order` is `NULL` (indicating
 #' that the predicted variable is a nominal variable), we use the default metric
-#' provided by `scoringutils`:,
+#' provided by `scoringutils`:
 #' `r names(scoringutils::get_metrics(scoringutils::example_nominal))`
-#'   - For `output_type == "median"`, we use "ae_point"
-#'   - For `output_type == "mean"`, we use "se_point"
+#'   \item For `output_type == "median"`, we use "ae_point"
+#'   \item For `output_type == "mean"`, we use "se_point"
+#' }
 #'
 #' Alternatively, a character vector of scoring metrics can be provided. In this
 #' case, the following options are supported:
@@ -46,7 +48,7 @@
 #'   - `output_type == "pmf"`:
 #'     - "log_score": log score
 #'
-#' See [scoringutils::get_metrics()] for more details on the default meterics
+#' See [scoringutils::get_metrics()] for more details on the default metrics
 #' used by `scoringutils`.
 #'
 #' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
