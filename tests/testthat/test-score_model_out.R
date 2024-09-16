@@ -441,7 +441,7 @@ test_that("score_model_out errors when invalid metrics are requested", {
     score_model_out(
       model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
       target_observations = forecast_target_observations,
-      metrics = scoringutils::metrics_point(),
+      metrics = scoringutils::get_metrics(scoringutils::example_point),
       by = c("model_id", "location")
     ),
     regexp = "`metrics` must be either `NULL` or a character vector of supported metrics."
@@ -464,3 +464,4 @@ test_that("score_model_out errors when an unsupported output_type is provided", 
     regexp = "only supports the following types"
   )
 })
+

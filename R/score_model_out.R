@@ -15,16 +15,16 @@
 #'
 #' @details If `metrics` is `NULL` (the default), this function chooses
 #' appropriate metrics based on the `output_type` contained in the `model_out_tbl`:
-#' \itemize{
-#'   \item For `output_type == "quantile"`, we use the default metrics provided by
-#' `scoringutils::metrics_quantile()`: `r names(scoringutils::metrics_quantile())`
-#'   \item For `output_type == "pmf"` and `output_type_id_order` is `NULL` (indicating
+#'
+#' - For `output_type == "quantile"`, we use the default metrics provided by
+#' `scoringutils`:
+#' `r names(scoringutils::get_metrics(scoringutils::example_quantile))`
+#' - For `output_type == "pmf"` and `output_type_id_order` is `NULL` (indicating
 #' that the predicted variable is a nominal variable), we use the default metric
-#' provided by `scoringutils::metrics_nominal()`,
-#' `r names(scoringutils::metrics_nominal())`
-#'   \item For `output_type == "median"`, we use "ae_point"
-#'   \item For `output_type == "mean"`, we use "se_point"
-#' }
+#' provided by `scoringutils`:,
+#' `r names(scoringutils::get_metrics(scoringutils::example_nominal))`
+#'   - For `output_type == "median"`, we use "ae_point"
+#'   - For `output_type == "mean"`, we use "se_point"
 #'
 #' Alternatively, a character vector of scoring metrics can be provided. In this
 #' case, the following options are supported:
@@ -45,6 +45,9 @@
 #' based on quantiles at the probability levels 0.025 and 0.975.
 #'   - `output_type == "pmf"`:
 #'     - "log_score": log score
+#'
+#' See [scoringutils::get_metrics()] for more details on the default meterics
+#' used by `scoringutils`.
 #'
 #' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
 #' # compute WIS and interval coverage rates at 80% and 90% levels based on
@@ -143,10 +146,10 @@ get_metrics <- function(metrics, output_type, output_type_id_order) {
 #' @noRd
 get_metrics_default <- function(output_type, output_type_id_order) {
   metrics <- switch(output_type,
-    quantile = scoringutils::metrics_quantile(),
-    pmf = scoringutils::metrics_nominal(),
-    mean = scoringutils::metrics_point(select = "se_point"),
-    median = scoringutils::metrics_point(select = "ae_point"),
+    quantile = scoringutils::get_metrics(scoringutils::example_quantile),
+    pmf = scoringutils::get_metrics(scoringutils::example_nominal),
+    mean = scoringutils::get_metrics(scoringutils::example_point, select = "se_point"),
+    median = scoringutils::get_metrics(scoringutils::example_point, select = "ae_point"),
     NULL # default
   )
   if (is.null(metrics)) {
@@ -199,7 +202,10 @@ get_metrics_character <- function(metrics, output_type) {
     )
     names(interval_metric_fns) <- interval_metrics
 
-    other_metric_fns <- scoringutils::metrics_quantile(select = other_metrics)
+    other_metric_fns <- scoringutils::get_metrics(
+      scoringutils::example_quantile,
+      select = other_metrics
+    )
 
     metric_fns <- c(other_metric_fns, interval_metric_fns)[metrics]
     metrics <- metric_fns
@@ -208,13 +214,19 @@ get_metrics_character <- function(metrics, output_type) {
     invalid_metrics <- metrics[!metrics %in% valid_metrics]
     error_if_invalid_metrics(valid_metrics, invalid_metrics, output_type)
 
-    metrics <- scoringutils::metrics_nominal(select = metrics)
+    metrics <- scoringutils::get_metrics(
+      scoringutils::example_nominal,
+      select = metrics
+    )
   } else if (output_type %in% c("median", "mean")) {
     valid_metrics <- c("ae_point", "se_point")
     invalid_metrics <- metrics[!metrics %in% valid_metrics]
     error_if_invalid_metrics(valid_metrics, invalid_metrics, output_type)
 
-    metrics <- scoringutils::metrics_point(select = metrics)
+    metrics <- scoringutils::get_metrics(
+      scoringutils::example_point,
+      select = metrics
+    )
   } else {
     # we have already validated `output_type`, so this case should not be
     # triggered; this case is just double checking in case we add something new
@@ -231,7 +243,7 @@ error_if_invalid_metrics <- function(valid_metrics, invalid_metrics, output_type
   if (n > 0) {
     cli::cli_abort(
       c(
-        "`metrics` had {n} unsupported metric{?s} for 
+        "`metrics` had {n} unsupported metric{?s} for
         {.arg output_type} {.val {output_type}}: {.strong {.val {invalid_metrics}}};
         supported metrics include {.val {valid_metrics}}.",
         comment
