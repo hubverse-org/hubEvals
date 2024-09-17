@@ -81,7 +81,7 @@
 #' @return A data.table with scores
 #'
 #' @references
-#' Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the 
+#' Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the
 #' American Statistical Association 106 (494): 746–62. <doi: 10.1198/jasa.2011.r10138>.
 #'
 #' @export
