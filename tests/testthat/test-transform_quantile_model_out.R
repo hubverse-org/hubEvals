@@ -89,6 +89,9 @@ test_that("hubExamples data set is transformed correctly", {
       reference_date = as.Date(reference_date, "%Y-%m-%d"),
       target_end_date = as.Date(target_end_date, "%Y-%m-%d")
     )
-  class(exp_forecast) <- c("forecast", "forecast_quantile", "data.table", "data.frame")
-  expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
+  expect_s3_class(
+    act_forecast,
+    c("forecast_quantile", "forecast", "data.table", "data.frame")
+  )
+  expect_equal(as.data.frame(act_forecast), as.data.frame(exp_forecast))
 })
