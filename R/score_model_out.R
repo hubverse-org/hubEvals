@@ -148,9 +148,9 @@ get_metrics <- function(forecast, output_type, select = NULL) {
         level_str <- substr(metric, 19, nchar(metric))
         level <- suppressWarnings(as.numeric(level_str))
         if (is.na(level) || level <= 0 || level >= 100) {
-          stop(paste(
-            "Invalid interval coverage level:", level_str,
-            "- must be a number between 0 and 100 (exclusive)"
+          cli::cli_abort(c(
+            "Invalid interval coverage level: {level_str}",
+            "i" = "must be a number between 0 and 100 (exclusive)"
           ))
         }
         return(purrr::partial(scoringutils::interval_coverage, interval_range = level))
