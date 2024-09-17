@@ -135,7 +135,7 @@ get_metrics <- function(forecast, output_type, select = NULL) {
   # coverage metrics
   if (forecast_type == "forecast_quantile") {
     # split into metrics for interval coverage and others
-    interval_metric_inds <- grepl(pattern = "interval_coverage_", select)
+    interval_metric_inds <- grepl(pattern = "^interval_coverage_", select)
     interval_metrics <- select[interval_metric_inds]
     other_metrics <- select[!interval_metric_inds]
 

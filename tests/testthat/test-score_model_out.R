@@ -448,6 +448,16 @@ test_that("score_model_out errors when invalid metrics are requested", {
 
   expect_error(
     score_model_out(
+      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      target_observations = forecast_target_observations,
+      metrics = c("asdfinterval_coverage_90")
+    ),
+    regexp =
+      "has additional elements"
+  )
+
+  expect_error(
+    score_model_out(
       model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
       target_observations = forecast_target_observations,
       metrics = scoringutils::get_metrics(scoringutils::example_point),
