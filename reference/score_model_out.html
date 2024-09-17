@@ -88,11 +88,13 @@ all other output types, this is ignored.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If <code>metrics</code> is <code>NULL</code> (the default), this function chooses
-appropriate metrics based on the <code>output_type</code> contained in the <code>model_out_tbl</code>:</p><ul><li><p>For <code>output_type == "quantile"</code>, we use the default metrics provided by
-<code><a href="https://epiforecasts.io/scoringutils/reference/metrics_quantile.html" class="external-link">scoringutils::metrics_quantile()</a></code>: wis, overprediction, underprediction, dispersion, bias, interval_coverage_50, interval_coverage_90, interval_coverage_deviation, ae_median</p></li>
+appropriate metrics based on the <code>output_type</code> contained in the <code>model_out_tbl</code>:</p>
+<ul><li><p>For <code>output_type == "quantile"</code>, we use the default metrics provided by
+<code>scoringutils</code>:
+wis, overprediction, underprediction, dispersion, bias, interval_coverage_50, interval_coverage_90, interval_coverage_deviation, ae_median</p></li>
 <li><p>For <code>output_type == "pmf"</code> and <code>output_type_id_order</code> is <code>NULL</code> (indicating
 that the predicted variable is a nominal variable), we use the default metric
-provided by <code><a href="https://epiforecasts.io/scoringutils/reference/metrics_nominal.html" class="external-link">scoringutils::metrics_nominal()</a></code>,
+provided by <code>scoringutils</code>:
 log_score</p></li>
 <li><p>For <code>output_type == "median"</code>, we use "ae_point"</p></li>
 <li><p>For <code>output_type == "mean"</code>, we use "se_point"</p></li>
@@ -114,7 +116,9 @@ based on quantiles at the probability levels 0.025 and 0.975.</p></li>
 </ul></li>
 <li><p><code>output_type == "pmf"</code>:</p><ul><li><p>"log_score": log score</p></li>
 </ul></li>
-</ul></div>
+</ul><p>See <code><a href="https://epiforecasts.io/scoringutils/reference/get_metrics.html" class="external-link">scoringutils::get_metrics()</a></code> for more details on the default metrics
+used by <code>scoringutils</code>.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
