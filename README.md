@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# hubEvals <a href="https://Infectious-Disease-Modeling-Hubs.github.io/hubEvals/"><img src="man/figures/logo.svg" align="right" height="131" alt="hubEvals website" /></a>
+# hubEvals <a href="https://hubverse-org.github.io/hubEvals/"><img src="man/figures/logo.svg" align="right" height="131" alt="hubEvals website" /></a>
 
 <!-- badges: start -->
 
@@ -9,7 +9,8 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/hubEvals)](https://CRAN.R-project.org/package=hubEvals)
-[![R-CMD-check](https://github.com/Infectious-Disease-Modeling-Hubs/hubEvals/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/Infectious-Disease-Modeling-Hubs/hubEvals/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/hubverse-org/hubEvals/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/hubverse-org/hubEvals/actions/workflows/R-CMD-check.yaml)
+
 <!-- badges: end -->
 
 The goal of hubEvals is to provide tools for evaluating infectious
@@ -19,12 +20,24 @@ of tools for infectious disease modeling hubs.
 
 ## Installation
 
-You can install the development version of hubEvals from
+### Latest
+
+You can install the [latest version of hubEvals from the
+R-universe](https://hubverse-org.r-universe.dev/hubAdmin):
+
+``` r
+install.packages("hubEvals", repos = c("https://hubverse-org.r-universe.dev", "https://cloud.r-project.org"))
+```
+
+### Development
+
+If you want to test out new features that have not yet been released,
+you can install the development version of hubEvals from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("Infectious-Disease-Modeling-Hubs/hubEvals")
+remotes::install_github("hubverse-org/hubEvals")
 ```
 
 ## Example
@@ -48,5 +61,5 @@ project, you agree to abide by its terms.
 
 Interested in contributing back to the open-source Hubverse project?
 Learn more about how to [get involved in the Hubverse
-Community](https://hubverse.io/en/latest/overview/contribute.html)
-or [how to contribute to the hubEvals package](.github/CONTRIBUTING.md).
+Community](https://hubverse.io/en/latest/overview/contribute.html) or
+[how to contribute to the hubEvals package](.github/CONTRIBUTING.md).
