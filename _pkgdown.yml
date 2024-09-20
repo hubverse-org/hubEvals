@@ -1,3 +1,6 @@
 url: https://infectious-disease-modeling-hubs.github.io/hubEvals/
 template:
   package: hubStyle
+development:
+  mode: auto
+
