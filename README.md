@@ -23,7 +23,7 @@ of tools for infectious disease modeling hubs.
 ### Latest
 
 You can install the [latest version of hubEvals from the
-R-universe](https://hubverse-org.r-universe.dev/hubAdmin):
+R-universe](https://hubverse-org.r-universe.dev/hubEvals):
 
 ``` r
 install.packages("hubEvals", repos = c("https://hubverse-org.r-universe.dev", "https://cloud.r-project.org"))
