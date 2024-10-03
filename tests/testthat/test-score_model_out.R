@@ -393,6 +393,7 @@ test_that("score_model_out works with all kinds of interval levels are requested
     regexp = "must be a number between 0 and 100"
   )
 
+  suppressWarnings({
   expect_warning(
     score_model_out(
       model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
@@ -419,6 +420,7 @@ test_that("score_model_out works with all kinds of interval levels are requested
     ),
     "To compute the interval coverage for an interval range of" #scoringutils warning
   )
+  })
 })
 
 
