@@ -394,32 +394,32 @@ test_that("score_model_out works with all kinds of interval levels are requested
   )
 
   suppressWarnings({
-  expect_warning(
-    score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
-      target_observations = forecast_target_observations,
-      metrics = "interval_coverage_55"
-    ),
-    "To compute the interval coverage for an interval range of" #scoringutils warning
-  )
+    expect_warning(
+      score_model_out(
+        model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+        target_observations = forecast_target_observations,
+        metrics = "interval_coverage_55"
+      ),
+      "To compute the interval coverage for an interval range of" #scoringutils warning
+    )
 
-  expect_error(
-    score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
-      target_observations = forecast_target_observations,
-      metrics = "interval_coverage_100"
-    ),
-    regexp = "must be a number between 0 and 100"
-  )
+    expect_error(
+      score_model_out(
+        model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+        target_observations = forecast_target_observations,
+        metrics = "interval_coverage_100"
+      ),
+      regexp = "must be a number between 0 and 100"
+    )
 
-  expect_warning(
-    score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
-      target_observations = forecast_target_observations,
-      metrics = "interval_coverage_5.3"
-    ),
-    "To compute the interval coverage for an interval range of" #scoringutils warning
-  )
+    expect_warning(
+      score_model_out(
+        model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+        target_observations = forecast_target_observations,
+        metrics = "interval_coverage_5.3"
+      ),
+      "To compute the interval coverage for an interval range of" #scoringutils warning
+    )
   })
 })
 
