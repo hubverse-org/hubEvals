@@ -56,7 +56,6 @@ transform_pmf_model_out <- function(model_out_tbl, target_observations, output_t
     forecast_unit = c("model", task_id_cols),
     observed = "observation",
     predicted = "value",
-    model = "model",
     predicted_label = "output_type_id"
   )
 
