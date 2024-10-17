@@ -40,8 +40,7 @@ transform_point_model_out <- function(model_out_tbl, target_observations, output
   forecast_point <- scoringutils::as_forecast_point(data,
     forecast_unit = c("model", task_id_cols),
     observed = "observation",
-    predicted = "value",
-    model = "model"
+    predicted = "value"
   )
 
   return(forecast_point)

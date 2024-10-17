@@ -29,7 +29,6 @@ transform_quantile_model_out <- function(model_out_tbl, target_observations) {
     forecast_unit = c("model", task_id_cols),
     observed = "observation",
     predicted = "value",
-    model = "model",
     quantile_level = "output_type_id"
   )
 
