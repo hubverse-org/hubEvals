@@ -51,7 +51,7 @@ transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id
       output_type_id = factor(.data[["output_type_id"]], levels = output_type_id_order, ordered = is_ordinal)
     ) |>
     dplyr::ungroup() |>
-    dplyr::select(-tidyselect::all_of("oracle_value"))
+    dplyr::select(-dplyr::all_of("oracle_value"))
 
   forecast_pmf <- scoringutils::as_forecast_nominal(
     data,
