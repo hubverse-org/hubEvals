@@ -1,22 +1,22 @@
-test_that("validate_model_out_target_obs() throw errors for invalid inputs", {
+test_that("validate_model_oracle_out() throw errors for invalid inputs", {
   expect_error(
-    validate_model_out_target_obs(
+    validate_model_oracle_out(
       model_out_tbl = NULL,
-      target_observations = NULL
+      oracle_output = NULL
     ),
     regexp = "model_out_tbl does not contain required columns: model_id, output_type, output_type_id, value"
   )
   expect_error(
-    suppressMessages(validate_model_out_target_obs(
+    suppressMessages(validate_model_oracle_out(
       model_out_tbl = data.frame(),
-      target_observations = NULL
+      oracle_output = NULL
     )),
     regexp = "model_out_tbl does not contain required columns: model_id, output_type, output_type_id, value"
   )
   expect_error(
-    suppressMessages(validate_model_out_target_obs(
+    suppressMessages(validate_model_oracle_out(
       model_out_tbl = data.frame(),
-      target_observations = data.frame()
+      oracle_output = data.frame()
     )),
     regexp = "model_out_tbl does not contain required columns: model_id, output_type, output_type_id, value"
   )
@@ -27,12 +27,13 @@ test_that("valdiate_model_out_target_obs() works as expected for valid inputs", 
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
-  target_observations_1 <- utils::read.csv(
+  oracle_output_1 <- utils::read.csv(
     test_path("testdata/target_data_1.csv")
-  )
-  val_result <- validate_model_out_target_obs(
+  ) |>
+    dplyr::rename(oracle_value = observation)
+  val_result <- validate_model_oracle_out(
     model_out_tbl = model_out_tbl_1,
-    target_observations = target_observations_1
+    oracle_output = oracle_output_1
   )
 
   # expected col names in order
@@ -47,56 +48,58 @@ test_that("valdiate_model_out_target_obs() works as expected for valid inputs", 
 })
 
 
-test_that("an error is thrown if target_observations is missing observation column", {
+test_that("an error is thrown if oracle_output is missing oracle_value column", {
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
-  target_observations_1 <- utils::read.csv(
+  oracle_output_1 <- utils::read.csv(
     test_path("testdata/target_data_1.csv")
   ) |>
     dplyr::select(-c("observation"))
   expect_error(
-    suppressMessages(validate_model_out_target_obs(
+    suppressMessages(validate_model_oracle_out(
       model_out_tbl = model_out_tbl_1,
-      target_observations = target_observations_1
+      oracle_output = oracle_output_1
     )),
-    regexp = "target_observations does not have observation column"
+    regexp = "oracle_output does not have oracle_value column"
   )
 })
 
 
-test_that("an error is thrown if model_out_tbl columns do not match target_observations columns", {
+test_that("an error is thrown if model_out_tbl columns do not match oracle_output columns", {
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
-  target_observations_1 <- utils::read.csv(
+  oracle_output_1 <- utils::read.csv(
     test_path("testdata/target_data_1.csv")
-  )
+  ) |>
+    dplyr::rename(oracle_value = observation)
 
   expect_error(
-    suppressMessages(validate_model_out_target_obs(
+    suppressMessages(validate_model_oracle_out(
       model_out_tbl = model_out_tbl_1 |>
         dplyr::rename(loc = location, trgt = target, date = target_end_date),
-      target_observations = target_observations_1
+      oracle_output = oracle_output_1
     )),
-    regexp = "model_out_tbl and target_observations do not have compatible columns"
+    regexp = "model_out_tbl and oracle_output do not have compatible columns"
   )
 
 })
 
 
-test_that("validate_model_out_target_obs() throws error for unexpected columns", {
+test_that("validate_model_oracle_out() throws error for unexpected columns", {
   model_out_tbl_1 <- utils::read.csv(
     test_path("testdata/model_out_tbl_point_1.csv")
   )
-  target_observations_1 <- utils::read.csv(
+  oracle_output_1 <- utils::read.csv(
     test_path("testdata/target_data_1.csv")
-  )
+  ) |>
+    dplyr::rename(oracle_value = observation)
   expect_error(
-    suppressMessages(validate_model_out_target_obs(
+    suppressMessages(validate_model_oracle_out(
       model_out_tbl = model_out_tbl_1 |>
         dplyr::rename(loc = location),
-      target_observations = target_observations_1
+      oracle_output = oracle_output_1
     )),
     regexp = "unexpected column"
   )

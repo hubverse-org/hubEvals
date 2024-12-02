@@ -34,13 +34,13 @@ observed_categories <- data.frame(
   stringsAsFactors = FALSE
 )
 
-target_observations <- model_out_tbl |>
+oracle_output <- model_out_tbl |>
   dplyr::distinct(location, target_date, output_type_id) |>
   dplyr::left_join(observed_categories, by = c("location", "target_date", "output_type_id")) |>
-  dplyr::mutate(observation = ifelse(is.na(observation), 0, 1))
+  dplyr::mutate(oracle_value = ifelse(is.na(observation), 0, 1))
 
 # check that observations sum to 1
-target_observations |>
+oracle_output |>
   group_by(location, target_date) |>
   summarize(tot = sum(observation)) |>
   pull(tot)
@@ -77,5 +77,5 @@ dput_fun <- function(obj, path = stdout()) {
   }
 }
 dput_fun("model_out_tbl", "tests/testthat/helper-pmf_test_model_out_tbl.R")
-dput_fun("target_observations", "tests/testthat/helper-pmf_test_target_observations.R")
+dput_fun("oracle_output", "tests/testthat/helper-pmf_test_oracle_output.R")
 dput_fun("exp_forecast", "tests/testthat/helper-pmf_test_expected_merged_forecast.R")
