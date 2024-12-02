@@ -125,7 +125,8 @@ score_model_out <- function(model_out_tbl, oracle_output, metrics = NULL,
 #' Get scoring metrics
 #'
 #' @param forecast A scoringutils `forecast` object (see
-#' [scoringutils' general information on creating a `forecast` object][scoringutils::as_forecast_doc_template()] for details).
+#' [scoringutils' general information on creating a `forecast` object][scoringutils::as_forecast_doc_template()]
+#' for details).
 #' @inheritParams score_model_out
 #'
 #' @return a list of metric functions as required by scoringutils::score()
