@@ -24,9 +24,7 @@ transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id
 
   # validate or set output_type_id_order
   if (!is.null(output_type_id_order)) {
-    cli::cli_abort(
-      "ordinal variables are not yet supported."
-    )
+    output_type_id_order <- validate_output_type_id_order(output_type_id_order, model_out_tbl)
     is_ordinal <- TRUE
   } else {
     is_ordinal <- FALSE
@@ -53,13 +51,56 @@ transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id
     dplyr::ungroup() |>
     dplyr::select(-dplyr::all_of("oracle_value"))
 
-  forecast_pmf <- scoringutils::as_forecast_nominal(
-    data,
-    forecast_unit = c("model", task_id_cols),
-    observed = "observation",
-    predicted = "value",
-    predicted_label = "output_type_id"
-  )
+  if (is_ordinal) {
+    forecast_pmf <- scoringutils::as_forecast_ordinal(
+      data,
+      forecast_unit = c("model", task_id_cols),
+      observed = "observation",
+      predicted = "value",
+      predicted_label = "output_type_id"
+    )
+  } else {
+    forecast_pmf <- scoringutils::as_forecast_nominal(
+      data,
+      forecast_unit = c("model", task_id_cols),
+      observed = "observation",
+      predicted = "value",
+      predicted_label = "output_type_id"
+    )
+  }
 
   return(forecast_pmf)
+}
+
+
+#' Validate `output_type_id_order` for ordinal variables:
+#' - Must be a vector
+#' - Must be (set-)equal to the set of all unique `output_type_id` values in `model_out_tbl`
+validate_output_type_id_order <- function(output_type_id_order, model_out_tbl) {
+  if (!is.vector(output_type_id_order)) {
+    cli::cli_abort("`output_type_id_order` must be a vector.")
+  }
+
+  present_levels <- unique(model_out_tbl$output_type_id)
+  extra_order_levels <- setdiff(output_type_id_order, present_levels)
+  missing_order_levels <- setdiff(present_levels, output_type_id_order)
+  if (length(extra_order_levels) > 0 || length(missing_order_levels) > 0) {
+    cli::cli_abort(
+      c(
+        "`output_type_id_order` must align with the set of all unique `output_type_id` values in `model_out_tbl`.",
+        ifelse(
+          length(extra_order_levels) == 0, NULL,
+          "The following levels were present in `output_type_id_order` but not in `model_out_tbl`:
+          {.val {extra_order_levels}}."
+        ),
+        ifelse(
+          length(missing_order_levels) == 0, NULL,
+          "The following levels were present in `model_out_tbl` but not in `output_type_id_order`:
+          {.val {missing_order_levels}};"
+        )
+      )
+    )
+  }
+
+  return(output_type_id_order)
 }

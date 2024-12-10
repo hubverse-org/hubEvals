@@ -37,12 +37,13 @@ observed_categories <- data.frame(
 oracle_output <- model_out_tbl |>
   dplyr::distinct(location, target_date, output_type_id) |>
   dplyr::left_join(observed_categories, by = c("location", "target_date", "output_type_id")) |>
-  dplyr::mutate(oracle_value = ifelse(is.na(observation), 0, 1))
+  dplyr::mutate(oracle_value = ifelse(is.na(observation), 0, 1)) |>
+  dplyr::select(-observation)
 
 # check that observations sum to 1
 oracle_output |>
   group_by(location, target_date) |>
-  summarize(tot = sum(observation)) |>
+  summarize(tot = sum(oracle_value)) |>
   pull(tot)
 
 # create expected forecast output
