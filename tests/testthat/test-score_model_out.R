@@ -364,6 +364,76 @@ test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, 
 })
 
 
+test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, default metrics, custom by", {
+  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubex_forecast_outputs()
+  forecast_oracle_output <- hubex_forecast_oracle_output()
+
+  act_scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "pmf"), #|>
+      # dplyr::group_by(model_id, reference_date, target, horizon, location, target_end_date) |>
+      # dplyr::mutate(value = value / sum(value)) |>
+      # dplyr::ungroup(),
+    oracle_output = forecast_oracle_output,
+    by = c("model_id", "location"),
+    output_type_id_order = c("low", "moderate", "high", "very high")
+  )
+
+  exp_log_scores <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "pmf") |>
+    dplyr::left_join(
+      forecast_oracle_output |>
+        dplyr::filter(.data[["output_type"]] == "pmf") |>
+        dplyr::select(-dplyr::all_of(c("output_type"))),
+      by = c("location", "target_end_date", "target", "output_type_id")
+    ) |>
+    dplyr::filter(.data[["oracle_value"]] == 1) |>
+    dplyr::mutate(
+      log_score = -1 * log(.data[["value"]])
+    ) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(
+      c("model_id", "location")
+    ))) |>
+    dplyr::summarize(
+      log_score = mean(.data[["log_score"]]),
+      .groups = "drop"
+    )
+
+  exp_rps_scores <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "pmf") |>
+    dplyr::left_join(
+      forecast_oracle_output |>
+        dplyr::filter(.data[["output_type"]] == "pmf") |>
+        dplyr::select(-dplyr::all_of(c("output_type"))),
+      by = c("location", "target_end_date", "target", "output_type_id")
+    ) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(
+      c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+    ))) |>
+    dplyr::mutate(
+      log_score = -1 * log(.data[["value"]])
+    ) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(
+      c("model_id", "location")
+    ))) |>
+    dplyr::summarize(
+      log_score = mean(.data[["log_score"]]),
+      .groups = "drop"
+    )
+
+  # same column names, number of rows, and score values
+  expect_equal(colnames(act_scores), colnames(exp_scores))
+  expect_equal(nrow(act_scores), nrow(exp_scores))
+  merged_scores <- dplyr::full_join(
+    act_scores, exp_scores,
+    by = c("model_id", "location")
+  )
+  expect_equal(nrow(act_scores), nrow(merged_scores))
+  expect_equal(merged_scores$ae_point.x, merged_scores$ae_point.y)
+})
+
+
 test_that("score_model_out errors when model_out_tbl has multiple output_types", {
   # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubex_forecast_outputs()
