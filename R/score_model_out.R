@@ -128,7 +128,7 @@ score_model_out <- function(model_out_tbl, oracle_output,
   # switch back to hubverse naming conventions for model name
   scores <- dplyr::rename(scores, model_id = "model")
 
-  # if requested, summarize scores, including computaiton of relative metrics
+  # if requested, summarize scores, including computation of relative metrics
   if (summarize) {
     for (metric in relative_metrics) {
       scores <- scoringutils::add_relative_skill(
