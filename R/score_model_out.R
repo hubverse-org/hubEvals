@@ -108,7 +108,9 @@ score_model_out <- function(model_out_tbl, oracle_output,
   # check that model_out_tbl has a single output_type that is supported by this package
   # also, retrieve that output_type
   output_type <- validate_output_type(model_out_tbl)
-  validate_relative_metrics(relative_metrics, metrics, summarize, by)
+  if (summarize) {
+    validate_relative_metrics(relative_metrics, metrics, by)
+  }
 
   # assemble data for scoringutils
   su_data <- switch(output_type,
