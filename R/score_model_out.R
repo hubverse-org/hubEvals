@@ -109,6 +109,7 @@ score_model_out <- function(model_out_tbl, oracle_output,
   # also, retrieve that output_type
   output_type <- validate_output_type(model_out_tbl)
   if (summarize) {
+    # Note: The call to scoringutils::add_relative_skill below performs validation of `baseline`
     validate_relative_metrics(relative_metrics, metrics, by)
   }
 
@@ -133,8 +134,6 @@ score_model_out <- function(model_out_tbl, oracle_output,
   # if requested, summarize scores, including computation of relative metrics
   if (summarize) {
     for (metric in relative_metrics) {
-      # Note: scoringutils::add_relative_skill performs validations of `by`,
-      # `metric`, and `baseline`.
       scores <- scoringutils::add_relative_skill(
         scores,
         compare = "model_id",
