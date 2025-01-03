@@ -16,7 +16,7 @@ get_pairwise_scores_by_loc <- function(scores_per_task, metric, baseline = NULL)
       .groups = "drop"
     )
 
-  pairwise_score_ratios <- tidyr::expand_grid(
+  pairwise_score_ratios <- expand.grid(
     model_id = unique(mean_scores_by_loc$model_id),
     model_id_compare = unique(mean_scores_by_loc$model_id),
     location = unique(mean_scores_by_loc[["location"]])
