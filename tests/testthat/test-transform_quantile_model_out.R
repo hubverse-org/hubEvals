@@ -73,16 +73,16 @@ test_that("many-to-one relationship exists between model_out_tbl and oracle_outp
 })
 
 test_that("hubExamples data set is transformed correctly", {
-  # forecast_outputs.rda & forecast_oracle_output.rda are stored in hubExamples:
-  # https://github.com/hubverse-org/hubExamples/tree/main
-  model_out_tbl <- hubex_forecast_outputs()
-  oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
   act_forecast <- transform_quantile_model_out(
-    model_out_tbl = model_out_tbl,
-    oracle_output = oracle_output
+    model_out_tbl = forecast_outputs,
+    oracle_output = forecast_oracle_output
   )
 
-  exp_forecast <- model_out_tbl |>
+  exp_forecast <- forecast_outputs |>
     dplyr::filter(output_type == "quantile") |>
     dplyr::rename(model = model_id, quantile_level = output_type_id) |>
     dplyr::mutate(quantile_level = as.numeric(quantile_level))
@@ -103,7 +103,7 @@ test_that("hubExamples data set is transformed correctly", {
   # correct observed values, in alignment with oracle_output
   exp_act_forecast <- dplyr::left_join(
     act_forecast,
-    oracle_output |>
+    forecast_oracle_output |>
       dplyr::filter(output_type == "quantile") |>
       dplyr::rename(quantile_level = output_type_id) |>
       dplyr::mutate(quantile_level = as.numeric(quantile_level)),
