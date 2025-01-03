@@ -8,6 +8,16 @@
 #' @param metrics Character vector of scoring metrics to compute. If `NULL`
 #' (the default), appropriate metrics are chosen automatically. See details
 #' for more.
+#' @param relative_metrics Character vector of scoring metrics for which to
+#' compute relative skill scores. The `relative_metrics` should be a subset of
+#' `metrics` and should only include proper scores (e.g., it should not contain
+#' interval coverage metrics).  If `NULL` (the default), no relative metrics
+#' will be computed.  Relative metrics are only computed if `summarize = TRUE`,
+#' and require that `"model_id"` is included in `by`.
+#' @param baseline String with the name of a model to use as a baseline for
+#' relative skill scores. If a baseline is given, then a scaled relative skill
+#' with respect to the baseline will be returned. By default (`NULL`), relative
+#' skill will not be scaled with respect to a baseline model.
 #' @param summarize Boolean indicator of whether summaries of forecast scores
 #' should be computed. Defaults to `TRUE`.
 #' @param by Character vector naming columns to summarize by. For example,
@@ -55,6 +65,8 @@
 #' **Mean forecasts:** (`output_type == "mean"`)
 #' - `se_point`: squared error of the point forecast (recommended for the mean, see Gneiting (2011))
 #'
+#' See [scoringutils::add_relative_skill] for details on relative skill scores.
+#'
 #' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
 #' # compute WIS and interval coverage rates at 80% and 90% levels based on
 #' # quantile forecasts, summarized by the mean score for each model
@@ -63,6 +75,7 @@
 #'     dplyr::filter(.data[["output_type"]] == "quantile"),
 #'   oracle_output = hubExamples::forecast_oracle_output,
 #'   metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
+#'   relative_metrics = "wis",
 #'   by = "model_id"
 #' )
 #' quantile_scores
@@ -88,12 +101,17 @@
 #' American Statistical Association 106 (494): 746–62. <doi: 10.1198/jasa.2011.r10138>.
 #'
 #' @export
-score_model_out <- function(model_out_tbl, oracle_output, metrics = NULL,
+score_model_out <- function(model_out_tbl, oracle_output,
+                            metrics = NULL, relative_metrics = NULL, baseline = NULL,
                             summarize = TRUE, by = "model_id",
                             output_type_id_order = NULL) {
   # check that model_out_tbl has a single output_type that is supported by this package
   # also, retrieve that output_type
   output_type <- validate_output_type(model_out_tbl)
+  if (summarize) {
+    # Note: The call to scoringutils::add_relative_skill below performs validation of `baseline`
+    validate_relative_metrics(relative_metrics, metrics, by)
+  }
 
   # assemble data for scoringutils
   su_data <- switch(output_type,
@@ -113,8 +131,17 @@ score_model_out <- function(model_out_tbl, oracle_output, metrics = NULL,
   # switch back to hubverse naming conventions for model name
   scores <- dplyr::rename(scores, model_id = "model")
 
-  # if requested, summarize scores
+  # if requested, summarize scores, including computation of relative metrics
   if (summarize) {
+    for (metric in relative_metrics) {
+      scores <- scoringutils::add_relative_skill(
+        scores,
+        compare = "model_id",
+        by = by[by != "model_id"],
+        metric = metric,
+        baseline = baseline
+      )
+    }
     scores <- scoringutils::summarize_scores(scores = scores, by = by)
   }
 
@@ -139,7 +166,7 @@ get_metrics <- function(forecast, output_type, select = NULL) {
   # coverage metrics
   if (forecast_type == "forecast_quantile") {
     # split into metrics for interval coverage and others
-    interval_metric_inds <- grepl(pattern = "^interval_coverage_", select)
+    interval_metric_inds <- is_interval_coverage_metric(select)
     interval_metrics <- select[interval_metric_inds]
     other_metrics <- select[!interval_metric_inds]
 
@@ -175,4 +202,14 @@ get_metrics <- function(forecast, output_type, select = NULL) {
   }
 
   return(metric_fns)
+}
+
+
+#' Determine whether metric is an interval coverage metric
+#'
+#' @param metrics Character vector of metric names
+#' @return Logical vector indicating whether each metric is an interval coverage metric
+#' @noRd
+is_interval_coverage_metric <- function(metric) {
+  grepl(pattern = "^interval_coverage_", metric)
 }
