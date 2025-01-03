@@ -112,12 +112,14 @@ validate_relative_metrics <- function(relative_metrics, metrics, summarize, by) 
         "Interval coverage metrics are not supported for relative skill scores."
       )
     }
+
     if (any(!relative_metrics %in% metrics)) {
       cli::cli_abort(c(
         "Relative metrics must be a subset of the metrics.",
         "x" = "The following `relative_metrics` are not in `metrics`: {.val {setdiff(relative_metrics, metrics)}}"
       ))
     }
+
     if (length(relative_metrics) > 0 && !"model_id" %in% by) {
       cli::cli_abort(
         "Relative metrics require 'model_id' to be included in {.arg by}."
