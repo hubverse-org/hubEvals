@@ -133,20 +133,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
     dplyr::full_join(exp_scores_relative_ae_median, by = c("model_id", "location")) |>
     dplyr::full_join(exp_scores_relative_wis, by = c("model_id", "location"))
 
-  # same column names, number of rows, and score values
-  expect_equal(colnames(act_scores), colnames(exp_scores))
-  expect_equal(nrow(act_scores), nrow(exp_scores))
-  merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
-    by = c("model_id", "location")
-  )
-  expect_equal(nrow(act_scores), nrow(merged_scores))
-  expect_equal(merged_scores$ae_median.x, merged_scores$ae_median.y)
-  expect_equal(merged_scores$wis.x, merged_scores$wis.y)
-  expect_equal(merged_scores$interval_coverage_80.x, merged_scores$interval_coverage_80.y)
-  expect_equal(merged_scores$interval_coverage_90.x, merged_scores$interval_coverage_90.y)
-  expect_equal(merged_scores$ae_median_relative_skill.x, merged_scores$ae_median_relative_skill.y)
-  expect_equal(merged_scores$wis_relative_skill.x, merged_scores$wis_relative_skill.y)
+  expect_equal(act_scores, exp_scores, ignore_attr = TRUE)
 })
 
 
@@ -234,22 +221,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
     dplyr::full_join(exp_scores_relative_ae_median, by = c("model_id", "location")) |>
     dplyr::full_join(exp_scores_relative_wis, by = c("model_id", "location"))
 
-  # same column names, number of rows, and score values
-  expect_equal(colnames(act_scores), colnames(exp_scores))
-  expect_equal(nrow(act_scores), nrow(exp_scores))
-  merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
-    by = c("model_id", "location")
-  )
-  expect_equal(nrow(act_scores), nrow(merged_scores))
-  expect_equal(merged_scores$ae_median.x, merged_scores$ae_median.y)
-  expect_equal(merged_scores$wis.x, merged_scores$wis.y)
-  expect_equal(merged_scores$interval_coverage_80.x, merged_scores$interval_coverage_80.y)
-  expect_equal(merged_scores$interval_coverage_90.x, merged_scores$interval_coverage_90.y)
-  expect_equal(merged_scores$ae_median_relative_skill.x, merged_scores$ae_median_relative_skill.y)
-  expect_equal(merged_scores$ae_median_scaled_relative_skill.x, merged_scores$ae_median_scaled_relative_skill.y)
-  expect_equal(merged_scores$wis_relative_skill.x, merged_scores$wis_relative_skill.y)
-  expect_equal(merged_scores$wis_scaled_relative_skill.x, merged_scores$wis_scaled_relative_skill.y)
+  expect_equal(act_scores, exp_scores, ignore_attr = TRUE)
 })
 
 
