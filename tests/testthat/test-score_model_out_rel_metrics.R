@@ -11,75 +11,9 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
     by = c("model_id", "location")
   )
 
-  exp_scores_unsummarized <- forecast_outputs |>
-    dplyr::filter(.data[["output_type"]] == "quantile") |>
-    dplyr::left_join(
-      forecast_oracle_output |>
-        dplyr::filter(.data[["output_type"]] == "quantile") |>
-        dplyr::select(-dplyr::all_of(c("output_type", "output_type_id"))),
-      by = c("location", "target_end_date", "target")
-    ) |>
-    dplyr::mutate(
-      output_type_id = as.numeric(.data[["output_type_id"]]),
-      qs = ifelse(
-        .data[["oracle_value"]] >= .data[["value"]],
-        .data[["output_type_id"]] * (.data[["oracle_value"]] - .data[["value"]]),
-        (1 - .data[["output_type_id"]]) * (.data[["value"]] - .data[["oracle_value"]])
-      ),
-      q_coverage_80_lower = ifelse(
-        .data[["output_type_id"]] == 0.1,
-        .data[["oracle_value"]] >= .data[["value"]],
-        NA_real_
-      ),
-      q_coverage_80_upper = ifelse(
-        .data[["output_type_id"]] == 0.9,
-        .data[["oracle_value"]] <= .data[["value"]],
-        NA_real_
-      ),
-      q_coverage_90_lower = ifelse(
-        .data[["output_type_id"]] == 0.05,
-        .data[["oracle_value"]] >= .data[["value"]],
-        NA_real_
-      ),
-      q_coverage_90_upper = ifelse(
-        .data[["output_type_id"]] == 0.95,
-        .data[["oracle_value"]] <= .data[["value"]],
-        NA_real_
-      )
-    ) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
-    ))) |>
-    dplyr::summarize(
-      ae_median = sum(ifelse(
-        .data[["output_type_id"]] == 0.5,
-        abs(.data[["oracle_value"]] - .data[["value"]]),
-        0
-      )),
-      wis = 2 * mean(.data[["qs"]]),
-      interval_coverage_80 = (sum(.data[["q_coverage_80_lower"]], na.rm = TRUE) == 1) *
-        (sum(.data[["q_coverage_80_upper"]], na.rm = TRUE) == 1),
-      interval_coverage_90 = (sum(.data[["q_coverage_90_lower"]], na.rm = TRUE) == 1) *
-        (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1)
-    )
-
-  exp_scores_standard <- exp_scores_unsummarized |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location")
-    ))) |>
-    dplyr::summarize(
-      ae_median = mean(.data[["ae_median"]]),
-      wis = mean(.data[["wis"]]),
-      interval_coverage_80 = mean(.data[["interval_coverage_80"]], na.rm = TRUE),
-      interval_coverage_90 = mean(.data[["interval_coverage_90"]], na.rm = TRUE),
-      .groups = "drop"
-    )
-
-  exp_scores_relative_ae_median <- get_pairwise_scores_by_loc(exp_scores_unsummarized, "ae_median")
-  exp_scores_relative_wis <- get_pairwise_scores_by_loc(exp_scores_unsummarized, "wis")
-  exp_scores <- exp_scores_standard |>
-    dplyr::full_join(exp_scores_relative_ae_median, by = c("model_id", "location")) |>
-    dplyr::full_join(exp_scores_relative_wis, by = c("model_id", "location"))
+  exp_scores <- read.csv(test_path("testdata", "exp_pairwise_scores.csv")) |>
+    dplyr::mutate(location = as.character(location)) |>
+    dplyr::select(-ae_median_scaled_relative_skill, -wis_scaled_relative_skill)
 
   expect_equal(act_scores, exp_scores, ignore_attr = TRUE)
 })
@@ -99,75 +33,8 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
     by = c("model_id", "location")
   )
 
-  exp_scores_unsummarized <- forecast_outputs |>
-    dplyr::filter(.data[["output_type"]] == "quantile") |>
-    dplyr::left_join(
-      forecast_oracle_output |>
-        dplyr::filter(.data[["output_type"]] == "quantile") |>
-        dplyr::select(-dplyr::all_of(c("output_type", "output_type_id"))),
-      by = c("location", "target_end_date", "target")
-    ) |>
-    dplyr::mutate(
-      output_type_id = as.numeric(.data[["output_type_id"]]),
-      qs = ifelse(
-        .data[["oracle_value"]] >= .data[["value"]],
-        .data[["output_type_id"]] * (.data[["oracle_value"]] - .data[["value"]]),
-        (1 - .data[["output_type_id"]]) * (.data[["value"]] - .data[["oracle_value"]])
-      ),
-      q_coverage_80_lower = ifelse(
-        .data[["output_type_id"]] == 0.1,
-        .data[["oracle_value"]] >= .data[["value"]],
-        NA_real_
-      ),
-      q_coverage_80_upper = ifelse(
-        .data[["output_type_id"]] == 0.9,
-        .data[["oracle_value"]] <= .data[["value"]],
-        NA_real_
-      ),
-      q_coverage_90_lower = ifelse(
-        .data[["output_type_id"]] == 0.05,
-        .data[["oracle_value"]] >= .data[["value"]],
-        NA_real_
-      ),
-      q_coverage_90_upper = ifelse(
-        .data[["output_type_id"]] == 0.95,
-        .data[["oracle_value"]] <= .data[["value"]],
-        NA_real_
-      )
-    ) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
-    ))) |>
-    dplyr::summarize(
-      ae_median = sum(ifelse(
-        .data[["output_type_id"]] == 0.5,
-        abs(.data[["oracle_value"]] - .data[["value"]]),
-        0
-      )),
-      wis = 2 * mean(.data[["qs"]]),
-      interval_coverage_80 = (sum(.data[["q_coverage_80_lower"]], na.rm = TRUE) == 1) *
-        (sum(.data[["q_coverage_80_upper"]], na.rm = TRUE) == 1),
-      interval_coverage_90 = (sum(.data[["q_coverage_90_lower"]], na.rm = TRUE) == 1) *
-        (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1)
-    )
-
-  exp_scores_standard <- exp_scores_unsummarized |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location")
-    ))) |>
-    dplyr::summarize(
-      ae_median = mean(.data[["ae_median"]]),
-      wis = mean(.data[["wis"]]),
-      interval_coverage_80 = mean(.data[["interval_coverage_80"]], na.rm = TRUE),
-      interval_coverage_90 = mean(.data[["interval_coverage_90"]], na.rm = TRUE),
-      .groups = "drop"
-    )
-
-  exp_scores_relative_ae_median <- get_pairwise_scores_by_loc(exp_scores_unsummarized, "ae_median", "Flusight-baseline")
-  exp_scores_relative_wis <- get_pairwise_scores_by_loc(exp_scores_unsummarized, "wis", "Flusight-baseline")
-  exp_scores <- exp_scores_standard |>
-    dplyr::full_join(exp_scores_relative_ae_median, by = c("model_id", "location")) |>
-    dplyr::full_join(exp_scores_relative_wis, by = c("model_id", "location"))
+  exp_scores <- read.csv(test_path("testdata", "exp_pairwise_scores.csv")) |>
+    dplyr::mutate(location = as.character(location))
 
   expect_equal(act_scores, exp_scores, ignore_attr = TRUE)
 })
