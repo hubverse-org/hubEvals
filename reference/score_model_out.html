@@ -41,6 +41,8 @@
 <span>  <span class="va">model_out_tbl</span>,</span>
 <span>  <span class="va">oracle_output</span>,</span>
 <span>  metrics <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  relative_metrics <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  baseline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  summarize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  by <span class="op">=</span> <span class="st">"model_id"</span>,</span>
 <span>  output_type_id_order <span class="op">=</span> <span class="cn">NULL</span></span>
@@ -64,6 +66,22 @@ model that knew the observed target data values in advance</p></dd>
 <dd><p>Character vector of scoring metrics to compute. If <code>NULL</code>
 (the default), appropriate metrics are chosen automatically. See details
 for more.</p></dd>
+
+
+<dt id="arg-relative-metrics">relative_metrics<a class="anchor" aria-label="anchor" href="#arg-relative-metrics"></a></dt>
+<dd><p>Character vector of scoring metrics for which to
+compute relative skill scores. The <code>relative_metrics</code> should be a subset of
+<code>metrics</code> and should only include proper scores (e.g., it should not contain
+interval coverage metrics).  If <code>NULL</code> (the default), no relative metrics
+will be computed.  Relative metrics are only computed if <code>summarize = TRUE</code>,
+and require that <code>"model_id"</code> is included in <code>by</code>.</p></dd>
+
+
+<dt id="arg-baseline">baseline<a class="anchor" aria-label="anchor" href="#arg-baseline"></a></dt>
+<dd><p>String with the name of a model to use as a baseline for
+relative skill scores. If a baseline is given, then a scaled relative skill
+with respect to the baseline will be returned. By default (<code>NULL</code>), relative
+skill will not be scaled with respect to a baseline model.</p></dd>
 
 
 <dt id="arg-summarize">summarize<a class="anchor" aria-label="anchor" href="#arg-summarize"></a></dt>
@@ -112,7 +130,8 @@ based on quantiles at the probability levels 0.025 and 0.975.</p></li>
 <p><strong>Median forecasts:</strong> (<code>output_type == "median"</code>)</p><ul><li><p>ae_point: absolute error of the point forecast (recommended for the median, see Gneiting (2011))</p></li>
 </ul><p>See <a href="https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_point.html" class="external-link">scoringutils::get_metrics.forecast_point</a> for details.</p>
 <p><strong>Mean forecasts:</strong> (<code>output_type == "mean"</code>)</p><ul><li><p><code>se_point</code>: squared error of the point forecast (recommended for the mean, see Gneiting (2011))</p></li>
-</ul></div>
+</ul><p>See <a href="https://epiforecasts.io/scoringutils/reference/add_relative_skill.html" class="external-link">scoringutils::add_relative_skill</a> for details on relative skill scores.</p>
+    </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
     <p>Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the
@@ -128,14 +147,21 @@ American Statistical Association 106 (494): 746–62. &lt;doi: 10.1198/jasa.2011
 <span class="r-in"><span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="st">"output_type"</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">"quantile"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  oracle_output <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_oracle_output</a></span>,</span></span>
 <span class="r-in"><span>  metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wis"</span>, <span class="st">"interval_coverage_80"</span>, <span class="st">"interval_coverage_90"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  relative_metrics <span class="op">=</span> <span class="st">"wis"</span>,</span></span>
 <span class="r-in"><span>  by <span class="op">=</span> <span class="st">"model_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">quantile_scores</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;model_id&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>             model_id      wis interval_coverage_80 interval_coverage_90</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;    &lt;num&gt;                &lt;num&gt;                &lt;num&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1: Flusight-baseline 329.4545                  0.0               0.1250</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2:   MOBS-GLEAM_FLUH 315.2393                  0.5               0.5625</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3:          PSI-DICE 227.9527                  0.5               0.5000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    wis_relative_skill</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                 &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1:          1.1473659</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2:          1.0978597</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          0.7938733</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># compute log scores based on pmf predictions for categorical targets,</span></span></span>
 <span class="r-in"><span><span class="co"># summarized by the mean score for each combination of model and location.</span></span></span>
