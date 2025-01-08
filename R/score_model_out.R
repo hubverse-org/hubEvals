@@ -52,9 +52,13 @@
 #'
 #' `r paste("- ", names(scoringutils::get_metrics(scoringutils::example_nominal)), collapse = "\n")`
 #'
-#' (scoring for ordinal forecasts will be added in the future).
-#'
 #' See [scoringutils::get_metrics.forecast_nominal] for details.
+#'
+#' **Ordinal forecasts:** (`output_type == "pmf"` and `output_type_id_order` is a vector)
+#'
+#' `r paste("- ", names(scoringutils::get_metrics(scoringutils::example_ordinal)), collapse = "\n")`
+#'
+#' See [scoringutils::get_metrics.forecast_ordinal] for details.
 #'
 #' **Median forecasts:** (`output_type == "median"`)
 #'
@@ -89,8 +93,9 @@
 #'   model_out_tbl = hubExamples::forecast_outputs |>
 #'     dplyr::filter(.data[["output_type"]] == "pmf"),
 #'   oracle_output = hubExamples::forecast_oracle_output,
-#'   metrics = "log_score",
-#'   by = c("model_id", "location", "horizon")
+#'   metrics = c("log_score", "rps"),
+#'   by = c("model_id", "location", "horizon"),
+#'   output_type_id_order = c("low", "moderate", "high", "very high")
 #' )
 #' head(pmf_scores)
 #'
