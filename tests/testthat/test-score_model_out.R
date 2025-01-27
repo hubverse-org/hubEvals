@@ -365,16 +365,13 @@ test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, 
 
 
 test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, default metrics, custom by", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |>
-      dplyr::filter(.data[["output_type"]] == "pmf"), #|>
-      # dplyr::group_by(model_id, reference_date, target, horizon, location, target_end_date) |>
-      # dplyr::mutate(value = value / sum(value)) |>
-      # dplyr::ungroup(),
+      dplyr::filter(.data[["output_type"]] == "pmf"),
     oracle_output = forecast_oracle_output,
     by = c("model_id", "location"),
     output_type_id_order = c("low", "moderate", "high", "very high")
@@ -400,6 +397,8 @@ test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, 
       .groups = "drop"
     )
 
+  # see Eq (1) of Weigen et al. (2006) The Discrete Brier and Ranked Probability Skill Scores.
+  # Monthly Weather Review, 135, 118-124.
   exp_rps_scores <- forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "pmf") |>
     dplyr::left_join(
@@ -411,26 +410,20 @@ test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, 
     dplyr::group_by(dplyr::across(dplyr::all_of(
       c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
     ))) |>
-    dplyr::mutate(
-      log_score = -1 * log(.data[["value"]])
+    dplyr::summarize(
+      rps = sum((cumsum(.data[["value"]]) - cumsum(.data[["oracle_value"]]))^2)
     ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(
       c("model_id", "location")
     ))) |>
     dplyr::summarize(
-      log_score = mean(.data[["log_score"]]),
+      rps = mean(.data[["rps"]]),
       .groups = "drop"
     )
+  exp_scores <- dplyr::full_join(exp_log_scores, exp_rps_scores, by = c("model_id", "location"))
 
-  # same column names, number of rows, and score values
-  expect_equal(colnames(act_scores), colnames(exp_scores))
-  expect_equal(nrow(act_scores), nrow(exp_scores))
-  merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
-    by = c("model_id", "location")
-  )
-  expect_equal(nrow(act_scores), nrow(merged_scores))
-  expect_equal(merged_scores$ae_point.x, merged_scores$ae_point.y)
+  # same answer
+  expect_equal(act_scores, exp_scores, ignore_attr = TRUE)
 })
 
 
