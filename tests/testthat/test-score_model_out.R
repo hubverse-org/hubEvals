@@ -1,7 +1,7 @@
 test_that("score_model_out succeeds with valid inputs: mean output_type, default metrics, by all", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
@@ -40,9 +40,9 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
 
 
 test_that("score_model_out succeeds with valid inputs: mean output_type, default metrics, summarize FALSE", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
@@ -81,9 +81,9 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
 
 
 test_that("score_model_out succeeds with valid inputs: mean output_type, character metrics, custom by", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
@@ -125,9 +125,9 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, charact
 
 
 test_that("score_model_out succeeds with valid inputs: median output_type, default metrics, summarize FALSE", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "median"),
@@ -166,9 +166,9 @@ test_that("score_model_out succeeds with valid inputs: median output_type, defau
 
 
 test_that("score_model_out succeeds with valid inputs: quantile output_type, wis and interval metrics, custom by", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
@@ -248,9 +248,9 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
 
 
 test_that("score_model_out succeeds with valid inputs: quantile output_type, wis/interval metrics, summarize FALSE", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
@@ -322,9 +322,9 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
 
 
 test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, default metrics, custom by", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "pmf"),
@@ -435,9 +435,9 @@ test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, 
 
 
 test_that("score_model_out errors when model_out_tbl has multiple output_types", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   expect_error(
     score_model_out(
@@ -450,9 +450,9 @@ test_that("score_model_out errors when model_out_tbl has multiple output_types",
 
 
 test_that("score_model_out works with all kinds of interval levels are requested", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   expect_error(
     score_model_out(
@@ -495,9 +495,9 @@ test_that("score_model_out works with all kinds of interval levels are requested
 
 
 test_that("score_model_out errors when invalid metrics are requested", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   expect_error(
     score_model_out(
@@ -543,9 +543,9 @@ test_that("score_model_out errors when invalid metrics are requested", {
 
 
 test_that("score_model_out errors when an unsupported output_type is provided", {
-  # Forecast data from HubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
-  forecast_outputs <- hubex_forecast_outputs()
-  forecast_oracle_output <- hubex_forecast_oracle_output()
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   expect_error(
     score_model_out(

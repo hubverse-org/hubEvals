@@ -100,3 +100,29 @@ error_if_invalid_output_type <- function(output_type) {
     )
   }
 }
+
+
+#' Validate relative metrics
+#'
+#' @noRd
+validate_relative_metrics <- function(relative_metrics, metrics, by) {
+  if (any(is_interval_coverage_metric(relative_metrics))) {
+    cli::cli_abort(
+      "Interval coverage metrics are not supported for relative skill scores."
+    )
+  }
+
+  if (length(relative_metrics) > 0 && !"model_id" %in% by) {
+    cli::cli_abort(
+      "Relative metrics require 'model_id' to be included in {.arg by}."
+    )
+  }
+
+  extra_metrics <- setdiff(relative_metrics, metrics)
+  if (length(extra_metrics) > 0) {
+    cli::cli_abort(c(
+      "Relative metrics must be a subset of the metrics.",
+      "x" = "The following {.arg relative_metrics} are not in {.arg metrics}: {.val {extra_metrics}}"
+    ))
+  }
+}

@@ -8,6 +8,8 @@ score_model_out(
   model_out_tbl,
   oracle_output,
   metrics = NULL,
+  relative_metrics = NULL,
+  baseline = NULL,
   summarize = TRUE,
   by = "model_id",
   output_type_id_order = NULL
@@ -22,6 +24,18 @@ model that knew the observed target data values in advance}
 \item{metrics}{Character vector of scoring metrics to compute. If \code{NULL}
 (the default), appropriate metrics are chosen automatically. See details
 for more.}
+
+\item{relative_metrics}{Character vector of scoring metrics for which to
+compute relative skill scores. The \code{relative_metrics} should be a subset of
+\code{metrics} and should only include proper scores (e.g., it should not contain
+interval coverage metrics).  If \code{NULL} (the default), no relative metrics
+will be computed.  Relative metrics are only computed if \code{summarize = TRUE},
+and require that \code{"model_id"} is included in \code{by}.}
+
+\item{baseline}{String with the name of a model to use as a baseline for
+relative skill scores. If a baseline is given, then a scaled relative skill
+with respect to the baseline will be returned. By default (\code{NULL}), relative
+skill will not be scaled with respect to a baseline model.}
 
 \item{summarize}{Boolean indicator of whether summaries of forecast scores
 should be computed. Defaults to \code{TRUE}.}
@@ -92,6 +106,8 @@ See \link[scoringutils:get_metrics.forecast_point]{scoringutils::get_metrics.for
 \itemize{
 \item \code{se_point}: squared error of the point forecast (recommended for the mean, see Gneiting (2011))
 }
+
+See \link[scoringutils:add_relative_skill]{scoringutils::add_relative_skill} for details on relative skill scores.
 }
 \examples{
 \dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -102,6 +118,7 @@ quantile_scores <- score_model_out(
     dplyr::filter(.data[["output_type"]] == "quantile"),
   oracle_output = hubExamples::forecast_oracle_output,
   metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
+  relative_metrics = "wis",
   by = "model_id"
 )
 quantile_scores
