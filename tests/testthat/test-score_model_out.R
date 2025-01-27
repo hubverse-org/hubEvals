@@ -364,6 +364,69 @@ test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, 
 })
 
 
+test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, default metrics, custom by", {
+  # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  act_scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "pmf"),
+    oracle_output = forecast_oracle_output,
+    by = c("model_id", "location"),
+    output_type_id_order = c("low", "moderate", "high", "very high")
+  )
+
+  exp_log_scores <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "pmf") |>
+    dplyr::left_join(
+      forecast_oracle_output |>
+        dplyr::filter(.data[["output_type"]] == "pmf") |>
+        dplyr::select(-dplyr::all_of(c("output_type"))),
+      by = c("location", "target_end_date", "target", "output_type_id")
+    ) |>
+    dplyr::filter(.data[["oracle_value"]] == 1) |>
+    dplyr::mutate(
+      log_score = -1 * log(.data[["value"]])
+    ) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(
+      c("model_id", "location")
+    ))) |>
+    dplyr::summarize(
+      log_score = mean(.data[["log_score"]]),
+      .groups = "drop"
+    )
+
+  # see Eq (1) of Weigen et al. (2006) The Discrete Brier and Ranked Probability Skill Scores.
+  # Monthly Weather Review, 135, 118-124.
+  exp_rps_scores <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "pmf") |>
+    dplyr::left_join(
+      forecast_oracle_output |>
+        dplyr::filter(.data[["output_type"]] == "pmf") |>
+        dplyr::select(-dplyr::all_of(c("output_type"))),
+      by = c("location", "target_end_date", "target", "output_type_id")
+    ) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(
+      c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+    ))) |>
+    dplyr::summarize(
+      rps = sum((cumsum(.data[["value"]]) - cumsum(.data[["oracle_value"]]))^2)
+    ) |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(
+      c("model_id", "location")
+    ))) |>
+    dplyr::summarize(
+      rps = mean(.data[["rps"]]),
+      .groups = "drop"
+    )
+  exp_scores <- dplyr::full_join(exp_log_scores, exp_rps_scores, by = c("model_id", "location"))
+
+  # same answer
+  expect_equal(act_scores, exp_scores, ignore_attr = TRUE)
+})
+
+
 test_that("score_model_out errors when model_out_tbl has multiple output_types", {
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
