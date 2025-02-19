@@ -102,5 +102,5 @@ validate_output_type_id_order <- function(output_type_id_order, model_out_tbl) {
     )
   }
 
-  return(output_type_id_order)
+  output_type_id_order
 }
