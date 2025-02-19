@@ -33,5 +33,5 @@ transform_quantile_model_out <- function(model_out_tbl, oracle_output) {
     quantile_level = "output_type_id"
   )
 
-  return(forecast_quantile)
+  forecast_quantile
 }

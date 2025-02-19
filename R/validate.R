@@ -14,7 +14,7 @@ get_task_id_cols <- function(model_out_tbl) {
   )
   task_id_cols <- model_out_cols[!model_out_cols %in% non_task_cols]
 
-  return(task_id_cols)
+  task_id_cols
 }
 
 #' Validate model_out_tbl and oracle_output arguments to transform functions
@@ -65,7 +65,7 @@ validate_model_oracle_out <- function(model_out_tbl, oracle_output) {
     model_out_tbl <- hubUtils::as_model_out_tbl(model_out_tbl)
   }
 
-  return(model_out_tbl)
+  model_out_tbl
 }
 
 
@@ -86,7 +86,7 @@ validate_output_type <- function(model_out_tbl) {
 
   error_if_invalid_output_type(output_type)
 
-  return(output_type)
+  output_type
 }
 
 

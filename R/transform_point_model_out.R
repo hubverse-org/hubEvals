@@ -43,5 +43,5 @@ transform_point_model_out <- function(model_out_tbl, oracle_output, output_type)
     predicted = "value"
   )
 
-  return(forecast_point)
+  forecast_point
 }

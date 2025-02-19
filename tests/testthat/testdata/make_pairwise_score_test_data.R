@@ -43,7 +43,7 @@ get_pairwise_scores_by_loc <- function(scores_per_task, metric, baseline) {
                         paste0(metric, "_relative_skill"),
                         paste0(metric, "_scaled_relative_skill"))
 
-  return(result)
+  result
 }
 
 
