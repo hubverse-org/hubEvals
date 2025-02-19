@@ -61,5 +61,5 @@ transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id
     predicted_label = "output_type_id"
   )
 
-  return(forecast_pmf)
+  forecast_pmf
 }

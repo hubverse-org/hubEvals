@@ -145,7 +145,7 @@ score_model_out <- function(model_out_tbl, oracle_output,
     scores <- scoringutils::summarize_scores(scores = scores, by = by)
   }
 
-  return(scores)
+  scores
 }
 
 
@@ -201,7 +201,7 @@ get_metrics <- function(forecast, output_type, select = NULL) {
     metric_fns <- scoringutils::select_metrics(metric_fns, "ae_point")
   }
 
-  return(metric_fns)
+  metric_fns
 }
 
 
