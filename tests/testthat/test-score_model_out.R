@@ -332,25 +332,9 @@ test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, 
     by = c("model_id", "location")
   )
 
-  exp_scores <- forecast_outputs |>
-    dplyr::filter(.data[["output_type"]] == "pmf") |>
-    dplyr::left_join(
-      forecast_oracle_output |>
-        dplyr::filter(.data[["output_type"]] == "pmf") |>
-        dplyr::select(-dplyr::all_of(c("output_type"))),
-      by = c("location", "target_end_date", "target", "output_type_id")
-    ) |>
-    dplyr::filter(.data[["oracle_value"]] == 1) |>
-    dplyr::mutate(
-      log_score = -1 * log(.data[["value"]])
-    ) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location")
-    ))) |>
-    dplyr::summarize(
-      log_score = mean(.data[["log_score"]]),
-      .groups = "drop"
-    )
+  exp_scores <- read.csv(test_path("testdata", "exp_pmf_scores.csv")) |>
+    dplyr::mutate(location = as.character(location)) |>
+    dplyr::select(-rps)
 
   # same column names, number of rows, and score values
   expect_equal(colnames(act_scores), colnames(exp_scores))
@@ -377,50 +361,8 @@ test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, 
     output_type_id_order = c("low", "moderate", "high", "very high")
   )
 
-  exp_log_scores <- forecast_outputs |>
-    dplyr::filter(.data[["output_type"]] == "pmf") |>
-    dplyr::left_join(
-      forecast_oracle_output |>
-        dplyr::filter(.data[["output_type"]] == "pmf") |>
-        dplyr::select(-dplyr::all_of(c("output_type"))),
-      by = c("location", "target_end_date", "target", "output_type_id")
-    ) |>
-    dplyr::filter(.data[["oracle_value"]] == 1) |>
-    dplyr::mutate(
-      log_score = -1 * log(.data[["value"]])
-    ) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location")
-    ))) |>
-    dplyr::summarize(
-      log_score = mean(.data[["log_score"]]),
-      .groups = "drop"
-    )
-
-  # see Eq (1) of Weigen et al. (2006) The Discrete Brier and Ranked Probability Skill Scores.
-  # Monthly Weather Review, 135, 118-124.
-  exp_rps_scores <- forecast_outputs |>
-    dplyr::filter(.data[["output_type"]] == "pmf") |>
-    dplyr::left_join(
-      forecast_oracle_output |>
-        dplyr::filter(.data[["output_type"]] == "pmf") |>
-        dplyr::select(-dplyr::all_of(c("output_type"))),
-      by = c("location", "target_end_date", "target", "output_type_id")
-    ) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
-    ))) |>
-    dplyr::summarize(
-      rps = sum((cumsum(.data[["value"]]) - cumsum(.data[["oracle_value"]]))^2)
-    ) |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location")
-    ))) |>
-    dplyr::summarize(
-      rps = mean(.data[["rps"]]),
-      .groups = "drop"
-    )
-  exp_scores <- dplyr::full_join(exp_log_scores, exp_rps_scores, by = c("model_id", "location"))
+  exp_scores <- read.csv(test_path("testdata", "exp_pmf_scores.csv")) |>
+    dplyr::mutate(location = as.character(location))
 
   # same answer
   expect_equal(act_scores, exp_scores, ignore_attr = TRUE)
