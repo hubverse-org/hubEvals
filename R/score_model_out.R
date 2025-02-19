@@ -184,7 +184,7 @@ get_metrics <- function(forecast, output_type, select = NULL) {
             "i" = "must be a number between 0 and 100 (exclusive)"
           ))
         }
-        return(purrr::partial(scoringutils::interval_coverage, interval_range = level))
+        purrr::partial(scoringutils::interval_coverage, interval_range = level)
       }
     )
     names(interval_metric_fns) <- interval_metrics
