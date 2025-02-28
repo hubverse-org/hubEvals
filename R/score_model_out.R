@@ -24,8 +24,10 @@
 #' specifying `by = "model_id"` (the default) will compute average scores for
 #' each model.
 #' @param output_type_id_order For ordinal variables in pmf format, this is a
-#' vector of levels for pmf forecasts, in increasing order of the levels. For
-#' all other output types, this is ignored.
+#' vector of levels for pmf forecasts, in increasing order of the levels. The
+#' order of the values for the output_type_id can be found by referencing the
+#' hub's tasks.json configuration file. For all output types other than pmf,
+#' this is ignored.
 #'
 #' @details
 #' See the hubverse documentation for the expected format of the
