@@ -92,7 +92,8 @@ validate_output_type_id_order <- function(output_type_id_order, model_out_tbl) {
   if (length(extra_order_levels) > 0 || length(missing_order_levels) > 0) {
     cli::cli_abort(
       c(
-        "x" = "`output_type_id_order` must align with the set of all unique `output_type_id` values in `model_out_tbl`.",
+        "x" = "`output_type_id_order` must align with the set of all unique
+               `output_type_id` values in `model_out_tbl`.",
         "!" = ifelse(
           length(extra_order_levels) == 0, NULL,
           "The following levels were present in `output_type_id_order` but not in `model_out_tbl`:
