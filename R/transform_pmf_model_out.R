@@ -76,6 +76,11 @@ transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id
 #' Validate `output_type_id_order` for ordinal variables:
 #' - Must be a vector
 #' - Must be (set-)equal to the set of all unique `output_type_id` values in `model_out_tbl`
+#'
+#' This function expects that the model_out_tbl has already been filtered to
+#' output_type == "pmf". This is done in `transform_pmf_model_out`.
+#'
+#' @noRd
 validate_output_type_id_order <- function(output_type_id_order, model_out_tbl) {
   if (!is.vector(output_type_id_order)) {
     cli::cli_abort("`output_type_id_order` must be a vector.")
