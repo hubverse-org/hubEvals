@@ -58,9 +58,11 @@ model that knew the observed target data values in advance</p></dd>
 
 
 <dt id="arg-output-type-id-order">output_type_id_order<a class="anchor" aria-label="anchor" href="#arg-output-type-id-order"></a></dt>
-<dd><p>For nominal variables, this should be <code>NULL</code> (the default).
-For ordinal variables, this is a vector of levels for pmf forecasts, in
-increasing order of the levels.</p></dd>
+<dd><p>For ordinal variables in pmf format, this is a
+vector of levels for pmf forecasts, in increasing order of the levels. The
+order of the values for the output_type_id can be found by referencing the
+hub's tasks.json configuration file. For all output types other than pmf,
+this is ignored.</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -97,8 +97,10 @@ each model.</p></dd>
 
 <dt id="arg-output-type-id-order">output_type_id_order<a class="anchor" aria-label="anchor" href="#arg-output-type-id-order"></a></dt>
 <dd><p>For ordinal variables in pmf format, this is a
-vector of levels for pmf forecasts, in increasing order of the levels. For
-all other output types, this is ignored.</p></dd>
+vector of levels for pmf forecasts, in increasing order of the levels. The
+order of the values for the output_type_id can be found by referencing the
+hub's tasks.json configuration file. For all output types other than pmf,
+this is ignored.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -125,8 +127,10 @@ different <code>output_type</code>s:</p>
 based on quantiles at the probability levels 0.025 and 0.975.</p></li>
 </ul><p>See <a href="https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_quantile.html" class="external-link">scoringutils::get_metrics.forecast_quantile</a> for details.</p>
 <p><strong>Nominal forecasts:</strong> (<code>output_type == "pmf"</code> and <code>output_type_id_order</code> is <code>NULL</code>)</p><ul><li><p>log_score</p></li>
-</ul><p>(scoring for ordinal forecasts will be added in the future).</p>
-<p>See <a href="https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_nominal.html" class="external-link">scoringutils::get_metrics.forecast_nominal</a> for details.</p>
+</ul><p>See <a href="https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_nominal.html" class="external-link">scoringutils::get_metrics.forecast_nominal</a> for details.</p>
+<p><strong>Ordinal forecasts:</strong> (<code>output_type == "pmf"</code> and <code>output_type_id_order</code> is a vector)</p><ul><li><p>log_score</p></li>
+<li><p>rps</p></li>
+</ul><p>See <a href="https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_ordinal.html" class="external-link">scoringutils::get_metrics.forecast_ordinal</a> for details.</p>
 <p><strong>Median forecasts:</strong> (<code>output_type == "median"</code>)</p><ul><li><p>ae_point: absolute error of the point forecast (recommended for the median, see Gneiting (2011))</p></li>
 </ul><p>See <a href="https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_point.html" class="external-link">scoringutils::get_metrics.forecast_point</a> for details.</p>
 <p><strong>Mean forecasts:</strong> (<code>output_type == "mean"</code>)</p><ul><li><p><code>se_point</code>: squared error of the point forecast (recommended for the mean, see Gneiting (2011))</p></li>
@@ -172,18 +176,19 @@ American Statistical Association 106 (494): 746–62. &lt;doi: 10.1198/jasa.2011
 <span class="r-in"><span>  model_out_tbl <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_outputs</a></span> <span class="op">|&gt;</span></span></span>
 <span class="r-in"><span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">.data</span><span class="op">[[</span><span class="st">"output_type"</span><span class="op">]</span><span class="op">]</span> <span class="op">==</span> <span class="st">"pmf"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  oracle_output <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_oracle_output</a></span>,</span></span>
-<span class="r-in"><span>  metrics <span class="op">=</span> <span class="st">"log_score"</span>,</span></span>
-<span class="r-in"><span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"model_id"</span>, <span class="st">"location"</span>, <span class="st">"horizon"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rps"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"model_id"</span>, <span class="st">"location"</span>, <span class="st">"horizon"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  output_type_id_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"low"</span>, <span class="st">"moderate"</span>, <span class="st">"high"</span>, <span class="st">"very high"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pmf_scores</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             model_id location horizon   log_score</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;   &lt;char&gt;   &lt;int&gt;       &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: Flusight-baseline       25       0  0.02107606</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: Flusight-baseline       25       1  6.69652380</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: Flusight-baseline       25       2 17.73313203</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: Flusight-baseline       25       3         Inf</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: Flusight-baseline       48       0  2.18418007</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: Flusight-baseline       48       1  7.49960792</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             model_id location horizon   log_score          rps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;   &lt;char&gt;   &lt;int&gt;       &lt;num&gt;        &lt;num&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1: Flusight-baseline       25       0  0.02107606 0.0008531043</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2: Flusight-baseline       25       1  6.69652380 0.5029240066</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3: Flusight-baseline       25       2 17.73313203 1.0057355863</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4: Flusight-baseline       25       3         Inf 1.8665126816</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5: Flusight-baseline       48       0  2.18418007 0.4873966597</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6: Flusight-baseline       48       1  7.49960792 0.9659026096</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
