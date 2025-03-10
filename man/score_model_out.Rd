@@ -45,8 +45,10 @@ specifying \code{by = "model_id"} (the default) will compute average scores for
 each model.}
 
 \item{output_type_id_order}{For ordinal variables in pmf format, this is a
-vector of levels for pmf forecasts, in increasing order of the levels. For
-all other output types, this is ignored.}
+vector of levels for pmf forecasts, in increasing order of the levels. The
+order of the values for the output_type_id can be found by referencing the
+hub's tasks.json configuration file. For all output types other than pmf,
+this is ignored.}
 }
 \value{
 A data.table with scores
@@ -85,9 +87,15 @@ See \link[scoringutils:get_metrics.forecast_quantile]{scoringutils::get_metrics.
 \item log_score
 }
 
-(scoring for ordinal forecasts will be added in the future).
-
 See \link[scoringutils:get_metrics.forecast_nominal]{scoringutils::get_metrics.forecast_nominal} for details.
+
+\strong{Ordinal forecasts:} (\code{output_type == "pmf"} and \code{output_type_id_order} is a vector)
+\itemize{
+\item log_score
+\item rps
+}
+
+See \link[scoringutils:get_metrics.forecast_ordinal]{scoringutils::get_metrics.forecast_ordinal} for details.
 
 \strong{Median forecasts:} (\code{output_type == "median"})
 \itemize{
@@ -126,8 +134,9 @@ pmf_scores <- score_model_out(
   model_out_tbl = hubExamples::forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "pmf"),
   oracle_output = hubExamples::forecast_oracle_output,
-  metrics = "log_score",
-  by = c("model_id", "location", "horizon")
+  metrics = c("log_score", "rps"),
+  by = c("model_id", "location", "horizon"),
+  output_type_id_order = c("low", "moderate", "high", "very high")
 )
 head(pmf_scores)
 \dontshow{\}) # examplesIf}
