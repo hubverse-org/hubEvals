@@ -31,7 +31,7 @@
 #'
 #' @details
 #' See the hubverse documentation for the expected format of the
-#' [oracle output data](https://hubverse.io/en/latest/user-guide/target-data.html#oracle-output).
+#' [oracle output data](https://docs.hubverse.io/en/latest/user-guide/target-data.html#oracle-output).
 #'
 #' Default metrics are provided by the `scoringutils` package. You can select
 #' metrics by passing in a character vector of metric names to the `metrics`
