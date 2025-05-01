@@ -58,7 +58,7 @@ Scores model outputs with a single \code{output_type} against observed data.
 }
 \details{
 See the hubverse documentation for the expected format of the
-\href{https://hubverse.io/en/latest/user-guide/target-data.html#oracle-output}{oracle output data}.
+\href{https://docs.hubverse.io/en/latest/user-guide/target-data.html#oracle-output}{oracle output data}.
 
 Default metrics are provided by the \code{scoringutils} package. You can select
 metrics by passing in a character vector of metric names to the \code{metrics}
