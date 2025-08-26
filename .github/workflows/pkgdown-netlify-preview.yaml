@@ -61,9 +61,9 @@ jobs:
           folder: docs
       - id: deploy-dir 
         name: Determine dev status
-        run: |
+        run: |  #note we don't currently have a dev version of the docs
           if [[ $(grep -c -E 'sion. ([0-9]*\.){3}' ${{ github.workspace }}/DESCRIPTION) == 1 ]]; then
-            echo 'dir=./docs/dev' >> $GITHUB_OUTPUT
+            echo 'dir=./docs' >> $GITHUB_OUTPUT
           else
             echo 'dir=./docs' >> $GITHUB_OUTPUT
           fi
