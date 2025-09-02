@@ -5,6 +5,8 @@
 #' model that knew the observed target data values in advance
 #'
 #' @return forecast_quantile
+#'
+#' @export
 transform_quantile_model_out <- function(model_out_tbl, oracle_output) {
   model_out_tbl <- validate_model_oracle_out(model_out_tbl, oracle_output)
 
