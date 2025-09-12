@@ -1,6 +1,6 @@
 Package: hubEvals
 Title: Basic tools for scoring hubverse forecasts
-Version: 0.0.0.9001
+Version: 0.0.1
 Authors@R: c(
     person(given = "Nicholas", 
            family = "Reich",
