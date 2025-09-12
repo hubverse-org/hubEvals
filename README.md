@@ -112,8 +112,9 @@ head(pmf_scores)
 #> 6: Flusight-baseline       48       1  7.49960792 0.9659026096
 ```
 
-Or, users may transform predictions into a `forecast` object and choose
-to use `scoringutils` functionality directly.
+Or, users may transform predictions into a `forecast` object that can be
+used as an input to `scoringutils` functions and use their tooling
+directly.
 
 ``` r
 median_forecast <- transform_point_model_out(
@@ -137,7 +138,7 @@ pmf_forecasts <- transform_pmf_model_out(
   oracle_output = hubExamples::forecast_oracle_output,
   output_type_id_order = c("low", "moderate", "high", "very high")
 )
-head(pmf_forecasts)
+pmf_forecasts
 ```
 
 ## Code of Conduct
