@@ -82,11 +82,91 @@
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
+<p>Predictions can be evaluated directly using the scoring function in <code>hubEvals</code>, which assumes a hubverse format for the model outputs and target data:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://hubverse-org.github.io/hubEvals/" class="external-link">hubEvals</a></span><span class="op">)</span></span>
-<span><span class="co">## basic example code</span></span></code></pre></div>
-<hr>
+<span></span>
+<span><span class="co"># compute default metrics (in this case, absolute error) for</span></span>
+<span><span class="co"># median forecasts, summarized by the mean score for each model</span></span>
+<span><span class="va">median_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/score_model_out.html">score_model_out</a></span><span class="op">(</span></span>
+<span>  model_out_tbl <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_outputs</a></span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">output_type</span> <span class="op">==</span> <span class="st">"median"</span><span class="op">)</span>, <span class="co"># only one output type allowed</span></span>
+<span>  oracle_output <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_oracle_output</a></span>,</span>
+<span>  by <span class="op">=</span> <span class="st">"model_id"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">median_scores</span></span>
+<span><span class="co">#&gt;             model_id ae_point</span></span>
+<span><span class="co">#&gt;               &lt;char&gt;    &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: Flusight-baseline  401.875</span></span>
+<span><span class="co">#&gt; 2:   MOBS-GLEAM_FLUH  416.375</span></span>
+<span><span class="co">#&gt; 3:          PSI-DICE  277.000</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># compute WIS and interval coverage rates at 80% and 90% levels based on</span></span>
+<span><span class="co"># quantile forecasts, summarized by the mean score for each model</span></span>
+<span><span class="va">quantile_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/score_model_out.html">score_model_out</a></span><span class="op">(</span></span>
+<span>  model_out_tbl <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_outputs</a></span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">output_type</span> <span class="op">==</span> <span class="st">"quantile"</span><span class="op">)</span>, <span class="co"># only one output type allowed</span></span>
+<span>  oracle_output <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_oracle_output</a></span>,</span>
+<span>  metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wis"</span>, <span class="st">"interval_coverage_80"</span>, <span class="st">"interval_coverage_90"</span><span class="op">)</span>,</span>
+<span>  relative_metrics <span class="op">=</span> <span class="st">"wis"</span>,</span>
+<span>  by <span class="op">=</span> <span class="st">"model_id"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">quantile_scores</span></span>
+<span><span class="co">#&gt; Key: &lt;model_id&gt;</span></span>
+<span><span class="co">#&gt;             model_id      wis interval_coverage_80 interval_coverage_90 wis_relative_skill</span></span>
+<span><span class="co">#&gt;               &lt;char&gt;    &lt;num&gt;                &lt;num&gt;                &lt;num&gt;              &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: Flusight-baseline 329.4545                  0.0               0.1250          1.1473659</span></span>
+<span><span class="co">#&gt; 2:   MOBS-GLEAM_FLUH 315.2393                  0.5               0.5625          1.0978597</span></span>
+<span><span class="co">#&gt; 3:          PSI-DICE 227.9527                  0.5               0.5000          0.7938733</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># compute log scores based on pmf predictions for categorical targets,</span></span>
+<span><span class="co"># summarized by the mean score for each combination of model and location.</span></span>
+<span><span class="co"># Note: if the model_out_tbl had forecasts for multiple targets using a</span></span>
+<span><span class="co"># pmf output_type with different bins, it would be necessary to score the</span></span>
+<span><span class="co"># predictions for those targets separately.</span></span>
+<span><span class="va">pmf_scores</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/score_model_out.html">score_model_out</a></span><span class="op">(</span></span>
+<span>  model_out_tbl <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_outputs</a></span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">output_type</span> <span class="op">==</span> <span class="st">"pmf"</span><span class="op">)</span>, <span class="co"># only one output type allowed</span></span>
+<span>  oracle_output <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_oracle_output</a></span>,</span>
+<span>  metrics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"log_score"</span>, <span class="st">"rps"</span><span class="op">)</span>,</span>
+<span>  by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"model_id"</span>, <span class="st">"location"</span>, <span class="st">"horizon"</span><span class="op">)</span>,</span>
+<span>  output_type_id_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"low"</span>, <span class="st">"moderate"</span>, <span class="st">"high"</span>, <span class="st">"very high"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pmf_scores</span><span class="op">)</span></span>
+<span><span class="co">#&gt;             model_id location horizon   log_score          rps</span></span>
+<span><span class="co">#&gt;               &lt;char&gt;   &lt;char&gt;   &lt;int&gt;       &lt;num&gt;        &lt;num&gt;</span></span>
+<span><span class="co">#&gt; 1: Flusight-baseline       25       0  0.02107606 0.0008531043</span></span>
+<span><span class="co">#&gt; 2: Flusight-baseline       25       1  6.69652380 0.5029240066</span></span>
+<span><span class="co">#&gt; 3: Flusight-baseline       25       2 17.73313203 1.0057355863</span></span>
+<span><span class="co">#&gt; 4: Flusight-baseline       25       3         Inf 1.8665126816</span></span>
+<span><span class="co">#&gt; 5: Flusight-baseline       48       0  2.18418007 0.4873966597</span></span>
+<span><span class="co">#&gt; 6: Flusight-baseline       48       1  7.49960792 0.9659026096</span></span></code></pre></div>
+<p>Or, users may transform predictions into a <code>forecast</code> object that can be used as an input to <code>scoringutils</code> functions and use their tooling directly.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">median_forecast</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/transform_point_model_out.html">transform_point_model_out</a></span><span class="op">(</span></span>
+<span>  model_out_tbl <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_outputs</a></span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">output_type</span> <span class="op">==</span> <span class="st">"median"</span><span class="op">)</span>,</span>
+<span>  oracle_output <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_oracle_output</a></span>,</span>
+<span>  output_type <span class="op">=</span> <span class="st">"median"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">median_forecast</span></span>
+<span></span>
+<span><span class="va">quantile_forecast</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/transform_quantile_model_out.html">transform_quantile_model_out</a></span><span class="op">(</span></span>
+<span>  model_out_tbl <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_outputs</a></span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">output_type</span> <span class="op">==</span> <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  oracle_output <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_oracle_output</a></span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">quantile_forecast</span></span>
+<span></span>
+<span><span class="va">pmf_forecasts</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/transform_pmf_model_out.html">transform_pmf_model_out</a></span><span class="op">(</span></span>
+<span>  model_out_tbl <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_outputs</a></span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">output_type</span> <span class="op">==</span> <span class="st">"pmf"</span><span class="op">)</span>,</span>
+<span>  oracle_output <span class="op">=</span> <span class="fu">hubExamples</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/hubExamples/man/forecast_data.html" class="external-link">forecast_oracle_output</a></span>,</span>
+<span>  output_type_id_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"low"</span>, <span class="st">"moderate"</span>, <span class="st">"high"</span>, <span class="st">"very high"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">pmf_forecasts</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
