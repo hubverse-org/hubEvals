@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# hubEvals <a href="https://hubverse-org.github.io/hubEvals/"><img src="man/figures/logo.svg" align="right" height="131" alt="hubEvals website" /></a>
+# hubEvals <a href="https://hubverse-org.github.io/hubEvals/"><img src="man/figures/logo.png" align="right" height="131" alt="hubEvals website" /></a>
 
 <!-- badges: start -->
 
