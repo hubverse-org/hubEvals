@@ -47,9 +47,7 @@ Imports:
     rlang,
     scoringutils (>= 1.2.2.9000)
 Remotes:
-    epiforecasts/scoringutils,
-    hubverse-org/hubExamples,
-    hubverse-org/hubUtils
+    hubverse-org/hubExamples
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://hubverse-org.github.io/hubEvals/

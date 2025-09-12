@@ -11,6 +11,8 @@
 #'
 #' @return forecast_quantile
 #' @importFrom rlang .data
+#'
+#' @export
 transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id_order = NULL) {
   model_out_tbl <- validate_model_oracle_out(model_out_tbl, oracle_output)
 

@@ -10,6 +10,8 @@
 #' @details This function transforms a model output tibble in the Hubverse
 #' format (with either "mean" or "median" output type) to a scoringutils "point"
 #' forecast object
+#'
+#' @export
 transform_point_model_out <- function(model_out_tbl, oracle_output, output_type) {
   if ((!inherits(output_type, "character")) || (!output_type %in% c("mean", "median"))) {
     cli::cli_abort(
