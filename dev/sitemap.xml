@@ -1,0 +1,15 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/CONTRIBUTING.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/LICENSE-text.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/LICENSE.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/authors.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/index.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/news/index.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/reference/index.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/reference/transform_pmf_model_out.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/reference/transform_point_model_out.html</loc></url>
+<url><loc>https://hubverse-org.github.io/hubEvals/dev/reference/transform_quantile_model_out.html</loc></url>
+</urlset>
+
