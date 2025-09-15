@@ -1,3 +1,5 @@
+# hubEvals (development version)
+
 # hubEvals 0.0.1
 
 * Export functions `transform_pmf_model_out()`, `transform_point_model_out()`, and `transform_quantile_model_out()` used to transform hubverse model outputs into a `scoringutils` forecast object
