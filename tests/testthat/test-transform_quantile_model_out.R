@@ -1,5 +1,7 @@
 test_that("model_out_tbl_1 output is valid", {
-  model_out_tbl_1 <- utils::read.csv(test_path("testdata/model_out_tbl_quantile_1.csv"))
+  model_out_tbl_1 <- utils::read.csv(test_path(
+    "testdata/model_out_tbl_quantile_1.csv"
+  ))
   oracle_output_1 <- utils::read.csv(test_path("testdata/target_data_1.csv")) |>
     dplyr::rename(oracle_value = observation)
   act_forecast <- transform_quantile_model_out(
@@ -8,7 +10,12 @@ test_that("model_out_tbl_1 output is valid", {
   )
 
   exp_forecast <- utils::read.csv(test_path("testdata/exp_forecast_2.csv"))
-  class(exp_forecast) <- c("forecast_quantile", "forecast", "data.table", "data.frame")
+  class(exp_forecast) <- c(
+    "forecast_quantile",
+    "forecast",
+    "data.table",
+    "data.frame"
+  )
   expect_equal(act_forecast, exp_forecast)
 })
 
@@ -22,7 +29,11 @@ test_that("model_out_tbl_1 columns are valid", {
   oracle_output_1 <- utils::read.csv(
     test_path("testdata/target_data_1.csv")
   ) |>
-    dplyr::rename(loc = location, date = target_end_date, oracle_value = observation)
+    dplyr::rename(
+      loc = location,
+      date = target_end_date,
+      oracle_value = observation
+    )
   act_forecast <- transform_quantile_model_out(
     model_out_tbl = model_out_tbl_1,
     oracle_output = oracle_output_1
@@ -31,7 +42,12 @@ test_that("model_out_tbl_1 columns are valid", {
     test_path("testdata/exp_forecast_2.csv")
   ) |>
     dplyr::rename(loc = location, trgt = target, date = target_end_date)
-  class(exp_forecast) <- c("forecast_quantile", "forecast", "data.table", "data.frame")
+  class(exp_forecast) <- c(
+    "forecast_quantile",
+    "forecast",
+    "data.table",
+    "data.frame"
+  )
   expect_equal(act_forecast, exp_forecast, ignore_attr = "class")
 })
 
@@ -95,8 +111,17 @@ test_that("hubExamples data set is transformed correctly", {
   # same predicted values
   expect_equal(nrow(exp_forecast), nrow(act_forecast))
   exp_act_forecast <- dplyr::full_join(
-    exp_forecast, act_forecast,
-    by = c("model", "reference_date", "target", "horizon", "location", "target_end_date", "quantile_level")
+    exp_forecast,
+    act_forecast,
+    by = c(
+      "model",
+      "reference_date",
+      "target",
+      "horizon",
+      "location",
+      "target_end_date",
+      "quantile_level"
+    )
   )
   expect_equal(exp_act_forecast$predicted, exp_act_forecast$value)
 

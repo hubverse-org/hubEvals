@@ -27,8 +27,16 @@ model_out_tbl |>
 # create target_obserations
 observed_categories <- data.frame(
   location = c("US", "US", "US", "US", "01", "01", "01", "01"),
-  target_date = as.Date(c("2020-01-14", "2020-01-21", "2020-01-28", "2020-02-04",
-                          "2020-01-14", "2020-01-21", "2020-01-28", "2020-02-04")),
+  target_date = as.Date(c(
+    "2020-01-14",
+    "2020-01-21",
+    "2020-01-28",
+    "2020-02-04",
+    "2020-01-14",
+    "2020-01-21",
+    "2020-01-28",
+    "2020-02-04"
+  )),
   output_type_id = c("cat", "dog", "cat", "bird", "bird", "dog", "dog", "cat"),
   observation = 1,
   stringsAsFactors = FALSE
@@ -36,7 +44,10 @@ observed_categories <- data.frame(
 
 oracle_output <- model_out_tbl |>
   dplyr::distinct(location, target_date, output_type_id) |>
-  dplyr::left_join(observed_categories, by = c("location", "target_date", "output_type_id")) |>
+  dplyr::left_join(
+    observed_categories,
+    by = c("location", "target_date", "output_type_id")
+  ) |>
   dplyr::mutate(oracle_value = ifelse(is.na(observation), 0, 1)) |>
   dplyr::select(-observation)
 
@@ -62,21 +73,37 @@ exp_forecast <- model_out_tbl |>
     observed = factor(observed, levels = c("cat", "dog", "bird"))
   ) |>
   dplyr::select(
-    predicted_label, predicted = value, observed, model = model_id,
-    location, reference_date, horizon, target_date
+    predicted_label,
+    predicted = value,
+    observed,
+    model = model_id,
+    location,
+    reference_date,
+    horizon,
+    target_date
   )
 
-class(exp_forecast) <- c("forecast_nominal", "forecast", "data.table", "data.frame")
+class(exp_forecast) <- c(
+  "forecast_nominal",
+  "forecast",
+  "data.table",
+  "data.frame"
+)
 
 
 dput_fun <- function(obj, path = stdout()) {
   x <- get(obj)
   if (!is.function(x)) {
     x <- paste(capture.output(dput(x)), collapse = "\n  ")
-    res <- glue::glue("# nolint start\npmf_test_{obj} <- function() {{\n  {dput(x)}\n}}\n# nolint end")
+    res <- glue::glue(
+      "# nolint start\npmf_test_{obj} <- function() {{\n  {dput(x)}\n}}\n# nolint end"
+    )
     writeLines(res, path)
   }
 }
 dput_fun("model_out_tbl", "tests/testthat/helper-pmf_test_model_out_tbl.R")
 dput_fun("oracle_output", "tests/testthat/helper-pmf_test_oracle_output.R")
-dput_fun("exp_forecast", "tests/testthat/helper-pmf_test_expected_merged_forecast.R")
+dput_fun(
+  "exp_forecast",
+  "tests/testthat/helper-pmf_test_expected_merged_forecast.R"
+)

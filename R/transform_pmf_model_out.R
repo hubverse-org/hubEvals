@@ -13,7 +13,11 @@
 #' @importFrom rlang .data
 #'
 #' @export
-transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id_order = NULL) {
+transform_pmf_model_out <- function(
+  model_out_tbl,
+  oracle_output,
+  output_type_id_order = NULL
+) {
   model_out_tbl <- validate_model_oracle_out(model_out_tbl, oracle_output)
 
   # subset both model_out_tbl and oracle_output to output_type == "pmf"
@@ -28,7 +32,10 @@ transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id
 
   # validate or set output_type_id_order
   if (!is.null(output_type_id_order)) {
-    output_type_id_order <- validate_output_type_id_order(output_type_id_order, model_out_tbl)
+    output_type_id_order <- validate_output_type_id_order(
+      output_type_id_order,
+      model_out_tbl
+    )
     is_ordinal <- TRUE
   } else {
     is_ordinal <- FALSE
@@ -42,15 +49,27 @@ transform_pmf_model_out <- function(model_out_tbl, oracle_output, output_type_id
     dplyr::rename(model = "model_id")
 
   data <- dplyr::left_join(
-    model_out_tbl, oracle_output,
-    by = c(task_id_cols[task_id_cols %in% colnames(oracle_output)], "output_type_id"),
+    model_out_tbl,
+    oracle_output,
+    by = c(
+      task_id_cols[task_id_cols %in% colnames(oracle_output)],
+      "output_type_id"
+    ),
     relationship = "many-to-one"
   ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(c(task_id_cols, "model")))) |>
     dplyr::mutate(
       observation = .data[["output_type_id"]][.data[["oracle_value"]] == 1],
-      observation = factor(.data[["observation"]], levels = output_type_id_order, ordered = is_ordinal),
-      output_type_id = factor(.data[["output_type_id"]], levels = output_type_id_order, ordered = is_ordinal)
+      observation = factor(
+        .data[["observation"]],
+        levels = output_type_id_order,
+        ordered = is_ordinal
+      ),
+      output_type_id = factor(
+        .data[["output_type_id"]],
+        levels = output_type_id_order,
+        ordered = is_ordinal
+      )
     ) |>
     dplyr::ungroup() |>
     dplyr::select(-dplyr::all_of("oracle_value"))
@@ -99,12 +118,14 @@ validate_output_type_id_order <- function(output_type_id_order, model_out_tbl) {
         "x" = "`output_type_id_order` must align with the set of all unique
                `output_type_id` values in `model_out_tbl`.",
         "!" = ifelse(
-          length(extra_order_levels) == 0, NULL,
+          length(extra_order_levels) == 0,
+          NULL,
           "The following levels were present in `output_type_id_order` but not in `model_out_tbl`:
           {.val {extra_order_levels}}."
         ),
         "!" = ifelse(
-          length(missing_order_levels) == 0, NULL,
+          length(missing_order_levels) == 0,
+          NULL,
           "The following levels were present in `model_out_tbl` but not in `output_type_id_order`:
           {.val {missing_order_levels}};"
         )

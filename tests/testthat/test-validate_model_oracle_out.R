@@ -37,9 +37,19 @@ test_that("valdiate_model_out_target_obs() works as expected for valid inputs", 
   )
 
   # expected col names in order
-  expected_cols <- c("model_id", "location", "reference_date", "horizon",
-                     "target_end_date", "target", "model_abbr", "team_abbr",
-                     "output_type", "output_type_id", "value")
+  expected_cols <- c(
+    "model_id",
+    "location",
+    "reference_date",
+    "horizon",
+    "target_end_date",
+    "target",
+    "model_abbr",
+    "team_abbr",
+    "output_type",
+    "output_type_id",
+    "value"
+  )
   expect_equal(
     as.data.frame(val_result),
     model_out_tbl_1[, expected_cols]
@@ -83,7 +93,6 @@ test_that("an error is thrown if model_out_tbl columns do not match oracle_outpu
     )),
     regexp = "model_out_tbl and oracle_output do not have compatible columns"
   )
-
 })
 
 
