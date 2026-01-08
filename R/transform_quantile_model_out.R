@@ -23,12 +23,15 @@ transform_quantile_model_out <- function(model_out_tbl, oracle_output) {
       dplyr::select(-c("output_type", "output_type_id"))
   }
 
-  data <- dplyr::left_join(model_out_tbl, oracle_output,
+  data <- dplyr::left_join(
+    model_out_tbl,
+    oracle_output,
     by = task_id_cols[task_id_cols %in% colnames(oracle_output)],
     relationship = "many-to-one"
   )
 
-  forecast_quantile <- scoringutils::as_forecast_quantile(data,
+  forecast_quantile <- scoringutils::as_forecast_quantile(
+    data,
     forecast_unit = c("model", task_id_cols),
     observed = "oracle_value",
     predicted = "value",

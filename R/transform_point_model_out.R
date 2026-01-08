@@ -12,8 +12,15 @@
 #' forecast object
 #'
 #' @export
-transform_point_model_out <- function(model_out_tbl, oracle_output, output_type) {
-  if ((!inherits(output_type, "character")) || (!output_type %in% c("mean", "median"))) {
+transform_point_model_out <- function(
+  model_out_tbl,
+  oracle_output,
+  output_type
+) {
+  if (
+    (!inherits(output_type, "character")) ||
+      (!output_type %in% c("mean", "median"))
+  ) {
     cli::cli_abort(
       "invalid 'output_type': {.val {output_type}} Must be 'mean' or 'median'"
     )
@@ -34,12 +41,15 @@ transform_point_model_out <- function(model_out_tbl, oracle_output, output_type)
       dplyr::select(-c("output_type", "output_type_id"))
   }
 
-  data <- dplyr::left_join(model_out_tbl, oracle_output,
+  data <- dplyr::left_join(
+    model_out_tbl,
+    oracle_output,
     by = task_id_cols[task_id_cols %in% colnames(oracle_output)],
     relationship = "many-to-one"
   )
 
-  forecast_point <- scoringutils::as_forecast_point(data,
+  forecast_point <- scoringutils::as_forecast_point(
+    data,
     forecast_unit = c("model", task_id_cols),
     observed = "oracle_value",
     predicted = "value"

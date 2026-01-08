@@ -36,7 +36,14 @@ exp_rps_scores <- forecast_outputs |>
     by = c("location", "target_end_date", "target", "output_type_id")
   ) |>
   dplyr::group_by(dplyr::across(dplyr::all_of(
-    c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+    c(
+      "model_id",
+      "location",
+      "reference_date",
+      "horizon",
+      "target_end_date",
+      "target"
+    )
   ))) |>
   dplyr::summarize(
     rps = sum((cumsum(.data[["value"]]) - cumsum(.data[["oracle_value"]]))^2)
@@ -49,6 +56,14 @@ exp_rps_scores <- forecast_outputs |>
     .groups = "drop"
   )
 
-exp_scores <- dplyr::full_join(exp_log_scores, exp_rps_scores, by = c("model_id", "location"))
+exp_scores <- dplyr::full_join(
+  exp_log_scores,
+  exp_rps_scores,
+  by = c("model_id", "location")
+)
 
-write.csv(exp_scores, testthat::test_path("testdata", "exp_pmf_scores.csv"), row.names = FALSE)
+write.csv(
+  exp_scores,
+  testthat::test_path("testdata", "exp_pmf_scores.csv"),
+  row.names = FALSE
+)

@@ -4,9 +4,17 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "mean"),
     oracle_output = forecast_oracle_output,
-    by = c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+    by = c(
+      "model_id",
+      "location",
+      "reference_date",
+      "horizon",
+      "target_end_date",
+      "target"
+    )
   )
 
   exp_scores <- forecast_outputs |>
@@ -20,7 +28,14 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
       se = (.data[["value"]] - .data[["oracle_value"]])^2
     ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+      c(
+        "model_id",
+        "location",
+        "reference_date",
+        "horizon",
+        "target_end_date",
+        "target"
+      )
     ))) |>
     dplyr::summarize(
       se_point = mean(.data[["se"]]),
@@ -31,8 +46,16 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
   expect_equal(colnames(act_scores), colnames(exp_scores))
   expect_equal(nrow(act_scores), nrow(exp_scores))
   merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
-    by = c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+    act_scores,
+    exp_scores,
+    by = c(
+      "model_id",
+      "location",
+      "reference_date",
+      "horizon",
+      "target_end_date",
+      "target"
+    )
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
   expect_equal(merged_scores$se_point.x, merged_scores$se_point.y)
@@ -45,7 +68,8 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "mean"),
     oracle_output = forecast_oracle_output,
     summarize = FALSE
   )
@@ -61,7 +85,14 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
       se = (.data[["value"]] - .data[["oracle_value"]])^2
     ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "reference_date", "target", "horizon", "location", "target_end_date")
+      c(
+        "model_id",
+        "reference_date",
+        "target",
+        "horizon",
+        "location",
+        "target_end_date"
+      )
     ))) |>
     dplyr::summarize(
       se_point = mean(.data[["se"]]),
@@ -72,8 +103,16 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
   expect_equal(colnames(act_scores), colnames(exp_scores))
   expect_equal(nrow(act_scores), nrow(exp_scores))
   merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
-    by = c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+    act_scores,
+    exp_scores,
+    by = c(
+      "model_id",
+      "location",
+      "reference_date",
+      "horizon",
+      "target_end_date",
+      "target"
+    )
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
   expect_equal(merged_scores$se_point.x, merged_scores$se_point.y)
@@ -86,7 +125,8 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, charact
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "mean"),
     oracle_output = forecast_oracle_output,
     metrics = c("ae_point", "se_point"),
     by = c("model_id", "location")
@@ -115,7 +155,8 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, charact
   expect_equal(colnames(act_scores), colnames(exp_scores))
   expect_equal(nrow(act_scores), nrow(exp_scores))
   merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
+    act_scores,
+    exp_scores,
     by = c("model_id", "location")
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
@@ -130,7 +171,8 @@ test_that("score_model_out succeeds with valid inputs: median output_type, defau
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "median"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "median"),
     oracle_output = forecast_oracle_output,
     summarize = FALSE
   )
@@ -146,7 +188,14 @@ test_that("score_model_out succeeds with valid inputs: median output_type, defau
       ae = abs(.data[["value"]] - .data[["oracle_value"]])
     ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "reference_date", "target", "horizon", "location", "target_end_date")
+      c(
+        "model_id",
+        "reference_date",
+        "target",
+        "horizon",
+        "location",
+        "target_end_date"
+      )
     ))) |>
     dplyr::summarize(
       ae_point = mean(.data[["ae"]]),
@@ -157,8 +206,16 @@ test_that("score_model_out succeeds with valid inputs: median output_type, defau
   expect_equal(colnames(act_scores), colnames(exp_scores))
   expect_equal(nrow(act_scores), nrow(exp_scores))
   merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
-    by = c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+    act_scores,
+    exp_scores,
+    by = c(
+      "model_id",
+      "location",
+      "reference_date",
+      "horizon",
+      "target_end_date",
+      "target"
+    )
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
   expect_equal(merged_scores$ae_point.x, merged_scores$ae_point.y)
@@ -171,7 +228,8 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
     metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
     by = c("model_id", "location")
@@ -189,8 +247,10 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
       output_type_id = as.numeric(.data[["output_type_id"]]),
       qs = ifelse(
         .data[["oracle_value"]] >= .data[["value"]],
-        .data[["output_type_id"]] * (.data[["oracle_value"]] - .data[["value"]]),
-        (1 - .data[["output_type_id"]]) * (.data[["value"]] - .data[["oracle_value"]])
+        .data[["output_type_id"]] *
+          (.data[["oracle_value"]] - .data[["value"]]),
+        (1 - .data[["output_type_id"]]) *
+          (.data[["value"]] - .data[["oracle_value"]])
       ),
       q_coverage_80_lower = ifelse(
         .data[["output_type_id"]] == 0.1,
@@ -214,13 +274,28 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
       )
     ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+      c(
+        "model_id",
+        "location",
+        "reference_date",
+        "horizon",
+        "target_end_date",
+        "target"
+      )
     ))) |>
     dplyr::summarize(
       wis = 2 * mean(.data[["qs"]]),
-      interval_coverage_80 = (sum(.data[["q_coverage_80_lower"]], na.rm = TRUE) == 1) *
+      interval_coverage_80 = (sum(
+        .data[["q_coverage_80_lower"]],
+        na.rm = TRUE
+      ) ==
+        1) *
         (sum(.data[["q_coverage_80_upper"]], na.rm = TRUE) == 1),
-      interval_coverage_90 = (sum(.data[["q_coverage_90_lower"]], na.rm = TRUE) == 1) *
+      interval_coverage_90 = (sum(
+        .data[["q_coverage_90_lower"]],
+        na.rm = TRUE
+      ) ==
+        1) *
         (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1)
     ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(
@@ -228,8 +303,14 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
     ))) |>
     dplyr::summarize(
       wis = mean(.data[["wis"]]),
-      interval_coverage_80 = mean(.data[["interval_coverage_80"]], na.rm = TRUE),
-      interval_coverage_90 = mean(.data[["interval_coverage_90"]], na.rm = TRUE),
+      interval_coverage_80 = mean(
+        .data[["interval_coverage_80"]],
+        na.rm = TRUE
+      ),
+      interval_coverage_90 = mean(
+        .data[["interval_coverage_90"]],
+        na.rm = TRUE
+      ),
       .groups = "drop"
     )
 
@@ -237,13 +318,20 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
   expect_equal(colnames(act_scores), colnames(exp_scores))
   expect_equal(nrow(act_scores), nrow(exp_scores))
   merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
+    act_scores,
+    exp_scores,
     by = c("model_id", "location")
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
   expect_equal(merged_scores$wis.x, merged_scores$wis.y)
-  expect_equal(merged_scores$interval_coverage_80.x, merged_scores$interval_coverage_80.y)
-  expect_equal(merged_scores$interval_coverage_90.x, merged_scores$interval_coverage_90.y)
+  expect_equal(
+    merged_scores$interval_coverage_80.x,
+    merged_scores$interval_coverage_80.y
+  )
+  expect_equal(
+    merged_scores$interval_coverage_90.x,
+    merged_scores$interval_coverage_90.y
+  )
 })
 
 
@@ -253,7 +341,8 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
     metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
     summarize = FALSE
@@ -271,8 +360,10 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
       output_type_id = as.numeric(.data[["output_type_id"]]),
       qs = ifelse(
         .data[["oracle_value"]] >= .data[["value"]],
-        .data[["output_type_id"]] * (.data[["oracle_value"]] - .data[["value"]]),
-        (1 - .data[["output_type_id"]]) * (.data[["value"]] - .data[["oracle_value"]])
+        .data[["output_type_id"]] *
+          (.data[["oracle_value"]] - .data[["value"]]),
+        (1 - .data[["output_type_id"]]) *
+          (.data[["value"]] - .data[["oracle_value"]])
       ),
       q_coverage_80_lower = ifelse(
         .data[["output_type_id"]] == 0.1,
@@ -296,14 +387,25 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
       )
     ) |>
     dplyr::group_by(dplyr::across(dplyr::all_of(
-      c("model_id", "reference_date", "target", "horizon", "location", "target_end_date")
+      c(
+        "model_id",
+        "reference_date",
+        "target",
+        "horizon",
+        "location",
+        "target_end_date"
+      )
     ))) |>
     dplyr::summarize(
       wis = 2 * mean(.data[["qs"]]),
-      interval_coverage_80 = as.logical((sum(.data[["q_coverage_80_lower"]], na.rm = TRUE) == 1) *
-                                          (sum(.data[["q_coverage_80_upper"]], na.rm = TRUE) == 1)),
-      interval_coverage_90 = as.logical((sum(.data[["q_coverage_90_lower"]], na.rm = TRUE) == 1) *
-                                          (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1)),
+      interval_coverage_80 = as.logical(
+        (sum(.data[["q_coverage_80_lower"]], na.rm = TRUE) == 1) *
+          (sum(.data[["q_coverage_80_upper"]], na.rm = TRUE) == 1)
+      ),
+      interval_coverage_90 = as.logical(
+        (sum(.data[["q_coverage_90_lower"]], na.rm = TRUE) == 1) *
+          (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1)
+      ),
       .groups = "drop"
     )
 
@@ -311,13 +413,27 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
   expect_equal(colnames(act_scores), colnames(exp_scores))
   expect_equal(nrow(act_scores), nrow(exp_scores))
   merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
-    by = c("model_id", "location", "reference_date", "horizon", "target_end_date", "target")
+    act_scores,
+    exp_scores,
+    by = c(
+      "model_id",
+      "location",
+      "reference_date",
+      "horizon",
+      "target_end_date",
+      "target"
+    )
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
   expect_equal(merged_scores$wis.x, merged_scores$wis.y)
-  expect_equal(merged_scores$interval_coverage_80.x, merged_scores$interval_coverage_80.y)
-  expect_equal(merged_scores$interval_coverage_90.x, merged_scores$interval_coverage_90.y)
+  expect_equal(
+    merged_scores$interval_coverage_80.x,
+    merged_scores$interval_coverage_80.y
+  )
+  expect_equal(
+    merged_scores$interval_coverage_90.x,
+    merged_scores$interval_coverage_90.y
+  )
 })
 
 
@@ -327,7 +443,8 @@ test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, 
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "pmf"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "pmf"),
     oracle_output = forecast_oracle_output,
     by = c("model_id", "location")
   )
@@ -340,7 +457,8 @@ test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, 
   expect_equal(colnames(act_scores), colnames(exp_scores))
   expect_equal(nrow(act_scores), nrow(exp_scores))
   merged_scores <- dplyr::full_join(
-    act_scores, exp_scores,
+    act_scores,
+    exp_scores,
     by = c("model_id", "location")
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
@@ -391,7 +509,8 @@ test_that("score_model_out works with all kinds of interval levels are requested
 
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
       oracle_output = forecast_oracle_output,
       metrics = "interval_coverage_5d2a"
     ),
@@ -401,7 +520,8 @@ test_that("score_model_out works with all kinds of interval levels are requested
   suppressWarnings({
     expect_warning(
       score_model_out(
-        model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+        model_out_tbl = forecast_outputs |>
+          dplyr::filter(.data[["output_type"]] == "quantile"),
         oracle_output = forecast_oracle_output,
         metrics = "interval_coverage_55"
       ),
@@ -410,7 +530,8 @@ test_that("score_model_out works with all kinds of interval levels are requested
 
     expect_error(
       score_model_out(
-        model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+        model_out_tbl = forecast_outputs |>
+          dplyr::filter(.data[["output_type"]] == "quantile"),
         oracle_output = forecast_oracle_output,
         metrics = "interval_coverage_100"
       ),
@@ -419,7 +540,8 @@ test_that("score_model_out works with all kinds of interval levels are requested
 
     expect_warning(
       score_model_out(
-        model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+        model_out_tbl = forecast_outputs |>
+          dplyr::filter(.data[["output_type"]] == "quantile"),
         oracle_output = forecast_oracle_output,
         metrics = "interval_coverage_5.3"
       ),
@@ -436,7 +558,8 @@ test_that("score_model_out errors when invalid metrics are requested", {
 
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
       oracle_output = forecast_oracle_output,
       metrics = "log_score"
     ),
@@ -445,36 +568,35 @@ test_that("score_model_out errors when invalid metrics are requested", {
 
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
       oracle_output = forecast_oracle_output,
       metrics = list(5, 6, "asdf")
     ),
-    regexp =
-      "^Assertion on 'c\\(select, exclude\\)' failed: Must be of type 'character' \\(or 'NULL'\\), not 'list'\\.$"
+    regexp = "^Assertion on 'c\\(select, exclude\\)' failed: Must be of type 'character' \\(or 'NULL'\\), not 'list'\\.$"
   )
 
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
       oracle_output = forecast_oracle_output,
       metrics = c("asdfinterval_coverage_90")
     ),
-    regexp =
-      "has additional elements"
+    regexp = "has additional elements"
   )
 
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "mean"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "mean"),
       oracle_output = forecast_oracle_output,
       metrics = scoringutils::get_metrics(scoringutils::example_point),
       by = c("model_id", "location")
     ),
-    regexp =
-      "^Assertion on 'c\\(select, exclude\\)' failed: Must be of type 'character' \\(or 'NULL'\\), not 'list'\\.$"
+    regexp = "^Assertion on 'c\\(select, exclude\\)' failed: Must be of type 'character' \\(or 'NULL'\\), not 'list'\\.$"
   )
 })
-
 
 
 test_that("score_model_out errors when an unsupported output_type is provided", {
@@ -484,7 +606,8 @@ test_that("score_model_out errors when an unsupported output_type is provided", 
 
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "cdf"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "cdf"),
       oracle_output = forecast_oracle_output,
       metrics = "log_score"
     ),

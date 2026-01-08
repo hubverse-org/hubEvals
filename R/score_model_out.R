@@ -108,10 +108,16 @@
 #' American Statistical Association 106 (494): 746–62. <doi: 10.1198/jasa.2011.r10138>.
 #'
 #' @export
-score_model_out <- function(model_out_tbl, oracle_output,
-                            metrics = NULL, relative_metrics = NULL, baseline = NULL,
-                            summarize = TRUE, by = "model_id",
-                            output_type_id_order = NULL) {
+score_model_out <- function(
+  model_out_tbl,
+  oracle_output,
+  metrics = NULL,
+  relative_metrics = NULL,
+  baseline = NULL,
+  summarize = TRUE,
+  by = "model_id",
+  output_type_id_order = NULL
+) {
   # check that model_out_tbl has a single output_type that is supported by this package
   # also, retrieve that output_type
   output_type <- validate_output_type(model_out_tbl)
@@ -121,16 +127,29 @@ score_model_out <- function(model_out_tbl, oracle_output,
   }
 
   # assemble data for scoringutils
-  su_data <- switch(output_type,
+  su_data <- switch(
+    output_type,
     quantile = transform_quantile_model_out(model_out_tbl, oracle_output),
-    pmf = transform_pmf_model_out(model_out_tbl, oracle_output, output_type_id_order),
+    pmf = transform_pmf_model_out(
+      model_out_tbl,
+      oracle_output,
+      output_type_id_order
+    ),
     mean = transform_point_model_out(model_out_tbl, oracle_output, output_type),
-    median = transform_point_model_out(model_out_tbl, oracle_output, output_type),
+    median = transform_point_model_out(
+      model_out_tbl,
+      oracle_output,
+      output_type
+    ),
     NULL # default, should not happen because of the validation above
   )
 
   # get/validate the scoring metrics
-  metrics <- get_metrics(forecast = su_data, output_type = output_type, select = metrics)
+  metrics <- get_metrics(
+    forecast = su_data,
+    output_type = output_type,
+    select = metrics
+  )
 
   # compute scores
   scores <- scoringutils::score(su_data, metrics)
@@ -177,7 +196,10 @@ get_metrics <- function(forecast, output_type, select = NULL) {
     interval_metrics <- select[interval_metric_inds]
     other_metrics <- select[!interval_metric_inds]
 
-    other_metric_fns <- scoringutils::get_metrics(forecast, select = other_metrics)
+    other_metric_fns <- scoringutils::get_metrics(
+      forecast,
+      select = other_metrics
+    )
 
     # assemble interval coverage functions
     interval_metric_fns <- lapply(

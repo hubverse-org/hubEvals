@@ -4,9 +4,15 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
-    metrics = c("ae_median", "wis", "interval_coverage_80", "interval_coverage_90"),
+    metrics = c(
+      "ae_median",
+      "wis",
+      "interval_coverage_80",
+      "interval_coverage_90"
+    ),
     relative_metrics = c("ae_median", "wis"),
     by = c("model_id", "location")
   )
@@ -25,9 +31,15 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   act_scores <- score_model_out(
-    model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
-    metrics = c("ae_median", "wis", "interval_coverage_80", "interval_coverage_90"),
+    metrics = c(
+      "ae_median",
+      "wis",
+      "interval_coverage_80",
+      "interval_coverage_90"
+    ),
     relative_metrics = c("ae_median", "wis"),
     baseline = "Flusight-baseline",
     by = c("model_id", "location")
@@ -48,7 +60,8 @@ test_that("score_model_out errors when invalid relative metrics are requested", 
   # not allowed to compute relative skill for interval coverage
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
       oracle_output = forecast_oracle_output,
       metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
       relative_metrics = c("interval_coverage_90", "wis"),
@@ -59,7 +72,8 @@ test_that("score_model_out errors when invalid relative metrics are requested", 
   # relative_metrics must be a subset of metrics
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
       oracle_output = forecast_oracle_output,
       metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
       relative_metrics = c("ae_median", "wis"),
@@ -70,7 +84,8 @@ test_that("score_model_out errors when invalid relative metrics are requested", 
   # can't ask for relative metrics without breaking down by model_id
   expect_error(
     score_model_out(
-      model_out_tbl = forecast_outputs |> dplyr::filter(.data[["output_type"]] == "quantile"),
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
       oracle_output = forecast_oracle_output,
       metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
       relative_metrics = "wis",

@@ -25,12 +25,25 @@ test_that("transform_pmf_model_out succeeds with valid inputs -- nominal", {
 test_that("transform_pmf_model_out succeeds with valid inputs -- ordinal", {
   model_out_tbl <- pmf_test_model_out_tbl()
   oracle_output <- pmf_test_oracle_output()
-  exp_forecast <- pmf_test_exp_forecast() |> dplyr::mutate(
-    predicted_label = factor(predicted_label, levels = c("cat", "dog", "bird"), ordered = TRUE),
-    observed = factor(observed, levels = c("cat", "dog", "bird"), ordered = TRUE)
+  exp_forecast <- pmf_test_exp_forecast() |>
+    dplyr::mutate(
+      predicted_label = factor(
+        predicted_label,
+        levels = c("cat", "dog", "bird"),
+        ordered = TRUE
+      ),
+      observed = factor(
+        observed,
+        levels = c("cat", "dog", "bird"),
+        ordered = TRUE
+      )
+    )
+  class(exp_forecast) <- c(
+    "forecast_ordinal",
+    "forecast",
+    "data.table",
+    "data.frame"
   )
-  class(exp_forecast) <- c("forecast_ordinal", "forecast", "data.table", "data.frame")
-
 
   act_forecast <- transform_pmf_model_out(
     model_out_tbl = model_out_tbl,

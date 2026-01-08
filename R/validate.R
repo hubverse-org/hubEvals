@@ -9,8 +9,12 @@ get_task_id_cols <- function(model_out_tbl) {
   model_out_cols <- colnames(model_out_tbl)
   # To-do: hubUtils::std_colnames (non-task id cols)
   non_task_cols <- c(
-    "model_id", "output_type", "output_type_id",
-    "value", "model_abbr", "team_abbr"
+    "model_id",
+    "output_type",
+    "output_type_id",
+    "value",
+    "model_abbr",
+    "team_abbr"
   )
   task_id_cols <- model_out_cols[!model_out_cols %in% non_task_cols]
 
@@ -44,7 +48,12 @@ validate_model_oracle_out <- function(model_out_tbl, oracle_output) {
     )
   }
   t_o_cols <- colnames(oracle_output)
-  expected_cols_superset <- c(task_id_cols, "output_type", "output_type_id", "oracle_value")
+  expected_cols_superset <- c(
+    task_id_cols,
+    "output_type",
+    "output_type_id",
+    "oracle_value"
+  )
   unexpected_cols <- t_o_cols[!t_o_cols %in% expected_cols_superset]
   if (length(unexpected_cols) > 0) {
     cli::cli_abort(
