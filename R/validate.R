@@ -135,3 +135,105 @@ validate_relative_metrics <- function(relative_metrics, metrics, by) {
     ))
   }
 }
+
+
+#' Infer transform label from function expression
+#'
+#' Extracts a label for the transformation function, either from user input
+#' or by inferring it from the function name.
+#'
+#' @param transform_expr The captured expression for the transform argument,
+#'   obtained via `rlang::enexpr(transform)` in the calling function.
+#' @param transform_label User-provided label, or NULL to auto-generate
+#' @param call The call to use in error messages (for cli::cli_abort)
+#'
+#' @return Character string label (e.g., "log_shift", "sqrt")
+#'
+#' @details
+#' When `transform_label` is NULL, the function name is extracted from the
+#' expression. For namespaced calls like `scoringutils::log_shift`, only the
+#' function name ("log_shift") is used. Anonymous functions require an
+#' explicit `transform_label`.
+#'
+#' @noRd
+get_transform_label <- function(
+  transform_expr,
+  transform_label,
+  call = rlang::caller_env()
+) {
+  if (!is.null(transform_label)) {
+    return(transform_label)
+  }
+
+  # Check if transform was passed as a named function:
+  # - is_symbol: bare function name like `sqrt` or `log_shift`
+  # - is_call(, "::"): namespaced function like `scoringutils::log_shift`
+  if (
+    rlang::is_symbol(transform_expr) || rlang::is_call(transform_expr, "::")
+  ) {
+    # Extract function name, stripping namespace if present
+    # e.g., "scoringutils::log_shift" -> "log_shift"
+    return(sub(".*::", "", rlang::as_label(transform_expr)))
+  }
+
+  # Anonymous functions (e.g., function(x) log(x + 1)) don't have a name
+  # to infer, so require explicit label
+  cli::cli_abort(
+    "{.arg transform_label} is required when using an anonymous transform function.",
+    call = call
+  )
+}
+
+
+#' Validate transformation parameters
+#'
+#' @param transform A transformation function or NULL
+#' @param transform_label User-provided label or NULL
+#' @param output_type The output_type from the model_out_tbl
+#' @param call The call to use in error messages (for cli::cli_abort)
+#'
+#' @return TRUE (invisibly), or errors with informative message
+#'
+#' @noRd
+validate_transform <- function(
+  transform,
+  transform_label,
+  output_type,
+  call = rlang::caller_env()
+) {
+  if (is.null(transform)) {
+    return(invisible(TRUE))
+  }
+
+  if (!is.function(transform)) {
+    cli::cli_abort(
+      c(
+        "{.arg transform} must be a function or NULL.",
+        "x" = "Got {.cls {class(transform)}} instead."
+      ),
+      call = call
+    )
+  }
+
+  if (!is.null(transform_label) && !is.character(transform_label)) {
+    cli::cli_abort(
+      c(
+        "{.arg transform_label} must be a character string or NULL.",
+        "x" = "Got {.cls {class(transform_label)}} instead."
+      ),
+      call = call
+    )
+  }
+
+  if (output_type == "pmf") {
+    cli::cli_abort(
+      c(
+        "Scale transformations are not supported for pmf output types.",
+        "i" = "Transformations can only be applied to quantile, mean, or median forecasts."
+      ),
+      call = call
+    )
+  }
+
+  invisible(TRUE)
+}

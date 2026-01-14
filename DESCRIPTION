@@ -54,7 +54,7 @@ Imports:
 Remotes:
     hubverse-org/hubExamples
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 URL: https://hubverse-org.github.io/hubEvals/
 Depends: 
     R (>= 2.10)
