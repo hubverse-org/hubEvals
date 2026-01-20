@@ -64,15 +64,16 @@ quantile, mean, and median output types.}
 \item{transform_append}{Logical. If \code{FALSE} (the default), scores are
 computed only on the transformed scale. If \code{TRUE}, scores are computed on
 both original and transformed scales, with a \code{scale} column distinguishing
-them.}
+them. Ignored if \code{transform = NULL}.}
 
 \item{transform_label}{A character string label for the transformation
 (e.g., "log"). If \code{NULL} (the default), the label is auto-generated from
 the function name (e.g., "log_shift" for \code{scoringutils::log_shift}).
-Required when using an anonymous transform function. Note: the label only
-appears in output when \code{transform_append = TRUE}, where it distinguishes
-transformed rows (labeled with this value) from original rows (labeled
-"natural") in the \code{scale} column.}
+Required when using an anonymous transform function. Ignored if
+\code{transform = NULL}. Note: the label only appears in output when
+\code{transform_append = TRUE}, where it distinguishes transformed rows
+(labeled with this value) from original rows (labeled "natural") in the
+\code{scale} column.}
 }
 \value{
 A data.table with scores

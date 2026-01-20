@@ -38,14 +38,15 @@
 #' @param transform_append Logical. If `FALSE` (the default), scores are
 #'   computed only on the transformed scale. If `TRUE`, scores are computed on
 #'   both original and transformed scales, with a `scale` column distinguishing
-#'   them.
+#'   them. Ignored if `transform = NULL`.
 #' @param transform_label A character string label for the transformation
 #'   (e.g., "log"). If `NULL` (the default), the label is auto-generated from
 #'   the function name (e.g., "log_shift" for `scoringutils::log_shift`).
-#'   Required when using an anonymous transform function. Note: the label only
-#'   appears in output when `transform_append = TRUE`, where it distinguishes
-#'   transformed rows (labeled with this value) from original rows (labeled
-#'   "natural") in the `scale` column.
+#'   Required when using an anonymous transform function. Ignored if
+#'   `transform = NULL`. Note: the label only appears in output when
+#'   `transform_append = TRUE`, where it distinguishes transformed rows
+#'   (labeled with this value) from original rows (labeled "natural") in the
+#'   `scale` column.
 #'
 #' @details
 #' See the hubverse documentation for the expected format of the
