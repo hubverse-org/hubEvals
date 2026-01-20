@@ -15,7 +15,8 @@ score_model_out(
   output_type_id_order = NULL,
   transform = NULL,
   transform_append = FALSE,
-  transform_label = NULL
+  transform_label = NULL,
+  ...
 )
 }
 \arguments{
@@ -74,6 +75,10 @@ Required when using an anonymous transform function. Ignored if
 \code{transform_append = TRUE}, where it distinguishes transformed rows
 (labeled with this value) from original rows (labeled "natural") in the
 \code{scale} column.}
+
+\item{...}{Additional arguments passed to the \code{transform} function. For
+example, allows use of the \code{offset} and \code{base} arguments of
+\code{\link[scoringutils:log_shift]{scoringutils::log_shift()}}. Ignored if \code{transform = NULL}.}
 }
 \value{
 A data.table with scores

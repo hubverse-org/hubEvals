@@ -47,6 +47,9 @@
 #'   `transform_append = TRUE`, where it distinguishes transformed rows
 #'   (labeled with this value) from original rows (labeled "natural") in the
 #'   `scale` column.
+#' @param ... Additional arguments passed to the `transform` function. For
+#'   example, allows use of the `offset` and `base` arguments of
+#'   [scoringutils::log_shift()]. Ignored if `transform = NULL`.
 #'
 #' @details
 #' See the hubverse documentation for the expected format of the
@@ -138,7 +141,8 @@ score_model_out <- function(
   output_type_id_order = NULL,
   transform = NULL,
   transform_append = FALSE,
-  transform_label = NULL
+  transform_label = NULL,
+  ...
 ) {
   # check that model_out_tbl has a single output_type that is supported by this package
   # also, retrieve that output_type
@@ -178,7 +182,8 @@ score_model_out <- function(
       su_data,
       fun = transform,
       append = transform_append,
-      label = label
+      label = label,
+      ...
     )
   }
 

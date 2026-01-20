@@ -755,3 +755,47 @@ test_that("score_model_out errors when transform_label is not character", {
     regexp = "transform_label.*must be a character string or NULL"
   )
 })
+
+
+test_that("score_model_out passes ... arguments to transform function", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  quantile_data <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+
+  # Using log_shift with offset=1 should avoid NaN scores and warnings
+  # (data contains zeros which would cause issues without offset)
+  scores <- score_model_out(
+    model_out_tbl = quantile_data,
+    oracle_output = forecast_oracle_output,
+    metrics = "wis",
+    transform = scoringutils::log_shift,
+    by = "model_id",
+    offset = 1
+  )
+
+  expect_true(nrow(scores) > 0)
+  expect_false(any(is.nan(scores$wis)))
+})
+
+
+test_that("score_model_out propagates warnings from scoringutils", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  # Data contains zeros - log_shift without offset should warn
+  quantile_data <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+
+  expect_warning(
+    score_model_out(
+      model_out_tbl = quantile_data,
+      oracle_output = forecast_oracle_output,
+      metrics = "wis",
+      transform = scoringutils::log_shift,
+      by = "model_id"
+    ),
+    regexp = "Detected zeros in input values"
+  )
+})
