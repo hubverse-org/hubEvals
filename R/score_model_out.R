@@ -28,6 +28,28 @@
 #' order of the values for the output_type_id can be found by referencing the
 #' hub's tasks.json configuration file. For all output types other than pmf,
 #' this is ignored.
+#' @param transform A function to apply as a scale transformation to both
+#'   predictions and observations before scoring. Common choices include
+#'   \code{\link[scoringutils]{log_shift}} (recommended for log transformation
+#'   as it handles zeros via an offset parameter), \code{sqrt}, or
+#'   \code{log1p}. Avoid using \code{log} directly if data may contain zeros.
+#'   If `NULL` (the default), no transformation is applied. Only supported for
+#'   quantile, mean, and median output types.
+#' @param transform_append Logical. If `FALSE` (the default), scores are
+#'   computed only on the transformed scale. If `TRUE`, scores are computed on
+#'   both original and transformed scales, with a `scale` column distinguishing
+#'   them. Ignored if `transform = NULL`.
+#' @param transform_label A character string label for the transformation
+#'   (e.g., "log"). If `NULL` (the default), the label is auto-generated from
+#'   the function name (e.g., "log_shift" for `scoringutils::log_shift`).
+#'   Required when using an anonymous transform function. Ignored if
+#'   `transform = NULL`. Note: the label only appears in output when
+#'   `transform_append = TRUE`, where it distinguishes transformed rows
+#'   (labeled with this value) from original rows (labeled "natural") in the
+#'   `scale` column.
+#' @param ... Additional arguments passed to the `transform` function. For
+#'   example, allows use of the `offset` and `base` arguments of
+#'   [scoringutils::log_shift()]. Ignored if `transform = NULL`.
 #'
 #' @details
 #' See the hubverse documentation for the expected format of the
@@ -116,11 +138,19 @@ score_model_out <- function(
   baseline = NULL,
   summarize = TRUE,
   by = "model_id",
-  output_type_id_order = NULL
+  output_type_id_order = NULL,
+  transform = NULL,
+  transform_append = FALSE,
+  transform_label = NULL,
+  ...
 ) {
   # check that model_out_tbl has a single output_type that is supported by this package
   # also, retrieve that output_type
   output_type <- validate_output_type(model_out_tbl)
+
+  # Validate transformation parameters and capture expression for label inference
+  transform_expr <- rlang::enexpr(transform)
+  validate_transform(transform, transform_label, output_type)
   if (summarize) {
     # Note: The call to scoringutils::add_relative_skill below performs validation of `baseline`
     validate_relative_metrics(relative_metrics, metrics, by)
@@ -143,6 +173,19 @@ score_model_out <- function(
     ),
     NULL # default, should not happen because of the validation above
   )
+
+  # Apply scale transformation if requested
+  if (!is.null(transform)) {
+    # Use the captured expression for label inference (e.g., "log_shift")
+    label <- get_transform_label(transform_expr, transform_label)
+    su_data <- scoringutils::transform_forecasts(
+      su_data,
+      fun = transform,
+      append = transform_append,
+      label = label,
+      ...
+    )
+  }
 
   # get/validate the scoring metrics
   metrics <- get_metrics(

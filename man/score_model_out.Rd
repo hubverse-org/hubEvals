@@ -12,7 +12,11 @@ score_model_out(
   baseline = NULL,
   summarize = TRUE,
   by = "model_id",
-  output_type_id_order = NULL
+  output_type_id_order = NULL,
+  transform = NULL,
+  transform_append = FALSE,
+  transform_label = NULL,
+  ...
 )
 }
 \arguments{
@@ -49,6 +53,32 @@ vector of levels for pmf forecasts, in increasing order of the levels. The
 order of the values for the output_type_id can be found by referencing the
 hub's tasks.json configuration file. For all output types other than pmf,
 this is ignored.}
+
+\item{transform}{A function to apply as a scale transformation to both
+predictions and observations before scoring. Common choices include
+\code{\link[scoringutils]{log_shift}} (recommended for log transformation
+as it handles zeros via an offset parameter), \code{sqrt}, or
+\code{log1p}. Avoid using \code{log} directly if data may contain zeros.
+If \code{NULL} (the default), no transformation is applied. Only supported for
+quantile, mean, and median output types.}
+
+\item{transform_append}{Logical. If \code{FALSE} (the default), scores are
+computed only on the transformed scale. If \code{TRUE}, scores are computed on
+both original and transformed scales, with a \code{scale} column distinguishing
+them. Ignored if \code{transform = NULL}.}
+
+\item{transform_label}{A character string label for the transformation
+(e.g., "log"). If \code{NULL} (the default), the label is auto-generated from
+the function name (e.g., "log_shift" for \code{scoringutils::log_shift}).
+Required when using an anonymous transform function. Ignored if
+\code{transform = NULL}. Note: the label only appears in output when
+\code{transform_append = TRUE}, where it distinguishes transformed rows
+(labeled with this value) from original rows (labeled "natural") in the
+\code{scale} column.}
+
+\item{...}{Additional arguments passed to the \code{transform} function. For
+example, allows use of the \code{offset} and \code{base} arguments of
+\code{\link[scoringutils:log_shift]{scoringutils::log_shift()}}. Ignored if \code{transform = NULL}.}
 }
 \value{
 A data.table with scores
@@ -112,7 +142,7 @@ See \link[scoringutils:get_metrics.forecast_point]{scoringutils::get_metrics.for
 See \link[scoringutils:add_relative_skill]{scoringutils::add_relative_skill} for details on relative skill scores.
 }
 \examples{
-\dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # compute WIS and interval coverage rates at 80\% and 90\% levels based on
 # quantile forecasts, summarized by the mean score for each model
 quantile_scores <- score_model_out(

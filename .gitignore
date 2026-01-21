@@ -58,3 +58,8 @@ docs
 .quarto
 
 .vscode/
+
+# Claude Code
+CLAUDE.md
+.attic/
+.claude/

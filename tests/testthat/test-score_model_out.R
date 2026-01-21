@@ -614,3 +614,188 @@ test_that("score_model_out errors when an unsupported output_type is provided", 
     regexp = "only supports the following types"
   )
 })
+
+
+# Tests for scale transformation functionality
+
+test_that("transform argument produces same scores as manually transformed data", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  quantile_data <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+
+  # Manually transform the data using sqrt
+  quantile_data_transformed <- quantile_data |>
+    dplyr::mutate(value = sqrt(.data[["value"]]))
+  oracle_output_transformed <- forecast_oracle_output |>
+    dplyr::mutate(oracle_value = sqrt(.data[["oracle_value"]]))
+
+  # Score manually transformed data WITHOUT transform argument
+  scores_manual <- score_model_out(
+    model_out_tbl = quantile_data_transformed,
+    oracle_output = oracle_output_transformed,
+    metrics = "wis",
+    by = "model_id"
+  )
+
+  # Score original data WITH transform argument
+  scores_auto <- score_model_out(
+    model_out_tbl = quantile_data,
+    oracle_output = forecast_oracle_output,
+    metrics = "wis",
+    transform = sqrt,
+    by = "model_id"
+  )
+
+  # Both approaches should produce identical scores
+
+  expect_equal(scores_manual$wis, scores_auto$wis)
+})
+
+
+test_that("score_model_out succeeds with log transformation on median forecasts", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "median"),
+    oracle_output = forecast_oracle_output,
+    transform = scoringutils::log_shift,
+    by = "model_id"
+  )
+
+  expect_true(nrow(scores) > 0)
+  expect_true("ae_point" %in% colnames(scores))
+})
+
+
+test_that("score_model_out succeeds with log transformation on mean forecasts", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "mean"),
+    oracle_output = forecast_oracle_output,
+    transform = scoringutils::log_shift,
+    by = "model_id"
+  )
+
+  expect_true(nrow(scores) > 0)
+  expect_true("se_point" %in% colnames(scores))
+})
+
+
+test_that("score_model_out with transform_append=TRUE includes both scales", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "quantile"),
+    oracle_output = forecast_oracle_output,
+    metrics = "wis",
+    transform = sqrt,
+    transform_append = TRUE,
+    summarize = FALSE
+  )
+
+  expect_true("scale" %in% colnames(scores))
+  expect_true("natural" %in% scores$scale)
+  expect_true("sqrt" %in% scores$scale)
+})
+
+
+test_that("score_model_out errors when transform requested for pmf output_type", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  expect_error(
+    score_model_out(
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "pmf"),
+      oracle_output = forecast_oracle_output,
+      transform = scoringutils::log_shift
+    ),
+    regexp = "Scale transformations are not supported for pmf output types"
+  )
+})
+
+
+test_that("score_model_out errors when transform is not a function", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  expect_error(
+    score_model_out(
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
+      oracle_output = forecast_oracle_output,
+      transform = "log"
+    ),
+    regexp = "transform.*must be a function or NULL"
+  )
+})
+
+
+test_that("score_model_out errors when transform_label is not character", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  expect_error(
+    score_model_out(
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
+      oracle_output = forecast_oracle_output,
+      transform = scoringutils::log_shift,
+      transform_label = 123
+    ),
+    regexp = "transform_label.*must be a character string or NULL"
+  )
+})
+
+
+test_that("score_model_out passes ... arguments to transform function", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  quantile_data <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+
+  # Using log_shift with offset=1 should avoid NaN scores and warnings
+  # (data contains zeros which would cause issues without offset)
+  scores <- score_model_out(
+    model_out_tbl = quantile_data,
+    oracle_output = forecast_oracle_output,
+    metrics = "wis",
+    transform = scoringutils::log_shift,
+    by = "model_id",
+    offset = 1
+  )
+
+  expect_true(nrow(scores) > 0)
+  expect_false(any(is.nan(scores$wis)))
+})
+
+
+test_that("score_model_out propagates warnings from scoringutils", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  # Data contains zeros - log_shift without offset should warn
+  quantile_data <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+
+  expect_warning(
+    score_model_out(
+      model_out_tbl = quantile_data,
+      oracle_output = forecast_oracle_output,
+      metrics = "wis",
+      transform = scoringutils::log_shift,
+      by = "model_id"
+    ),
+    regexp = "Detected zeros in input values"
+  )
+})
