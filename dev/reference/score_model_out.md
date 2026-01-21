@@ -13,7 +13,11 @@ score_model_out(
   baseline = NULL,
   summarize = TRUE,
   by = "model_id",
-  output_type_id_order = NULL
+  output_type_id_order = NULL,
+  transform = NULL,
+  transform_append = FALSE,
+  transform_label = NULL,
+  ...
 )
 ```
 
@@ -68,6 +72,42 @@ score_model_out(
   values for the output_type_id can be found by referencing the hub's
   tasks.json configuration file. For all output types other than pmf,
   this is ignored.
+
+- transform:
+
+  A function to apply as a scale transformation to both predictions and
+  observations before scoring. Common choices include
+  [`log_shift`](https://epiforecasts.io/scoringutils/reference/log_shift.html)
+  (recommended for log transformation as it handles zeros via an offset
+  parameter), `sqrt`, or `log1p`. Avoid using `log` directly if data may
+  contain zeros. If `NULL` (the default), no transformation is applied.
+  Only supported for quantile, mean, and median output types.
+
+- transform_append:
+
+  Logical. If `FALSE` (the default), scores are computed only on the
+  transformed scale. If `TRUE`, scores are computed on both original and
+  transformed scales, with a `scale` column distinguishing them. Ignored
+  if `transform = NULL`.
+
+- transform_label:
+
+  A character string label for the transformation (e.g., "log"). If
+  `NULL` (the default), the label is auto-generated from the function
+  name (e.g., "log_shift" for
+  [`scoringutils::log_shift`](https://epiforecasts.io/scoringutils/reference/log_shift.html)).
+  Required when using an anonymous transform function. Ignored if
+  `transform = NULL`. Note: the label only appears in output when
+  `transform_append = TRUE`, where it distinguishes transformed rows
+  (labeled with this value) from original rows (labeled "natural") in
+  the `scale` column.
+
+- ...:
+
+  Additional arguments passed to the `transform` function. For example,
+  allows use of the `offset` and `base` arguments of
+  [`scoringutils::log_shift()`](https://epiforecasts.io/scoringutils/reference/log_shift.html).
+  Ignored if `transform = NULL`.
 
 ## Value
 

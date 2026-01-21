@@ -45,7 +45,11 @@
 <span>  baseline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  summarize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  by <span class="op">=</span> <span class="st">"model_id"</span>,</span>
-<span>  output_type_id_order <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  output_type_id_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  transform <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  transform_append <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  transform_label <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -101,6 +105,40 @@ vector of levels for pmf forecasts, in increasing order of the levels. The
 order of the values for the output_type_id can be found by referencing the
 hub's tasks.json configuration file. For all output types other than pmf,
 this is ignored.</p></dd>
+
+
+<dt id="arg-transform">transform<a class="anchor" aria-label="anchor" href="#arg-transform"></a></dt>
+<dd><p>A function to apply as a scale transformation to both
+predictions and observations before scoring. Common choices include
+<code><a href="https://epiforecasts.io/scoringutils/reference/log_shift.html" class="external-link">log_shift</a></code> (recommended for log transformation
+as it handles zeros via an offset parameter), <code>sqrt</code>, or
+<code>log1p</code>. Avoid using <code>log</code> directly if data may contain zeros.
+If <code>NULL</code> (the default), no transformation is applied. Only supported for
+quantile, mean, and median output types.</p></dd>
+
+
+<dt id="arg-transform-append">transform_append<a class="anchor" aria-label="anchor" href="#arg-transform-append"></a></dt>
+<dd><p>Logical. If <code>FALSE</code> (the default), scores are
+computed only on the transformed scale. If <code>TRUE</code>, scores are computed on
+both original and transformed scales, with a <code>scale</code> column distinguishing
+them. Ignored if <code>transform = NULL</code>.</p></dd>
+
+
+<dt id="arg-transform-label">transform_label<a class="anchor" aria-label="anchor" href="#arg-transform-label"></a></dt>
+<dd><p>A character string label for the transformation
+(e.g., "log"). If <code>NULL</code> (the default), the label is auto-generated from
+the function name (e.g., "log_shift" for <code><a href="https://epiforecasts.io/scoringutils/reference/log_shift.html" class="external-link">scoringutils::log_shift</a></code>).
+Required when using an anonymous transform function. Ignored if
+<code>transform = NULL</code>. Note: the label only appears in output when
+<code>transform_append = TRUE</code>, where it distinguishes transformed rows
+(labeled with this value) from original rows (labeled "natural") in the
+<code>scale</code> column.</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Additional arguments passed to the <code>transform</code> function. For
+example, allows use of the <code>offset</code> and <code>base</code> arguments of
+<code><a href="https://epiforecasts.io/scoringutils/reference/log_shift.html" class="external-link">scoringutils::log_shift()</a></code>. Ignored if <code>transform = NULL</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
