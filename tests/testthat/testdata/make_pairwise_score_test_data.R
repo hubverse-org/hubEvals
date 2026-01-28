@@ -77,7 +77,7 @@ exp_scores_unsummarized <- forecast_outputs |>
       (1 - .data[["output_type_id"]]) *
         (.data[["value"]] - .data[["oracle_value"]])
     ),
-    q_coverage_80_lower = ifelse(
+    q_cov_80_lower = ifelse(
       .data[["output_type_id"]] == 0.1,
       .data[["oracle_value"]] >= .data[["value"]],
       NA_real_
@@ -87,7 +87,7 @@ exp_scores_unsummarized <- forecast_outputs |>
       .data[["oracle_value"]] <= .data[["value"]],
       NA_real_
     ),
-    q_coverage_90_lower = ifelse(
+    q_cov_90_lower = ifelse(
       .data[["output_type_id"]] == 0.05,
       .data[["oracle_value"]] >= .data[["value"]],
       NA_real_
@@ -115,11 +115,9 @@ exp_scores_unsummarized <- forecast_outputs |>
       0
     )),
     wis = 2 * mean(.data[["qs"]]),
-    interval_coverage_80 = (sum(.data[["q_coverage_80_lower"]],
-                                na.rm = TRUE) == 1) *
+    interval_coverage_80 = (sum(.data[["q_cov_80_lower"]], na.rm = TRUE) == 1) *
       (sum(.data[["q_coverage_80_upper"]], na.rm = TRUE) == 1),
-    interval_coverage_90 = (sum(.data[["q_coverage_90_lower"]],
-                                na.rm = TRUE) == 1) *
+    interval_coverage_90 = (sum(.data[["q_cov_90_lower"]], na.rm = TRUE) == 1) *
       (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1)
   )
 
