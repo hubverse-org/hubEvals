@@ -573,7 +573,8 @@ test_that("score_model_out errors when invalid metrics are requested", {
       oracle_output = forecast_oracle_output,
       metrics = list(5, 6, "asdf")
     ),
-    regexp = "^Assertion on 'c\\(select, exclude\\)' failed: Must be of type 'character' \\(or 'NULL'\\), not 'list'\\.$"
+    regexp = paste0("^Assertion on 'c\\(select, exclude\\)' failed: Must be of",
+                    " type 'character' \\(or 'NULL'\\), not 'list'\\.$")
   )
 
   expect_error(
@@ -594,7 +595,8 @@ test_that("score_model_out errors when invalid metrics are requested", {
       metrics = scoringutils::get_metrics(scoringutils::example_point),
       by = c("model_id", "location")
     ),
-    regexp = "^Assertion on 'c\\(select, exclude\\)' failed: Must be of type 'character' \\(or 'NULL'\\), not 'list'\\.$"
+    regexp = paste0("^Assertion on 'c\\(select, exclude\\)' failed: Must be of",
+                    " type 'character' \\(or 'NULL'\\), not 'list'\\.$")
   )
 })
 

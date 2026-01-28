@@ -115,11 +115,11 @@ exp_scores_unsummarized <- forecast_outputs |>
       0
     )),
     wis = 2 * mean(.data[["qs"]]),
-    interval_coverage_80 = (sum(.data[["q_coverage_80_lower"]], na.rm = TRUE) ==
-      1) *
+    interval_coverage_80 = (sum(.data[["q_coverage_80_lower"]],
+                                na.rm = TRUE) == 1) *
       (sum(.data[["q_coverage_80_upper"]], na.rm = TRUE) == 1),
-    interval_coverage_90 = (sum(.data[["q_coverage_90_lower"]], na.rm = TRUE) ==
-      1) *
+    interval_coverage_90 = (sum(.data[["q_coverage_90_lower"]],
+                                na.rm = TRUE) == 1) *
       (sum(.data[["q_coverage_90_upper"]], na.rm = TRUE) == 1)
   )
 
