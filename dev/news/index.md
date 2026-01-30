@@ -2,6 +2,8 @@
 
 ## hubEvals (development version)
 
+## hubEvals 0.1.0
+
 - Add `transform`, `transform_append`, and `transform_label` arguments
   to
   [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)

@@ -25,12 +25,12 @@
 
 Reich N, Ray E, Bosse N, Cornell M, Sweger B, Roosa K (2026). *hubEvals:
 Basic tools for scoring hubverse forecasts*. R package version
-0.0.1.9000, <https://hubverse-org.github.io/hubEvals/>.
+0.1.0.9000, <https://hubverse-org.github.io/hubEvals/>.
 
     @Manual{,
       title = {hubEvals: Basic tools for scoring hubverse forecasts},
       author = {Nicholas Reich and Evan Ray and Nikos Bosse and Matthew Cornell and Becky Sweger and Kimberlyn Roosa},
       year = {2026},
-      note = {R package version 0.0.1.9000},
+      note = {R package version 0.1.0.9000},
       url = {https://hubverse-org.github.io/hubEvals/},
     }
