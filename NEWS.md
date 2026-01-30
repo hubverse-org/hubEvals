@@ -1,3 +1,5 @@
+# hubEvals (development version)
+
 # hubEvals 0.1.0
 
 * Add `transform`, `transform_append`, and `transform_label` arguments to `score_model_out()` for computing scores on transformed scales (e.g., log, sqrt). Supported for quantile, mean, and median output types (#48, #91).
