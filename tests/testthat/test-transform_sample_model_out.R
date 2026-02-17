@@ -240,3 +240,59 @@ test_that("validate_compound_taskid_set errors when joint_across dims don't vary
     regexp = "must vary within sample draws"
   )
 })
+
+
+test_that("finer compound_taskid_set with unique IDs errors", {
+  # Marginal data with globally unique sample IDs: each sample covers only
+  # one (location, horizon) combination. When IDs are unique, joint_across
+  # dimensions don't vary within draws, so validation correctly errors.
+  data <- data.frame(
+    output_type_id = as.character(1:12),
+    location = rep(c("US", "UK"), each = 6),
+    horizon = rep(rep(1:3, each = 2), 2)
+  )
+
+  expect_error(
+    validate_compound_taskid_set(
+      data = data,
+      compound_taskid_set = "location",
+      task_id_cols = c("location", "horizon")
+    ),
+    regexp = "must vary within sample draws"
+  )
+})
+
+
+test_that("coarser compound_taskid_set than actual structure passes", {
+  # The hubExamples data has compound_taskid_set = {reference_date, location}
+  # per tasks.json: each draw has fixed ref_date + location, varying over
+  # horizon. Scoring with just {reference_date} is coarser -- it treats
+  # location as a joint_across dimension. This passes validation because
+  # location does vary within draws (due to sample ID reuse across locations).
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  sample_tbl <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample")
+
+  forecast <- transform_sample_model_out(
+    model_out_tbl = sample_tbl,
+    oracle_output = forecast_oracle_output,
+    compound_taskid_set = "reference_date"
+  )
+
+  expect_s3_class(forecast, "forecast_multivariate_sample")
+  expect_equal(nrow(forecast), nrow(sample_tbl))
+
+  # The same sample_id appears in multiple .mv_group_ids because the actual
+  # draw structure is finer than the specified compound_taskid_set -- each
+  # draw is being split across locations.
+  sample_groups <- unique(as.data.frame(forecast)[, c(
+    "sample_id",
+    ".mv_group_id"
+  )])
+  ids_in_multiple <- sample_groups$sample_id[duplicated(
+    sample_groups$sample_id
+  )]
+  expect_true(length(ids_in_multiple) > 0)
+})

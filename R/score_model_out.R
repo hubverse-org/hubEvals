@@ -30,10 +30,10 @@
 #' this is ignored.
 #' @param compound_taskid_set When `NULL` (the default), sample forecasts are
 #' scored marginally (each modeling task scored independently). When a character
-#' vector of task ID column names is provided, it defines the compound modeling
-#' task grouping: the specified columns stay constant within each sample draw,
-#' while the remaining task ID dimensions vary within a draw and are scored
-#' jointly (using the energy score). Only applicable when
+#' vector of task ID column names is provided, it sets the compound grouping:
+#' the specified columns stay constant within each sample draw, while the
+#' remaining task ID dimensions vary within a draw and are scored jointly
+#' (using the energy score). Only applicable when
 #' `output_type == "sample"`. The value of `compound_taskid_set` can be found
 #' by referencing the hub's `tasks.json` configuration file.
 #' @param transform A function to apply as a scale transformation to both
@@ -105,6 +105,10 @@
 #'
 #' `r paste("- ", names(scoringutils::get_metrics(scoringutils::example_sample_continuous)), collapse = "\n")`
 #'
+#' Note: `log_score` uses kernel density estimation, which may not be
+#' appropriate for integer-valued forecasts. `scoringutils` will warn when
+#' this is detected.
+#'
 #' See [scoringutils::get_metrics.forecast_sample] for details.
 #'
 #' **Sample forecasts (compound):** (`output_type == "sample"`, `compound_taskid_set` provided)
@@ -112,6 +116,17 @@
 #' - energy_score
 #'
 #' See [scoringutils::get_metrics.forecast_sample_multivariate] for details.
+#' The output includes a `.mv_group_id` column assigned by `scoringutils` to
+#' identify the multivariate groups used for scoring (equivalent to the
+#' `compound_idx` concept in the
+#' [hubverse sample output type documentation
+#' ](https://docs.hubverse.io/en/latest/user-guide/sample-output-type.html)).
+#' Correct scoring depends on providing the right `compound_taskid_set` from
+#' the hub's `tasks.json` configuration. If the specified grouping does not
+#' match the actual dependence structure of the submitted samples (e.g.,
+#' because some models submitted coarser samples than configured),
+#' `.mv_group_id` may not correspond to the original sample draws as
+#' indicated by their `output_type_id` values.
 #'
 #' See [scoringutils::add_relative_skill] for details on relative skill scores.
 #'

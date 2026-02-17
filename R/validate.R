@@ -314,20 +314,5 @@ validate_compound_taskid_set <- function(
     )
   }
 
-  # NOTE: We do not check for coarser dependence structure (compound task IDs
-
-  # varying within draws). The original plan included a warning when
-  # output_type_id values span multiple values of compound task ID columns,
-  # which would indicate that draws have coarser joint structure than specified.
-  # However, this check is not feasible because sample output_type_id values
-  # are only guaranteed to be unique within each compound group -- not globally.
-  # Hub submissions are validated per round, and different rounds may
-  # independently reuse the same output_type_id values. When data from
-  # multiple rounds is combined (e.g., via hubData::connect_hub()), the same
-  # output_type_id can appear across different compound groups (e.g., different
-  # reference_dates) without implying any joint structure across those groups.
-  # This makes it impossible to distinguish genuine coarser structure from
-  # benign ID reuse across rounds.
-
   invisible(TRUE)
 }

@@ -861,11 +861,16 @@ test_that("score_model_out succeeds with sample output_type, default metrics", {
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
-  scores <- score_model_out(
-    model_out_tbl = forecast_outputs |>
-      dplyr::filter(.data[["output_type"]] == "sample"),
-    oracle_output = forecast_oracle_output,
-    by = "model_id"
+  # log_score uses kernel density estimation, which scoringutils correctly
+  # warns is not appropriate for integer-valued forecasts
+  expect_warning(
+    scores <- score_model_out(
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "sample"),
+      oracle_output = forecast_oracle_output,
+      by = "model_id"
+    ),
+    regexp = "integer-valued"
   )
 
   expect_s3_class(scores, c("scores", "data.table", "data.frame"))
