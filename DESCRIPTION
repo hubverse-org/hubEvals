@@ -34,10 +34,15 @@ Authors@R: c(
            family = "Sweger",
            email = "rsweger@umass.edu", 
            role = c("aut")),
-    person(given = "Kimberlyn", 
+    person(given = "Kimberlyn",
            family = "Roosa",
-           email = "kimberlyn626@gmail.com", 
-           role = c("aut"))
+           email = "kimberlyn626@gmail.com",
+           role = c("aut")),
+    person(given = "Anna",
+           family = "Krystalli",
+           email = "annakrystalli@googlemail.com",
+           role = c("aut"),
+           comment = c(ORCID = "0000-0002-2378-4915"))
     )
 Description: 
     Using functionality from the scoringutils package, this software provides
@@ -50,9 +55,10 @@ Imports:
     hubUtils,
     purrr,
     rlang,
-    scoringutils (>= 1.2.2.9000)
+    scoringutils (>= 2.1.2.9000)
 Remotes:
-    hubverse-org/hubExamples
+    hubverse-org/hubExamples,
+    epiforecasts/scoringutils
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 URL: https://hubverse-org.github.io/hubEvals/

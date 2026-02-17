@@ -13,6 +13,7 @@ score_model_out(
   summarize = TRUE,
   by = "model_id",
   output_type_id_order = NULL,
+  compound_taskid_set = NULL,
   transform = NULL,
   transform_append = FALSE,
   transform_label = NULL,
@@ -53,6 +54,15 @@ vector of levels for pmf forecasts, in increasing order of the levels. The
 order of the values for the output_type_id can be found by referencing the
 hub's tasks.json configuration file. For all output types other than pmf,
 this is ignored.}
+
+\item{compound_taskid_set}{When \code{NULL} (the default), sample forecasts are
+scored marginally (each modeling task scored independently). When a character
+vector of task ID column names is provided, it defines the compound modeling
+task grouping: the specified columns stay constant within each sample draw,
+while the remaining task ID dimensions vary within a draw and are scored
+jointly (using the energy score). Only applicable when
+\code{output_type == "sample"}. The value of \code{compound_taskid_set} can be found
+by referencing the hub's \code{tasks.json} configuration file.}
 
 \item{transform}{A function to apply as a scale transformation to both
 predictions and observations before scoring. Common choices include
@@ -139,6 +149,29 @@ See \link[scoringutils:get_metrics.forecast_point]{scoringutils::get_metrics.for
 \item \code{se_point}: squared error of the point forecast (recommended for the mean, see Gneiting (2011))
 }
 
+\strong{Sample forecasts (marginal):} (\code{output_type == "sample"}, \code{compound_taskid_set = NULL})
+\itemize{
+\item bias
+\item dss
+\item crps
+\item overprediction
+\item underprediction
+\item dispersion
+\item log_score
+\item mad
+\item ae_median
+\item se_mean
+}
+
+See \link[scoringutils:get_metrics.forecast_sample]{scoringutils::get_metrics.forecast_sample} for details.
+
+\strong{Sample forecasts (compound):} (\code{output_type == "sample"}, \code{compound_taskid_set} provided)
+\itemize{
+\item energy_score
+}
+
+See \link[scoringutils:get_metrics.forecast_multivariate_sample]{scoringutils::get_metrics.forecast_sample_multivariate} for details.
+
 See \link[scoringutils:add_relative_skill]{scoringutils::add_relative_skill} for details on relative skill scores.
 }
 \examples{
@@ -169,6 +202,31 @@ pmf_scores <- score_model_out(
   output_type_id_order = c("low", "moderate", "high", "very high")
 )
 head(pmf_scores)
+
+# Score sample forecasts marginally (each modeling task scored independently).
+# Note: this data has compound structure (samples span horizons), but marginal
+# scoring is still valid -- it evaluates each horizon independently.
+sample_scores <- score_model_out(
+  model_out_tbl = hubExamples::forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample"),
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = "crps",
+  by = "model_id"
+)
+sample_scores
+
+# Score compound sample forecasts jointly using the energy score.
+# compound_taskid_set specifies which task IDs stay constant within
+# a sample group -- here, each sample draw spans all horizons for a
+# given reference_date and location (i.e., a trajectory over time).
+compound_scores <- score_model_out(
+  model_out_tbl = hubExamples::forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample"),
+  oracle_output = hubExamples::forecast_oracle_output,
+  compound_taskid_set = c("reference_date", "location"),
+  by = "model_id"
+)
+compound_scores
 \dontshow{\}) # examplesIf}
 }
 \references{

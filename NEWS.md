@@ -1,5 +1,7 @@
 # hubEvals (development version)
 
+* Add support for scoring sample output types via `transform_sample_model_out()` and the `"sample"` case in `score_model_out()`. Marginal scoring produces metrics such as CRPS, bias, and DSS; compound scoring (via the new `compound_taskid_set` argument) produces energy scores for joint/multivariate forecasts (#94).
+
 # hubEvals 0.1.0
 
 * Add `transform`, `transform_append`, and `transform_label` arguments to `score_model_out()` for computing scores on transformed scales (e.g., log, sqrt). Supported for quantile, mean, and median output types (#48, #91).
