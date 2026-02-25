@@ -8,7 +8,7 @@
 #'   task grouping). When `NULL` (the default), each modeling task is scored
 #'   independently (marginal scoring). When provided, sample draws are treated
 #'   as joint predictions across the task ID dimensions **not** in
-#'   `compound_taskid_set`, and the energy score is used.
+#'   `compound_taskid_set`, and multivariate scoring metrics are used.
 #'
 #' @return A `forecast_sample` object (when `compound_taskid_set` is `NULL`)
 #'   or a `forecast_sample_multivariate` object (when `compound_taskid_set` is

@@ -172,6 +172,7 @@ See \link[scoringutils:get_metrics.forecast_sample]{scoringutils::get_metrics.fo
 \strong{Sample forecasts (compound):} (\code{output_type == "sample"}, \code{compound_taskid_set} provided)
 \itemize{
 \item energy_score
+\item variogram_score
 }
 
 See \link[scoringutils:get_metrics.forecast_multivariate_sample]{scoringutils::get_metrics.forecast_sample_multivariate} for details.

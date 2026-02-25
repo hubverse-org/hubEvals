@@ -113,7 +113,7 @@
 #'
 #' **Sample forecasts (compound):** (`output_type == "sample"`, `compound_taskid_set` provided)
 #'
-#' - energy_score
+#' `r paste("- ", names(utils::getS3method("get_metrics", "forecast_sample_multivariate", envir = asNamespace("scoringutils"))()), collapse = "\n")`
 #'
 #' See [scoringutils::get_metrics.forecast_sample_multivariate] for details.
 #' The output includes a `.mv_group_id` column assigned by `scoringutils` to

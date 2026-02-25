@@ -21,7 +21,7 @@ stay constant within each sample draw (i.e., define the compound modeling
 task grouping). When \code{NULL} (the default), each modeling task is scored
 independently (marginal scoring). When provided, sample draws are treated
 as joint predictions across the task ID dimensions \strong{not} in
-\code{compound_taskid_set}, and the energy score is used.}
+\code{compound_taskid_set}, and multivariate scoring metrics are used.}
 }
 \value{
 A \code{forecast_sample} object (when \code{compound_taskid_set} is \code{NULL})

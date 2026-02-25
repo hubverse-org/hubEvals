@@ -128,8 +128,8 @@ sample_scores
 #> 3:          PSI-DICE 247.3640
 ```
 
-Compound scoring uses the energy score to evaluate the joint
-distribution across task dimensions that vary within a sample draw. The
+Compound scoring evaluates the joint distribution across task
+dimensions that vary within a sample draw using multivariate metrics. The
 `compound_taskid_set` specifies which task IDs stay constant within a
 sample group and can be found by referencing the hub’s `tasks.json`
 configuration file. Here, each draw spans all horizons for a given
