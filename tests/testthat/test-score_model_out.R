@@ -977,6 +977,7 @@ test_that("score_model_out succeeds with compound sample scoring (energy score)"
       dplyr::filter(.data[["output_type"]] == "sample"),
     oracle_output = forecast_oracle_output,
     compound_taskid_set = c("reference_date", "location"),
+    metrics = "energy_score",
     by = "model_id"
   )
 
@@ -1061,6 +1062,7 @@ test_that("score_model_out succeeds with compound sample and scale transformatio
     model_out_tbl = sample_tbl,
     oracle_output = forecast_oracle_output,
     compound_taskid_set = c("reference_date", "location"),
+    metrics = "energy_score",
     transform = scoringutils::log_shift,
     offset = 1,
     by = "model_id"
@@ -1084,6 +1086,7 @@ test_that("score_model_out with compound sample transform_append=TRUE includes b
     model_out_tbl = sample_tbl,
     oracle_output = forecast_oracle_output,
     compound_taskid_set = c("reference_date", "location"),
+    metrics = "energy_score",
     transform = scoringutils::log_shift,
     offset = 1,
     transform_append = TRUE,
