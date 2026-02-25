@@ -1,4 +1,4 @@
-# --- Marginal sample scoring (Phase 1) ---
+# --- Marginal sample scoring ---
 
 test_that("hubExamples sample data transforms to forecast_sample for marginal scoring", {
   forecast_outputs <- hubExamples::forecast_outputs
@@ -136,7 +136,7 @@ test_that("transform_sample_model_out errors on missing required columns", {
 })
 
 
-# --- Compound sample scoring (Phase 2) ---
+# --- Compound sample scoring ---
 
 test_that("compound_taskid_set produces forecast_sample_multivariate", {
   forecast_outputs <- hubExamples::forecast_outputs

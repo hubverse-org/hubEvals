@@ -894,6 +894,77 @@ test_that("score_model_out succeeds with sample output_type, default metrics", {
 })
 
 
+test_that("score_model_out computes correct CRPS for marginal sample scoring", {
+  # Hand-computed CRPS for 3 samples {1, 3, 5}, observed = 2:
+  # CRPS = (1/n) sum|x_i - y| - (1/(2n^2)) sum_ij|x_i - x_j|
+  #      = (1/3)(1 + 1 + 3) - (1/18)(2 + 4 + 2 + 2 + 4 + 2) = 5/3 - 8/9 = 7/9
+  model_out_tbl <- data.frame(
+    model_id = "m1",
+    output_type = "sample",
+    output_type_id = as.character(1:3),
+    value = c(1, 3, 5),
+    location = "A",
+    target = "inc hosp",
+    target_end_date = as.Date("2024-01-01"),
+    stringsAsFactors = FALSE
+  )
+
+  oracle_output <- data.frame(
+    location = "A",
+    target = "inc hosp",
+    target_end_date = as.Date("2024-01-01"),
+    oracle_value = 2,
+    stringsAsFactors = FALSE
+  )
+
+  scores <- score_model_out(
+    model_out_tbl = model_out_tbl,
+    oracle_output = oracle_output,
+    metrics = "crps",
+    summarize = FALSE
+  )
+
+  expect_equal(scores$crps, 7 / 9)
+})
+
+
+test_that("score_model_out computes correct energy score for compound sample scoring", {
+  # Hand-computed energy score for 3 bivariate samples over 2 horizons.
+  # Samples: {(1,2), (3,4), (5,6)}, observed: (2,3)
+  # ES = (1/n) sum||x_i - y|| - (1/(2n^2)) sum_ij||x_i - x_j||
+  #    = (1/3)(sqrt(2) + sqrt(2) + 3*sqrt(2))
+  #      - (1/18)(2*2*sqrt(2) + 2*4*sqrt(2) + 2*2*sqrt(2))
+  #    = 5*sqrt(2)/3 - 8*sqrt(2)/9 = 7*sqrt(2)/9
+  model_out_tbl <- data.frame(
+    model_id = "m1",
+    output_type = "sample",
+    output_type_id = as.character(c(1, 1, 2, 2, 3, 3)),
+    value = c(1, 2, 3, 4, 5, 6),
+    location = "A",
+    target = "inc hosp",
+    horizon = c(1L, 2L, 1L, 2L, 1L, 2L),
+    stringsAsFactors = FALSE
+  )
+
+  oracle_output <- data.frame(
+    location = "A",
+    target = "inc hosp",
+    horizon = c(1L, 2L),
+    oracle_value = c(2, 3),
+    stringsAsFactors = FALSE
+  )
+
+  scores <- score_model_out(
+    model_out_tbl = model_out_tbl,
+    oracle_output = oracle_output,
+    compound_taskid_set = "location",
+    summarize = FALSE
+  )
+
+  expect_equal(scores$energy_score, 7 * sqrt(2) / 9)
+})
+
+
 test_that("score_model_out succeeds with compound sample scoring (energy score)", {
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
