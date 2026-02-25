@@ -71,9 +71,8 @@
 #' different `output_type`s:
 #'
 #' **Quantile forecasts:** (`output_type == "quantile"`)
-#' `r exclude <- c("interval_coverage_50", "interval_coverage_90")`
-#' `r metrics <- scoringutils::get_metrics(scoringutils::example_quantile, exclude = exclude)`
-#' `r paste("- ", names(metrics), collapse = "\n")`
+#' `r ex <- c("interval_coverage_50", "interval_coverage_90")`
+#' `r .metrics_list(scoringutils::example_quantile, exclude = ex)`
 #' - "interval_coverage_XX": interval coverage at the "XX" level. For example,
 #' "interval_coverage_95" is the 95% interval coverage rate, which would be calculated
 #' based on quantiles at the probability levels 0.025 and 0.975.
@@ -82,13 +81,13 @@
 #'
 #' **Nominal forecasts:** (`output_type == "pmf"` and `output_type_id_order` is `NULL`)
 #'
-#' `r paste("- ", names(scoringutils::get_metrics(scoringutils::example_nominal)), collapse = "\n")`
+#' `r .metrics_list(scoringutils::example_nominal)`
 #'
 #' See [scoringutils::get_metrics.forecast_nominal] for details.
 #'
 #' **Ordinal forecasts:** (`output_type == "pmf"` and `output_type_id_order` is a vector)
 #'
-#' `r paste("- ", names(scoringutils::get_metrics(scoringutils::example_ordinal)), collapse = "\n")`
+#' `r .metrics_list(scoringutils::example_ordinal)`
 #'
 #' See [scoringutils::get_metrics.forecast_ordinal] for details.
 #'
@@ -103,7 +102,7 @@
 #'
 #' **Sample forecasts (marginal):** (`output_type == "sample"`, `compound_taskid_set = NULL`)
 #'
-#' `r paste("- ", names(scoringutils::get_metrics(scoringutils::example_sample_continuous)), collapse = "\n")`
+#' `r .metrics_list(scoringutils::example_sample_continuous)`
 #'
 #' Note: `log_score` uses kernel density estimation, which may not be
 #' appropriate for integer-valued forecasts. `scoringutils` will warn when
@@ -113,7 +112,7 @@
 #'
 #' **Sample forecasts (compound):** (`output_type == "sample"`, `compound_taskid_set` provided)
 #'
-#' `r paste("- ", names(utils::getS3method("get_metrics", "forecast_sample_multivariate", envir = asNamespace("scoringutils"))()), collapse = "\n")`
+#' `r .metrics_list(class = "forecast_sample_multivariate")`
 #'
 #' See [scoringutils::get_metrics.forecast_sample_multivariate] for details.
 #' The output includes a `.mv_group_id` column assigned by `scoringutils` to
