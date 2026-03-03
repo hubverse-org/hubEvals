@@ -239,6 +239,50 @@ validate_transform <- function(
 }
 
 
+#' Validate transformed forecast values for non-finite entries
+#'
+#' Checks `predicted` and `observed` columns of a transformed scoringutils
+#' forecast object for `NaN` and `Inf` values, which would silently corrupt
+#' downstream scoring results.
+#'
+#' @param forecast A scoringutils forecast object (after `transform_forecasts()`).
+#' @param call The call to use in error messages (for cli::cli_abort).
+#'
+#' @return `forecast` (invisibly), or errors with informative message.
+#'
+#' @noRd
+validate_transform_values <- function(forecast, call = rlang::caller_env()) {
+  cols_to_check <- intersect(c("predicted", "observed"), colnames(forecast))
+
+  n_nan <- sum(purrr::map_int(cols_to_check, \(col) {
+    sum(is.nan(forecast[[col]]))
+  }))
+  n_inf <- sum(purrr::map_int(cols_to_check, \(col) {
+    sum(is.infinite(forecast[[col]]))
+  }))
+
+  if (n_nan == 0 && n_inf == 0) {
+    return(invisible(forecast))
+  }
+
+  # nolint next: object_usage_linter
+  affected_cols <- cols_to_check[purrr::map_lgl(
+    cols_to_check,
+    \(col) any(!is.finite(forecast[[col]]))
+  )]
+
+  cli::cli_abort(
+    c(
+      "Scale transformation produced non-finite values in
+       {.field {affected_cols}}: {n_nan} NaN{?s} and {n_inf} Inf{?s}.",
+      "x" = "Scoring results would be invalid with non-finite values.",
+      "i" = "Use a transform that is valid for all values in the data."
+    ),
+    call = call
+  )
+}
+
+
 #' Validate compound_taskid_set and check data consistency
 #'
 #' @param data Joined model output + oracle data, filtered to samples.
