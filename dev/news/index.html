@@ -32,7 +32,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="hubevals-development-version">hubEvals (development version)<a class="anchor" aria-label="anchor" href="#hubevals-development-version"></a></h2>
-<ul><li>Add support for scoring sample output types via <code><a href="../reference/transform_sample_model_out.html">transform_sample_model_out()</a></code> and the <code>"sample"</code> case in <code><a href="../reference/score_model_out.html">score_model_out()</a></code>. Marginal scoring produces metrics such as CRPS, bias, and DSS; compound scoring (via the new <code>compound_taskid_set</code> argument) produces multivariate scores such as energy score and variogram score for joint forecasts (#94).</li>
+<ul><li><p>Add support for scoring sample output types via <code><a href="../reference/transform_sample_model_out.html">transform_sample_model_out()</a></code> and the <code>"sample"</code> case in <code><a href="../reference/score_model_out.html">score_model_out()</a></code>. Marginal scoring produces metrics such as CRPS, bias, and DSS; compound scoring (via the new <code>compound_taskid_set</code> argument) produces multivariate scores such as energy score and variogram score for joint forecasts (#94).</p></li>
+<li><p><code><a href="../reference/score_model_out.html">score_model_out()</a></code> now errors with a clear message when a scale transformation produces non-finite values (NaN or Inf), instead of silently returning invalid scores (#99).</p></li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="hubevals-010">hubEvals 0.1.0<a class="anchor" aria-label="anchor" href="#hubevals-010"></a></h2>

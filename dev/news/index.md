@@ -11,6 +11,11 @@
   multivariate scores such as energy score and variogram score for joint
   forecasts (#94).
 
+- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
+  now errors with a clear message when a scale transformation produces
+  non-finite values (NaN or Inf), instead of silently returning invalid
+  scores (#99).
+
 ## hubEvals 0.1.0
 
 - Add `transform`, `transform_append`, and `transform_label` arguments
