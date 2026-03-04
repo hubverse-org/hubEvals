@@ -14,6 +14,7 @@ score_model_out(
   summarize = TRUE,
   by = "model_id",
   output_type_id_order = NULL,
+  compound_taskid_set = NULL,
   transform = NULL,
   transform_append = FALSE,
   transform_label = NULL,
@@ -72,6 +73,17 @@ score_model_out(
   values for the output_type_id can be found by referencing the hub's
   tasks.json configuration file. For all output types other than pmf,
   this is ignored.
+
+- compound_taskid_set:
+
+  When `NULL` (the default), sample forecasts are scored marginally
+  (each modeling task scored independently). When a character vector of
+  task ID column names is provided, it sets the compound grouping: the
+  specified columns stay constant within each sample draw, while the
+  remaining task ID dimensions vary within a draw and are scored jointly
+  (using the energy score). Only applicable when
+  `output_type == "sample"`. The value of `compound_taskid_set` can be
+  found by referencing the hub's `tasks.json` configuration file.
 
 - transform:
 
@@ -183,6 +195,58 @@ for details.
 - `se_point`: squared error of the point forecast (recommended for the
   mean, see Gneiting (2011))
 
+**Sample forecasts (marginal):** (`output_type == "sample"`,
+`compound_taskid_set = NULL`)
+
+- bias
+
+- dss
+
+- crps
+
+- overprediction
+
+- underprediction
+
+- dispersion
+
+- log_score
+
+- mad
+
+- ae_median
+
+- se_mean
+
+Note: `log_score` uses kernel density estimation, which may not be
+appropriate for integer-valued forecasts. `scoringutils` will warn when
+this is detected.
+
+See
+[scoringutils::get_metrics.forecast_sample](https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_sample.html)
+for details.
+
+**Sample forecasts (compound):** (`output_type == "sample"`,
+`compound_taskid_set` provided)
+
+- energy_score
+
+- variogram_score
+
+See
+[scoringutils::get_metrics.forecast_sample_multivariate](https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_multivariate_sample.html)
+for details. The output includes a `.mv_group_id` column assigned by
+`scoringutils` to identify the multivariate groups used for scoring
+(equivalent to the `compound_idx` concept in the [hubverse sample output
+type
+documentation](https://docs.hubverse.io/en/latest/user-guide/sample-output-type.html)
+). Correct scoring depends on providing the right `compound_taskid_set`
+from the hub's `tasks.json` configuration. If the specified grouping
+does not match the actual dependence structure of the submitted samples
+(e.g., because some models submitted coarser samples than configured),
+`.mv_group_id` may not correspond to the original sample draws as
+indicated by their `output_type_id` values.
+
 See
 [scoringutils::add_relative_skill](https://epiforecasts.io/scoringutils/reference/add_relative_skill.html)
 for details on relative skill scores.
@@ -241,4 +305,39 @@ head(pmf_scores)
 #> 4: Flusight-baseline       25       3         Inf 1.8665126816
 #> 5: Flusight-baseline       48       0  2.18418007 0.4873966597
 #> 6: Flusight-baseline       48       1  7.49960792 0.9659026096
+
+# Score sample forecasts marginally (each modeling task scored independently).
+# Note: this data has compound structure (samples span horizons), but marginal
+# scoring is still valid -- it evaluates each horizon independently.
+sample_scores <- score_model_out(
+  model_out_tbl = hubExamples::forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample"),
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = "crps",
+  by = "model_id"
+)
+sample_scores
+#>             model_id     crps
+#>               <char>    <num>
+#> 1: Flusight-baseline 351.5888
+#> 2:   MOBS-GLEAM_FLUH 347.1502
+#> 3:          PSI-DICE 247.3640
+
+# Score compound sample forecasts jointly using the energy score.
+# compound_taskid_set specifies which task IDs stay constant within
+# a sample group -- here, each sample draw spans all horizons for a
+# given reference_date and location (i.e., a trajectory over time).
+compound_scores <- score_model_out(
+  model_out_tbl = hubExamples::forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample"),
+  oracle_output = hubExamples::forecast_oracle_output,
+  compound_taskid_set = c("reference_date", "location"),
+  by = "model_id"
+)
+compound_scores
+#>             model_id energy_score variogram_score
+#>               <char>        <num>           <num>
+#> 1: Flusight-baseline     772.7587        1523.954
+#> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037
+#> 3:          PSI-DICE     571.0879        1264.238
 ```
