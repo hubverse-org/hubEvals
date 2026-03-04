@@ -3,7 +3,8 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
-  act_scores <- score_model_out(
+  # Wilcoxon test warns about ties/zeroes on small samples; expected, not a bug
+  act_scores <- suppressWarnings(score_model_out(
     model_out_tbl = forecast_outputs |>
       dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
@@ -15,7 +16,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
     ),
     relative_metrics = c("ae_median", "wis"),
     by = c("model_id", "location")
-  )
+  ))
 
   exp_scores <- read.csv(test_path("testdata", "exp_pairwise_scores.csv")) |>
     dplyr::mutate(location = as.character(location)) |>
@@ -30,7 +31,8 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
-  act_scores <- score_model_out(
+  # Wilcoxon test warns about ties/zeroes on small samples; expected, not a bug
+  act_scores <- suppressWarnings(score_model_out(
     model_out_tbl = forecast_outputs |>
       dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
@@ -43,7 +45,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
     relative_metrics = c("ae_median", "wis"),
     baseline = "Flusight-baseline",
     by = c("model_id", "location")
-  )
+  ))
 
   exp_scores <- read.csv(test_path("testdata", "exp_pairwise_scores.csv")) |>
     dplyr::mutate(location = as.character(location))
