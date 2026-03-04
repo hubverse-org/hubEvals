@@ -257,6 +257,7 @@ score_model_out <- function(
       label = label,
       ...
     )
+    validate_transform_values(su_data)
   }
 
   # get/validate the scoring metrics

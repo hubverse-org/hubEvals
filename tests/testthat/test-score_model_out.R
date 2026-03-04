@@ -786,23 +786,23 @@ test_that("score_model_out passes ... arguments to transform function", {
 })
 
 
-test_that("score_model_out propagates warnings from scoringutils", {
+test_that("score_model_out errors when log_shift without offset produces Inf on zeros", {
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
-  # Data contains zeros - log_shift without offset should warn
+  # Data contains zeros - log_shift without offset produces -Inf
   quantile_data <- forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "quantile")
 
-  expect_warning(
-    score_model_out(
+  expect_error(
+    suppressWarnings(score_model_out(
       model_out_tbl = quantile_data,
       oracle_output = forecast_oracle_output,
       metrics = "wis",
       transform = scoringutils::log_shift,
       by = "model_id"
-    ),
-    regexp = "Detected zeros in input values"
+    )),
+    regexp = "non-finite values"
   )
 })
 
@@ -1149,4 +1149,116 @@ test_that("score_model_out errors when compound_taskid_set used with non-sample 
 
 test_that("error_if_invalid_output_type accepts sample", {
   expect_no_error(error_if_invalid_output_type("sample"))
+})
+
+
+# --- Tests for non-finite transform validation (#99) ---
+
+test_that("score_model_out errors with NaN when sqrt applied to negative sample values", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  sample_tbl <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample")
+  # Inject a negative value to ensure sqrt produces NaN
+  sample_tbl$value[1] <- -5
+
+  expect_error(
+    score_model_out(
+      model_out_tbl = sample_tbl,
+      oracle_output = forecast_oracle_output,
+      metrics = "crps",
+      transform = sqrt,
+      by = "model_id"
+    ),
+    regexp = "non-finite values.*predicted.*NaN"
+  )
+})
+
+
+test_that("score_model_out errors with Inf when log applied to zeros in quantile data", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  quantile_tbl <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+  # Inject a zero to ensure log produces -Inf
+  quantile_tbl$value[1] <- 0
+
+  expect_error(
+    score_model_out(
+      model_out_tbl = quantile_tbl,
+      oracle_output = forecast_oracle_output,
+      metrics = "wis",
+      transform = log,
+      by = "model_id"
+    ),
+    regexp = "non-finite values.*predicted.*Inf"
+  )
+})
+
+
+test_that("score_model_out errors with NaN when log applied to negative sample values", {
+  # Construct minimal sample data with a negative value
+  model_out_tbl <- data.frame(
+    model_id = "m1",
+    output_type = "sample",
+    output_type_id = as.character(1:3),
+    value = c(-1, 3, 5),
+    location = "A",
+    target = "inc hosp",
+    target_end_date = as.Date("2024-01-01"),
+    stringsAsFactors = FALSE
+  )
+
+  oracle_output <- data.frame(
+    location = "A",
+    target = "inc hosp",
+    target_end_date = as.Date("2024-01-01"),
+    oracle_value = 2,
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    suppressWarnings(score_model_out(
+      model_out_tbl = model_out_tbl,
+      oracle_output = oracle_output,
+      metrics = "crps",
+      transform = log
+    )),
+    regexp = "non-finite values.*predicted.*NaN"
+  )
+})
+
+
+test_that("score_model_out reports both predicted and observed when both have non-finite values", {
+  # Both predicted and observed will have non-finite values from sqrt on negatives
+  model_out_tbl <- data.frame(
+    model_id = "m1",
+    output_type = "sample",
+    output_type_id = as.character(1:3),
+    value = c(-1, 3, 5),
+    location = "A",
+    target = "inc hosp",
+    target_end_date = as.Date("2024-01-01"),
+    stringsAsFactors = FALSE
+  )
+
+  oracle_output <- data.frame(
+    location = "A",
+    target = "inc hosp",
+    target_end_date = as.Date("2024-01-01"),
+    oracle_value = -2,
+    stringsAsFactors = FALSE
+  )
+
+  expect_error(
+    score_model_out(
+      model_out_tbl = model_out_tbl,
+      oracle_output = oracle_output,
+      metrics = "crps",
+      transform = sqrt
+    ),
+    regexp = "predicted.*observed"
+  )
 })
