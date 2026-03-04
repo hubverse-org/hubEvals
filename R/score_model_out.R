@@ -112,7 +112,7 @@
 #'
 #' **Sample forecasts (compound):** (`output_type == "sample"`, `compound_taskid_set` provided)
 #'
-#' `r .metrics_list(class = "forecast_sample_multivariate")`
+#' `r .metrics_list(scoringutils::example_multivariate_sample)`
 #'
 #' See [scoringutils::get_metrics.forecast_sample_multivariate] for details.
 #' The output includes a `.mv_group_id` column assigned by `scoringutils` to

@@ -128,12 +128,14 @@ sample_scores
 #> 3:          PSI-DICE 247.3640
 ```
 
-Compound scoring evaluates the joint distribution across task
-dimensions that vary within a sample draw using multivariate metrics. The
-`compound_taskid_set` specifies which task IDs stay constant within a
-sample group and can be found by referencing the hub’s `tasks.json`
-configuration file. Here, each draw spans all horizons for a given
-reference date and location (i.e., a trajectory over time).
+[Compound
+scoring](https://docs.hubverse.io/en/latest/user-guide/sample-output-type.html#compound-modeling-tasks)
+uses the energy score to evaluate the joint distribution across task
+dimensions that vary within a sample draw. The `compound_taskid_set`
+specifies which task IDs stay constant within a sample group and can be
+found by referencing the hub’s `tasks.json` configuration file. Here,
+each draw spans all horizons for a given reference date and location
+(i.e., a trajectory over time).
 
 ``` r
 compound_scores <- hubExamples::forecast_outputs |>
@@ -144,11 +146,11 @@ compound_scores <- hubExamples::forecast_outputs |>
     by = "model_id"
   )
 compound_scores
-#>             model_id energy_score
-#>               <char>        <num>
-#> 1: Flusight-baseline     772.7587
-#> 2:   MOBS-GLEAM_FLUH     811.4625
-#> 3:          PSI-DICE     571.0879
+#>             model_id energy_score variogram_score
+#>               <char>        <num>           <num>
+#> 1: Flusight-baseline     772.7587        1523.954
+#> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037
+#> 3:          PSI-DICE     571.0879        1264.238
 ```
 
 Or, users may transform predictions into a `forecast` object that can be
