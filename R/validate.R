@@ -100,7 +100,7 @@ validate_output_type <- function(model_out_tbl) {
 
 
 error_if_invalid_output_type <- function(output_type) {
-  supported_types <- c("mean", "median", "pmf", "quantile")
+  supported_types <- c("mean", "median", "pmf", "quantile", "sample")
   if (!output_type %in% supported_types) {
     cli::cli_abort(
       "Provided `model_out_tbl` contains `output_type` {.val {output_type}};
@@ -229,7 +229,86 @@ validate_transform <- function(
     cli::cli_abort(
       c(
         "Scale transformations are not supported for pmf output types.",
-        "i" = "Transformations can only be applied to quantile, mean, or median forecasts."
+        "i" = "Transformations can only be applied to quantile, mean, median, or sample forecasts."
+      ),
+      call = call
+    )
+  }
+
+  invisible(TRUE)
+}
+
+
+#' Validate compound_taskid_set and check data consistency
+#'
+#' @param data Joined model output + oracle data, filtered to samples.
+#' @param compound_taskid_set Character vector of task IDs that stay constant
+#'   within each sample draw.
+#' @param task_id_cols Character vector of all task ID column names.
+#' @param call Calling environment for error messages.
+#'
+#' @noRd
+validate_compound_taskid_set <- function(
+  data,
+  compound_taskid_set,
+  task_id_cols,
+  call = rlang::caller_env()
+) {
+  if (!is.character(compound_taskid_set) || length(compound_taskid_set) == 0) {
+    cli::cli_abort(
+      "{.arg compound_taskid_set} must be a non-empty character vector.",
+      call = call
+    )
+  }
+
+  invalid_cols <- setdiff(compound_taskid_set, task_id_cols)
+  if (length(invalid_cols) > 0) {
+    cli::cli_abort(
+      c(
+        "{.arg compound_taskid_set} contains invalid column{?s}: {.val {invalid_cols}}.",
+        "i" = "Valid task ID columns: {.val {task_id_cols}}"
+      ),
+      call = call
+    )
+  }
+
+  joint_across <- setdiff(task_id_cols, compound_taskid_set)
+  if (length(joint_across) == 0) {
+    cli::cli_abort(
+      c(
+        "{.arg compound_taskid_set} includes all task ID columns.",
+        "i" = "At least one task ID column must be left out for joint scoring."
+      ),
+      call = call
+    )
+  }
+
+  # A draw is identified by compound_taskid_set + output_type_id.
+  # Sample IDs are only unique within each compound group, not globally.
+  draw_group <- c(compound_taskid_set, "output_type_id")
+
+  # Non-compound (joint_across) task IDs must vary within draws
+  n_unique_per_draw <- data |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(draw_group))) |>
+    dplyr::summarise(
+      dplyr::across(
+        dplyr::all_of(joint_across),
+        dplyr::n_distinct
+      ),
+      .groups = "drop"
+    )
+
+  # Draws where ALL non-compound task IDs are constant (no joint structure)
+  bad <- n_unique_per_draw |>
+    dplyr::filter(dplyr::if_all(dplyr::all_of(joint_across), \(.x) .x == 1L))
+
+  if (nrow(bad) > 0L) {
+    bad_samples <- bad[["output_type_id"]] # nolint: object_usage_linter
+    cli::cli_abort(
+      c(
+        "Non-compound task IDs must vary within sample draws for joint scoring,
+         but {nrow(bad)} draw{?s} have no variation.",
+        "i" = "First failing sample ID{?s}: {.val {utils::head(unique(bad_samples), 5)}}"
       ),
       call = call
     )

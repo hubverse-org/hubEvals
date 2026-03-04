@@ -805,3 +805,348 @@ test_that("score_model_out propagates warnings from scoringutils", {
     regexp = "Detected zeros in input values"
   )
 })
+
+
+# --- Sample scoring integration tests ---
+
+test_that("score_model_out succeeds with sample output_type, marginal scoring, by model_id", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "sample"),
+    oracle_output = forecast_oracle_output,
+    metrics = "crps",
+    by = "model_id"
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(scores, c("model_id", "crps"))
+  expect_equal(nrow(scores), 3L)
+})
+
+
+test_that("score_model_out succeeds with sample output_type, summarize = FALSE", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "sample"),
+    oracle_output = forecast_oracle_output,
+    metrics = "crps",
+    summarize = FALSE
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(
+    scores,
+    c(
+      "model_id",
+      "reference_date",
+      "target",
+      "horizon",
+      "location",
+      "target_end_date",
+      "crps"
+    )
+  )
+  # 3 models x 2 reference_dates x 2 locations x 4 horizons = 48
+  expect_equal(nrow(scores), 48L)
+})
+
+
+test_that("score_model_out succeeds with sample output_type, default metrics", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  # log_score uses kernel density estimation, which scoringutils correctly
+  # warns is not appropriate for integer-valued forecasts
+  expect_warning(
+    scores <- score_model_out(
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "sample"),
+      oracle_output = forecast_oracle_output,
+      by = "model_id"
+    ),
+    regexp = "integer-valued"
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(
+    scores,
+    c(
+      "model_id",
+      "bias",
+      "dss",
+      "crps",
+      "overprediction",
+      "underprediction",
+      "dispersion",
+      "log_score",
+      "mad",
+      "ae_median",
+      "se_mean"
+    )
+  )
+  expect_equal(nrow(scores), 3L)
+})
+
+
+test_that("score_model_out computes correct CRPS for marginal sample scoring", {
+  # Hand-computed CRPS for 3 samples {1, 3, 5}, observed = 2:
+  # CRPS = (1/n) sum|x_i - y| - (1/(2n^2)) sum_ij|x_i - x_j|
+  #      = (1/3)(1 + 1 + 3) - (1/18)(2 + 4 + 2 + 2 + 4 + 2) = 5/3 - 8/9 = 7/9
+  model_out_tbl <- data.frame(
+    model_id = "m1",
+    output_type = "sample",
+    output_type_id = as.character(1:3),
+    value = c(1, 3, 5),
+    location = "A",
+    target = "inc hosp",
+    target_end_date = as.Date("2024-01-01"),
+    stringsAsFactors = FALSE
+  )
+
+  oracle_output <- data.frame(
+    location = "A",
+    target = "inc hosp",
+    target_end_date = as.Date("2024-01-01"),
+    oracle_value = 2,
+    stringsAsFactors = FALSE
+  )
+
+  scores <- score_model_out(
+    model_out_tbl = model_out_tbl,
+    oracle_output = oracle_output,
+    metrics = "crps",
+    summarize = FALSE
+  )
+
+  expect_equal(scores$crps, 7 / 9)
+})
+
+
+test_that("score_model_out computes correct energy score for compound sample scoring", {
+  # Hand-computed energy score for 3 bivariate samples over 2 horizons.
+  # Samples: {(1,2), (3,4), (5,6)}, observed: (2,3)
+  # ES = (1/n) sum||x_i - y|| - (1/(2n^2)) sum_ij||x_i - x_j||
+  #    = (1/3)(sqrt(2) + sqrt(2) + 3*sqrt(2))
+  #      - (1/18)(2*2*sqrt(2) + 2*4*sqrt(2) + 2*2*sqrt(2))
+  #    = 5*sqrt(2)/3 - 8*sqrt(2)/9 = 7*sqrt(2)/9
+  model_out_tbl <- data.frame(
+    model_id = "m1",
+    output_type = "sample",
+    output_type_id = as.character(c(1, 1, 2, 2, 3, 3)),
+    value = c(1, 2, 3, 4, 5, 6),
+    location = "A",
+    target = "inc hosp",
+    horizon = c(1L, 2L, 1L, 2L, 1L, 2L),
+    stringsAsFactors = FALSE
+  )
+
+  oracle_output <- data.frame(
+    location = "A",
+    target = "inc hosp",
+    horizon = c(1L, 2L),
+    oracle_value = c(2, 3),
+    stringsAsFactors = FALSE
+  )
+
+  scores <- score_model_out(
+    model_out_tbl = model_out_tbl,
+    oracle_output = oracle_output,
+    compound_taskid_set = "location",
+    summarize = FALSE
+  )
+
+  expect_equal(scores$energy_score, 7 * sqrt(2) / 9)
+})
+
+
+test_that("score_model_out succeeds with compound sample scoring (energy score)", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  # compound_taskid_set matches the hub's tasks.json: reference_date and
+
+  # location stay constant within each draw; horizon varies (joint_across).
+  scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "sample"),
+    oracle_output = forecast_oracle_output,
+    compound_taskid_set = c("reference_date", "location"),
+    metrics = "energy_score",
+    by = "model_id"
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(scores, c("model_id", "energy_score"))
+  expect_equal(nrow(scores), 3L)
+})
+
+
+test_that("score_model_out succeeds with marginal sample and scale transformation", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  sample_tbl <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample")
+  # Workaround for stale negative value in hubExamples data
+  # (hubverse-org/hubExamples#62). Remove once fixed.
+  sample_tbl$value[sample_tbl$value < 0] <- 0
+
+  scores <- score_model_out(
+    model_out_tbl = sample_tbl,
+    oracle_output = forecast_oracle_output,
+    metrics = "crps",
+    transform = scoringutils::log_shift,
+    offset = 1,
+    by = "model_id"
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(scores, c("model_id", "crps"))
+  expect_equal(nrow(scores), 3L)
+})
+
+
+test_that("score_model_out with sample transform_append=TRUE includes both scales", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  sample_tbl <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample")
+  sample_tbl$value[sample_tbl$value < 0] <- 0
+
+  scores <- score_model_out(
+    model_out_tbl = sample_tbl,
+    oracle_output = forecast_oracle_output,
+    metrics = "crps",
+    transform = scoringutils::log_shift,
+    offset = 1,
+    transform_append = TRUE,
+    summarize = FALSE
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(
+    scores,
+    c(
+      "model_id",
+      "reference_date",
+      "target",
+      "horizon",
+      "location",
+      "target_end_date",
+      "scale",
+      "crps"
+    )
+  )
+  # 48 per scale x 2 scales = 96
+  expect_equal(nrow(scores), 96L)
+  expect_setequal(unique(scores$scale), c("natural", "log_shift"))
+})
+
+
+test_that("score_model_out succeeds with compound sample and scale transformation", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  sample_tbl <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample")
+  sample_tbl$value[sample_tbl$value < 0] <- 0
+
+  scores <- score_model_out(
+    model_out_tbl = sample_tbl,
+    oracle_output = forecast_oracle_output,
+    compound_taskid_set = c("reference_date", "location"),
+    metrics = "energy_score",
+    transform = scoringutils::log_shift,
+    offset = 1,
+    by = "model_id"
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(scores, c("model_id", "energy_score"))
+  expect_equal(nrow(scores), 3L)
+})
+
+
+test_that("score_model_out with compound sample transform_append=TRUE includes both scales", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  sample_tbl <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample")
+  sample_tbl$value[sample_tbl$value < 0] <- 0
+
+  scores <- score_model_out(
+    model_out_tbl = sample_tbl,
+    oracle_output = forecast_oracle_output,
+    compound_taskid_set = c("reference_date", "location"),
+    metrics = "energy_score",
+    transform = scoringutils::log_shift,
+    offset = 1,
+    transform_append = TRUE,
+    summarize = FALSE
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(
+    scores,
+    c(
+      "model_id",
+      "reference_date",
+      "target",
+      "location",
+      "scale",
+      "energy_score",
+      ".mv_group_id"
+    )
+  )
+  # 12 per scale (3 models x 2 ref_dates x 2 locations) x 2 scales = 24
+  expect_equal(nrow(scores), 24L)
+  expect_setequal(unique(scores$scale), c("natural", "log_shift"))
+})
+
+
+test_that("score_model_out succeeds with sample and relative metrics", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  scores <- score_model_out(
+    model_out_tbl = forecast_outputs |>
+      dplyr::filter(.data[["output_type"]] == "sample"),
+    oracle_output = forecast_oracle_output,
+    metrics = "crps",
+    relative_metrics = "crps",
+    by = "model_id"
+  )
+
+  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_named(scores, c("model_id", "crps", "crps_relative_skill"))
+  expect_equal(nrow(scores), 3L)
+})
+
+
+test_that("score_model_out errors when compound_taskid_set used with non-sample type", {
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  expect_error(
+    score_model_out(
+      model_out_tbl = forecast_outputs |>
+        dplyr::filter(.data[["output_type"]] == "quantile"),
+      oracle_output = forecast_oracle_output,
+      compound_taskid_set = c("reference_date", "location")
+    ),
+    regexp = "only applicable to sample output types"
+  )
+})
+
+
+test_that("error_if_invalid_output_type accepts sample", {
+  expect_no_error(error_if_invalid_output_type("sample"))
+})

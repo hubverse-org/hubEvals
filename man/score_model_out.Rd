@@ -13,6 +13,7 @@ score_model_out(
   summarize = TRUE,
   by = "model_id",
   output_type_id_order = NULL,
+  compound_taskid_set = NULL,
   transform = NULL,
   transform_append = FALSE,
   transform_label = NULL,
@@ -53,6 +54,15 @@ vector of levels for pmf forecasts, in increasing order of the levels. The
 order of the values for the output_type_id can be found by referencing the
 hub's tasks.json configuration file. For all output types other than pmf,
 this is ignored.}
+
+\item{compound_taskid_set}{When \code{NULL} (the default), sample forecasts are
+scored marginally (each modeling task scored independently). When a character
+vector of task ID column names is provided, it sets the compound grouping:
+the specified columns stay constant within each sample draw, while the
+remaining task ID dimensions vary within a draw and are scored jointly
+(using the energy score). Only applicable when
+\code{output_type == "sample"}. The value of \code{compound_taskid_set} can be found
+by referencing the hub's \code{tasks.json} configuration file.}
 
 \item{transform}{A function to apply as a scale transformation to both
 predictions and observations before scoring. Common choices include
@@ -139,6 +149,44 @@ See \link[scoringutils:get_metrics.forecast_point]{scoringutils::get_metrics.for
 \item \code{se_point}: squared error of the point forecast (recommended for the mean, see Gneiting (2011))
 }
 
+\strong{Sample forecasts (marginal):} (\code{output_type == "sample"}, \code{compound_taskid_set = NULL})
+\itemize{
+\item bias
+\item dss
+\item crps
+\item overprediction
+\item underprediction
+\item dispersion
+\item log_score
+\item mad
+\item ae_median
+\item se_mean
+}
+
+Note: \code{log_score} uses kernel density estimation, which may not be
+appropriate for integer-valued forecasts. \code{scoringutils} will warn when
+this is detected.
+
+See \link[scoringutils:get_metrics.forecast_sample]{scoringutils::get_metrics.forecast_sample} for details.
+
+\strong{Sample forecasts (compound):} (\code{output_type == "sample"}, \code{compound_taskid_set} provided)
+\itemize{
+\item energy_score
+\item variogram_score
+}
+
+See \link[scoringutils:get_metrics.forecast_multivariate_sample]{scoringutils::get_metrics.forecast_sample_multivariate} for details.
+The output includes a \code{.mv_group_id} column assigned by \code{scoringutils} to
+identify the multivariate groups used for scoring (equivalent to the
+\code{compound_idx} concept in the
+\href{https://docs.hubverse.io/en/latest/user-guide/sample-output-type.html}{hubverse sample output type documentation }).
+Correct scoring depends on providing the right \code{compound_taskid_set} from
+the hub's \code{tasks.json} configuration. If the specified grouping does not
+match the actual dependence structure of the submitted samples (e.g.,
+because some models submitted coarser samples than configured),
+\code{.mv_group_id} may not correspond to the original sample draws as
+indicated by their \code{output_type_id} values.
+
 See \link[scoringutils:add_relative_skill]{scoringutils::add_relative_skill} for details on relative skill scores.
 }
 \examples{
@@ -169,6 +217,31 @@ pmf_scores <- score_model_out(
   output_type_id_order = c("low", "moderate", "high", "very high")
 )
 head(pmf_scores)
+
+# Score sample forecasts marginally (each modeling task scored independently).
+# Note: this data has compound structure (samples span horizons), but marginal
+# scoring is still valid -- it evaluates each horizon independently.
+sample_scores <- score_model_out(
+  model_out_tbl = hubExamples::forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample"),
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = "crps",
+  by = "model_id"
+)
+sample_scores
+
+# Score compound sample forecasts jointly using the energy score.
+# compound_taskid_set specifies which task IDs stay constant within
+# a sample group -- here, each sample draw spans all horizons for a
+# given reference_date and location (i.e., a trajectory over time).
+compound_scores <- score_model_out(
+  model_out_tbl = hubExamples::forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "sample"),
+  oracle_output = hubExamples::forecast_oracle_output,
+  compound_taskid_set = c("reference_date", "location"),
+  by = "model_id"
+)
+compound_scores
 \dontshow{\}) # examplesIf}
 }
 \references{

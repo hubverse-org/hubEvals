@@ -28,6 +28,14 @@
 #' order of the values for the output_type_id can be found by referencing the
 #' hub's tasks.json configuration file. For all output types other than pmf,
 #' this is ignored.
+#' @param compound_taskid_set When `NULL` (the default), sample forecasts are
+#' scored marginally (each modeling task scored independently). When a character
+#' vector of task ID column names is provided, it sets the compound grouping:
+#' the specified columns stay constant within each sample draw, while the
+#' remaining task ID dimensions vary within a draw and are scored jointly
+#' (using the energy score). Only applicable when
+#' `output_type == "sample"`. The value of `compound_taskid_set` can be found
+#' by referencing the hub's `tasks.json` configuration file.
 #' @param transform A function to apply as a scale transformation to both
 #'   predictions and observations before scoring. Common choices include
 #'   \code{\link[scoringutils]{log_shift}} (recommended for log transformation
@@ -63,9 +71,8 @@
 #' different `output_type`s:
 #'
 #' **Quantile forecasts:** (`output_type == "quantile"`)
-#' `r exclude <- c("interval_coverage_50", "interval_coverage_90")`
-#' `r metrics <- scoringutils::get_metrics(scoringutils::example_quantile, exclude = exclude)`
-#' `r paste("- ", names(metrics), collapse = "\n")`
+#' `r ex <- c("interval_coverage_50", "interval_coverage_90")`
+#' `r .metrics_list(scoringutils::example_quantile, exclude = ex)`
 #' - "interval_coverage_XX": interval coverage at the "XX" level. For example,
 #' "interval_coverage_95" is the 95% interval coverage rate, which would be calculated
 #' based on quantiles at the probability levels 0.025 and 0.975.
@@ -74,13 +81,13 @@
 #'
 #' **Nominal forecasts:** (`output_type == "pmf"` and `output_type_id_order` is `NULL`)
 #'
-#' `r paste("- ", names(scoringutils::get_metrics(scoringutils::example_nominal)), collapse = "\n")`
+#' `r .metrics_list(scoringutils::example_nominal)`
 #'
 #' See [scoringutils::get_metrics.forecast_nominal] for details.
 #'
 #' **Ordinal forecasts:** (`output_type == "pmf"` and `output_type_id_order` is a vector)
 #'
-#' `r paste("- ", names(scoringutils::get_metrics(scoringutils::example_ordinal)), collapse = "\n")`
+#' `r .metrics_list(scoringutils::example_ordinal)`
 #'
 #' See [scoringutils::get_metrics.forecast_ordinal] for details.
 #'
@@ -92,6 +99,33 @@
 #'
 #' **Mean forecasts:** (`output_type == "mean"`)
 #' - `se_point`: squared error of the point forecast (recommended for the mean, see Gneiting (2011))
+#'
+#' **Sample forecasts (marginal):** (`output_type == "sample"`, `compound_taskid_set = NULL`)
+#'
+#' `r .metrics_list(scoringutils::example_sample_continuous)`
+#'
+#' Note: `log_score` uses kernel density estimation, which may not be
+#' appropriate for integer-valued forecasts. `scoringutils` will warn when
+#' this is detected.
+#'
+#' See [scoringutils::get_metrics.forecast_sample] for details.
+#'
+#' **Sample forecasts (compound):** (`output_type == "sample"`, `compound_taskid_set` provided)
+#'
+#' `r .metrics_list(scoringutils::example_multivariate_sample)`
+#'
+#' See [scoringutils::get_metrics.forecast_sample_multivariate] for details.
+#' The output includes a `.mv_group_id` column assigned by `scoringutils` to
+#' identify the multivariate groups used for scoring (equivalent to the
+#' `compound_idx` concept in the
+#' [hubverse sample output type documentation
+#' ](https://docs.hubverse.io/en/latest/user-guide/sample-output-type.html)).
+#' Correct scoring depends on providing the right `compound_taskid_set` from
+#' the hub's `tasks.json` configuration. If the specified grouping does not
+#' match the actual dependence structure of the submitted samples (e.g.,
+#' because some models submitted coarser samples than configured),
+#' `.mv_group_id` may not correspond to the original sample draws as
+#' indicated by their `output_type_id` values.
 #'
 #' See [scoringutils::add_relative_skill] for details on relative skill scores.
 #'
@@ -123,6 +157,31 @@
 #' )
 #' head(pmf_scores)
 #'
+#' # Score sample forecasts marginally (each modeling task scored independently).
+#' # Note: this data has compound structure (samples span horizons), but marginal
+#' # scoring is still valid -- it evaluates each horizon independently.
+#' sample_scores <- score_model_out(
+#'   model_out_tbl = hubExamples::forecast_outputs |>
+#'     dplyr::filter(.data[["output_type"]] == "sample"),
+#'   oracle_output = hubExamples::forecast_oracle_output,
+#'   metrics = "crps",
+#'   by = "model_id"
+#' )
+#' sample_scores
+#'
+#' # Score compound sample forecasts jointly using the energy score.
+#' # compound_taskid_set specifies which task IDs stay constant within
+#' # a sample group -- here, each sample draw spans all horizons for a
+#' # given reference_date and location (i.e., a trajectory over time).
+#' compound_scores <- score_model_out(
+#'   model_out_tbl = hubExamples::forecast_outputs |>
+#'     dplyr::filter(.data[["output_type"]] == "sample"),
+#'   oracle_output = hubExamples::forecast_oracle_output,
+#'   compound_taskid_set = c("reference_date", "location"),
+#'   by = "model_id"
+#' )
+#' compound_scores
+#'
 #' @return A data.table with scores
 #'
 #' @references
@@ -139,6 +198,7 @@ score_model_out <- function(
   summarize = TRUE,
   by = "model_id",
   output_type_id_order = NULL,
+  compound_taskid_set = NULL,
   transform = NULL,
   transform_append = FALSE,
   transform_label = NULL,
@@ -147,6 +207,13 @@ score_model_out <- function(
   # check that model_out_tbl has a single output_type that is supported by this package
   # also, retrieve that output_type
   output_type <- validate_output_type(model_out_tbl)
+
+  if (!is.null(compound_taskid_set) && output_type != "sample") {
+    cli::cli_abort(
+      "{.arg compound_taskid_set} is only applicable to sample output types,
+      but {.arg model_out_tbl} has output type {.val {output_type}}."
+    )
+  }
 
   # Validate transformation parameters and capture expression for label inference
   transform_expr <- rlang::enexpr(transform)
@@ -170,6 +237,11 @@ score_model_out <- function(
       model_out_tbl,
       oracle_output,
       output_type
+    ),
+    sample = transform_sample_model_out(
+      model_out_tbl,
+      oracle_output,
+      compound_taskid_set
     ),
     NULL # default, should not happen because of the validation above
   )

@@ -63,9 +63,6 @@ median_scores
 #> 1: Flusight-baseline  401.875
 #> 2:   MOBS-GLEAM_FLUH  416.375
 #> 3:          PSI-DICE  277.000
-```
-
-``` r
 
 # compute WIS and interval coverage rates at 80% and 90% levels based on
 # quantile forecasts, summarized by the mean score for each model
@@ -84,9 +81,6 @@ quantile_scores
 #> 1: Flusight-baseline 329.4545                  0.0               0.1250          1.1473659
 #> 2:   MOBS-GLEAM_FLUH 315.2393                  0.5               0.5625          1.0978597
 #> 3:          PSI-DICE 227.9527                  0.5               0.5000          0.7938733
-```
-
-``` r
 
 # compute log scores based on pmf predictions for categorical targets,
 # summarized by the mean score for each combination of model and location.
@@ -110,6 +104,53 @@ head(pmf_scores)
 #> 4: Flusight-baseline       25       3         Inf 1.8665126816
 #> 5: Flusight-baseline       48       0  2.18418007 0.4873966597
 #> 6: Flusight-baseline       48       1  7.49960792 0.9659026096
+```
+
+[Sample
+forecasts](https://docs.hubverse.io/en/latest/user-guide/sample-output-type.html)
+can be scored marginally (each modeling task scored independently) or
+jointly using compound scoring:
+
+``` r
+# marginal sample scoring with CRPS
+sample_scores <- hubExamples::forecast_outputs |>
+  dplyr::filter(output_type == "sample") |>
+  score_model_out(
+    oracle_output = hubExamples::forecast_oracle_output,
+    metrics = "crps",
+    by = "model_id"
+  )
+sample_scores
+#>             model_id     crps
+#>               <char>    <num>
+#> 1: Flusight-baseline 351.5888
+#> 2:   MOBS-GLEAM_FLUH 347.1502
+#> 3:          PSI-DICE 247.3640
+```
+
+[Compound
+scoring](https://docs.hubverse.io/en/latest/user-guide/sample-output-type.html#compound-modeling-tasks)
+uses the energy score to evaluate the joint distribution across task
+dimensions that vary within a sample draw. The `compound_taskid_set`
+specifies which task IDs stay constant within a sample group and can be
+found by referencing the hub’s `tasks.json` configuration file. Here,
+each draw spans all horizons for a given reference date and location
+(i.e., a trajectory over time).
+
+``` r
+compound_scores <- hubExamples::forecast_outputs |>
+  dplyr::filter(output_type == "sample") |>
+  score_model_out(
+    oracle_output = hubExamples::forecast_oracle_output,
+    compound_taskid_set = c("reference_date", "location"),
+    by = "model_id"
+  )
+compound_scores
+#>             model_id energy_score variogram_score
+#>               <char>        <num>           <num>
+#> 1: Flusight-baseline     772.7587        1523.954
+#> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037
+#> 3:          PSI-DICE     571.0879        1264.238
 ```
 
 Or, users may transform predictions into a `forecast` object that can be
@@ -139,6 +180,13 @@ pmf_forecasts <- transform_pmf_model_out(
   output_type_id_order = c("low", "moderate", "high", "very high")
 )
 pmf_forecasts
+
+sample_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(output_type == "sample") |>
+  transform_sample_model_out(
+    oracle_output = hubExamples::forecast_oracle_output
+  )
+sample_forecast
 ```
 
 ## Code of Conduct
