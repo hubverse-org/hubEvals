@@ -2,6 +2,8 @@
 
 ## hubEvals (development version)
 
+## hubEvals 0.2.0
+
 - Add support for scoring sample output types via
   [`transform_sample_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/transform_sample_model_out.md)
   and the `"sample"` case in
