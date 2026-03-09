@@ -11,3 +11,5 @@
   object:
 - [`transform_quantile_model_out()`](https://hubverse-org.github.io/hubEvals/reference/transform_quantile_model_out.md)
   : Transform quantile model output into a forecast object
+- [`transform_sample_model_out()`](https://hubverse-org.github.io/hubEvals/reference/transform_sample_model_out.md)
+  : Transform sample model output into a forecast object

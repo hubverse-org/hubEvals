@@ -1,5 +1,21 @@
 # Changelog
 
+## hubEvals 0.2.0
+
+- Add support for scoring sample output types via
+  [`transform_sample_model_out()`](https://hubverse-org.github.io/hubEvals/reference/transform_sample_model_out.md)
+  and the `"sample"` case in
+  [`score_model_out()`](https://hubverse-org.github.io/hubEvals/reference/score_model_out.md).
+  Marginal scoring produces metrics such as CRPS, bias, and DSS;
+  compound scoring (via the new `compound_taskid_set` argument) produces
+  multivariate scores such as energy score and variogram score for joint
+  forecasts (#94).
+
+- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/reference/score_model_out.md)
+  now errors with a clear message when a scale transformation produces
+  non-finite values (NaN or Inf), instead of silently returning invalid
+  scores (#99).
+
 ## hubEvals 0.1.0
 
 - Add `transform`, `transform_append`, and `transform_label` arguments
