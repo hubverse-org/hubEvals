@@ -1,4 +1,5 @@
 test_that("score_model_out succeeds with valid inputs: mean output_type, default metrics, by all", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -63,6 +64,7 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
 
 
 test_that("score_model_out succeeds with valid inputs: mean output_type, default metrics, summarize FALSE", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -120,6 +122,7 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, default
 
 
 test_that("score_model_out succeeds with valid inputs: mean output_type, character metrics, custom by", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -166,6 +169,7 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, charact
 
 
 test_that("score_model_out succeeds with valid inputs: median output_type, default metrics, summarize FALSE", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -223,6 +227,7 @@ test_that("score_model_out succeeds with valid inputs: median output_type, defau
 
 
 test_that("score_model_out succeeds with valid inputs: quantile output_type, wis and interval metrics, custom by", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -336,6 +341,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
 
 
 test_that("score_model_out succeeds with valid inputs: quantile output_type, wis/interval metrics, summarize FALSE", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -438,6 +444,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, wis
 
 
 test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, default metrics, custom by", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -467,6 +474,7 @@ test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, 
 
 
 test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, default metrics, custom by", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -488,6 +496,7 @@ test_that("score_model_out succeeds with valid inputs: ordinal pmf output_type, 
 
 
 test_that("score_model_out errors when model_out_tbl has multiple output_types", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -503,6 +512,7 @@ test_that("score_model_out errors when model_out_tbl has multiple output_types",
 
 
 test_that("score_model_out works with all kinds of interval levels are requested", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -552,6 +562,7 @@ test_that("score_model_out works with all kinds of interval levels are requested
 
 
 test_that("score_model_out errors when invalid metrics are requested", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -606,6 +617,7 @@ test_that("score_model_out errors when invalid metrics are requested", {
 
 
 test_that("score_model_out errors when an unsupported output_type is provided", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -625,6 +637,7 @@ test_that("score_model_out errors when an unsupported output_type is provided", 
 # Tests for scale transformation functionality
 
 test_that("transform argument produces same scores as manually transformed data", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -661,6 +674,7 @@ test_that("transform argument produces same scores as manually transformed data"
 
 
 test_that("score_model_out succeeds with log transformation on median forecasts", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -678,6 +692,7 @@ test_that("score_model_out succeeds with log transformation on median forecasts"
 
 
 test_that("score_model_out succeeds with log transformation on mean forecasts", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -695,6 +710,7 @@ test_that("score_model_out succeeds with log transformation on mean forecasts", 
 
 
 test_that("score_model_out with transform_append=TRUE includes both scales", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -715,6 +731,7 @@ test_that("score_model_out with transform_append=TRUE includes both scales", {
 
 
 test_that("score_model_out errors when transform requested for pmf output_type", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -731,6 +748,7 @@ test_that("score_model_out errors when transform requested for pmf output_type",
 
 
 test_that("score_model_out errors when transform is not a function", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -747,6 +765,7 @@ test_that("score_model_out errors when transform is not a function", {
 
 
 test_that("score_model_out errors when transform_label is not character", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -764,6 +783,7 @@ test_that("score_model_out errors when transform_label is not character", {
 
 
 test_that("score_model_out passes ... arguments to transform function", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -787,6 +807,7 @@ test_that("score_model_out passes ... arguments to transform function", {
 
 
 test_that("score_model_out errors when log_shift without offset produces Inf on zeros", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -810,6 +831,7 @@ test_that("score_model_out errors when log_shift without offset produces Inf on 
 # --- Sample scoring integration tests ---
 
 test_that("score_model_out succeeds with sample output_type, marginal scoring, by model_id", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -828,6 +850,7 @@ test_that("score_model_out succeeds with sample output_type, marginal scoring, b
 
 
 test_that("score_model_out succeeds with sample output_type, summarize = FALSE", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -858,6 +881,7 @@ test_that("score_model_out succeeds with sample output_type, summarize = FALSE",
 
 
 test_that("score_model_out succeeds with sample output_type, default metrics", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -966,6 +990,7 @@ test_that("score_model_out computes correct energy score for compound sample sco
 
 
 test_that("score_model_out succeeds with compound sample scoring (energy score)", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -988,6 +1013,7 @@ test_that("score_model_out succeeds with compound sample scoring (energy score)"
 
 
 test_that("score_model_out succeeds with marginal sample and scale transformation", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -1013,6 +1039,7 @@ test_that("score_model_out succeeds with marginal sample and scale transformatio
 
 
 test_that("score_model_out with sample transform_append=TRUE includes both scales", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -1051,6 +1078,7 @@ test_that("score_model_out with sample transform_append=TRUE includes both scale
 
 
 test_that("score_model_out succeeds with compound sample and scale transformation", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -1075,6 +1103,7 @@ test_that("score_model_out succeeds with compound sample and scale transformatio
 
 
 test_that("score_model_out with compound sample transform_append=TRUE includes both scales", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -1113,6 +1142,7 @@ test_that("score_model_out with compound sample transform_append=TRUE includes b
 
 
 test_that("score_model_out succeeds with sample and relative metrics", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -1132,6 +1162,7 @@ test_that("score_model_out succeeds with sample and relative metrics", {
 
 
 test_that("score_model_out errors when compound_taskid_set used with non-sample type", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -1155,6 +1186,7 @@ test_that("error_if_invalid_output_type accepts sample", {
 # --- Tests for non-finite transform validation (#99) ---
 
 test_that("score_model_out errors with NaN when sqrt applied to negative sample values", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -1163,20 +1195,24 @@ test_that("score_model_out errors with NaN when sqrt applied to negative sample 
   # Inject a negative value to ensure sqrt produces NaN
   sample_tbl$value[1] <- -5
 
-  expect_error(
-    score_model_out(
-      model_out_tbl = sample_tbl,
-      oracle_output = forecast_oracle_output,
-      metrics = "crps",
-      transform = sqrt,
-      by = "model_id"
+  expect_warning(
+    expect_error(
+      score_model_out(
+        model_out_tbl = sample_tbl,
+        oracle_output = forecast_oracle_output,
+        metrics = "crps",
+        transform = sqrt,
+        by = "model_id"
+      ),
+      regexp = "non-finite values.*predicted.*NaN"
     ),
-    regexp = "non-finite values.*predicted.*NaN"
+    regexp = "NaNs produced"
   )
 })
 
 
 test_that("score_model_out errors with Inf when log applied to zeros in quantile data", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -1219,14 +1255,17 @@ test_that("score_model_out errors with NaN when log applied to negative sample v
     stringsAsFactors = FALSE
   )
 
-  expect_error(
-    suppressWarnings(score_model_out(
-      model_out_tbl = model_out_tbl,
-      oracle_output = oracle_output,
-      metrics = "crps",
-      transform = log
-    )),
-    regexp = "non-finite values.*predicted.*NaN"
+  expect_warning(
+    expect_error(
+      score_model_out(
+        model_out_tbl = model_out_tbl,
+        oracle_output = oracle_output,
+        metrics = "crps",
+        transform = log
+      ),
+      regexp = "non-finite values.*predicted.*NaN"
+    ),
+    regexp = "NaNs produced"
   )
 })
 
@@ -1252,13 +1291,22 @@ test_that("score_model_out reports both predicted and observed when both have no
     stringsAsFactors = FALSE
   )
 
-  expect_error(
-    score_model_out(
-      model_out_tbl = model_out_tbl,
-      oracle_output = oracle_output,
-      metrics = "crps",
-      transform = sqrt
+  # sqrt is applied to both predicted and observed columns, so each
+  # raises its own base-R "NaNs produced" warning -- hence two nested
+  # expect_warning() calls before the hubEvals error is asserted.
+  expect_warning(
+    expect_warning(
+      expect_error(
+        score_model_out(
+          model_out_tbl = model_out_tbl,
+          oracle_output = oracle_output,
+          metrics = "crps",
+          transform = sqrt
+        ),
+        regexp = "predicted.*observed"
+      ),
+      regexp = "NaNs produced"
     ),
-    regexp = "predicted.*observed"
+    regexp = "NaNs produced"
   )
 })
