@@ -1,72 +1,70 @@
 Package: hubEvals
-Title: Basic tools for scoring hubverse forecasts
+Title: Tools for Scoring and Evaluating Hubverse Model Outputs
 Version: 0.2.0.9000
 Authors@R: c(
-    person(given = "Nicholas", 
-           family = "Reich",
-           email = "nick@umass.edu", 
+    person(given = "Anna",
+           family = "Krystalli",
+           email = "annakrystalli@googlemail.com",
            role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-2378-4915")),
+    person(given = "Nicholas",
+           family = "Reich",
+           email = "nick@umass.edu",
+           role = c("aut"),
            comment = c(ORCID = "0000-0003-3503-9899")),
-    person(given = "Evan", 
-           family = "Ray", 
-           email = "elray1@umass.edu", 
+    person(given = "Evan",
+           family = "Ray",
            role = c("aut")),
     person(given = "Nikos",
            family = "Bosse",
-           role = c("aut"),
            email = "nikosbosse@gmail.com",
+           role = c("aut"),
            comment = c(ORCID = "0000-0002-7750-5280")),
-    person(given = "Matthew",
-           family = "Cornell",
-           email = "cornell@schoolph.umass.edu",
-           role = c("aut")),
-    person(given = "Zhian",
-           family = "Kamvar",
-           email = "zkamvar@umass.edu",
-           comment = c(ORCID = "0000-0003-1458-7108"),
-           role = c("ctb")),
-    person(given = "Li",
-           family = "Shandross",
-           email = "lshandross@umass.edu",
-           comment = c(ORCID = "0009-0008-1348-1954"),
-           role = c("ctb")),
-    person(given = "Becky", 
-           family = "Sweger",
-           email = "rsweger@umass.edu", 
-           role = c("aut")),
     person(given = "Kimberlyn",
            family = "Roosa",
            email = "kimberlyn626@gmail.com",
            role = c("aut")),
-    person(given = "Anna",
-           family = "Krystalli",
-           email = "annakrystalli@googlemail.com",
-           role = c("aut"),
-           comment = c(ORCID = "0000-0002-2378-4915"))
+    person(given = "Zhian",
+           family = "Kamvar",
+           role = c("ctb"),
+           comment = c(ORCID = "0000-0003-1458-7108")),
+    person(given = "Li",
+           family = "Shandross",
+           email = "lshandross@umass.edu",
+           role = c("ctb"),
+           comment = c(ORCID = "0009-0008-1348-1954")),
+    person(given = "Becky",
+           family = "Sweger",
+           role = c("ctb")),
+    person(given = "Lucie",
+           family = "Contamin",
+           role = c("ctb")),
+    person("Consortium of Infectious Disease Modeling Hubs",
+           role = "cph")
     )
-Description: 
-    Using functionality from the scoringutils package, this software provides
-    basic tools for scoring hubverse forecasts.
+Description:
+    Provides tools for scoring and evaluating 'hubverse' model outputs
+    against observed data, wrapping scoring workflows from the
+    'scoringutils' package and bridging hubverse model output formats
+    to 'scoringutils' forecast classes.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
     cli,
     dplyr,
-    hubUtils,
+    hubUtils (>= 1.2.0),
     purrr,
     rlang,
-    scoringutils (>= 2.1.2.9000)
-Remotes:
-    hubverse-org/hubExamples,
-    epiforecasts/scoringutils
+    scoringutils (>= 2.2.0)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 URL: https://hubverse-org.github.io/hubEvals/
-Depends: 
-    R (>= 2.10)
-LazyData: true
+BugReports: https://github.com/hubverse-org/hubEvals/issues
+Additional_repositories: https://hubverse-org.r-universe.dev
+Depends:
+    R (>= 4.1.0)
 Config/Needs/website: hubverse-org/hubStyle
-Suggests: 
+Suggests:
     hubExamples,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
