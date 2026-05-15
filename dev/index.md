@@ -13,6 +13,7 @@ You can install the [latest version of hubEvals from the
 R-universe](https://hubverse-org.r-universe.dev/hubEvals):
 
 ``` r
+
 install.packages("hubEvals", repos = c("https://hubverse-org.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
@@ -23,6 +24,7 @@ you can install the development version of hubEvals from
 [GitHub](https://github.com/) with:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("hubverse-org/hubEvals")
 ```
@@ -34,6 +36,7 @@ Predictions can be evaluated directly using the scoring function in
 target data:
 
 ``` r
+
 library(hubEvals)
 
 # compute default metrics (in this case, absolute error) for
@@ -99,6 +102,7 @@ can be scored marginally (each modeling task scored independently) or
 jointly using compound scoring:
 
 ``` r
+
 # marginal sample scoring with CRPS
 sample_scores <- hubExamples::forecast_outputs |>
   dplyr::filter(output_type == "sample") |>
@@ -125,6 +129,7 @@ each draw spans all horizons for a given reference date and location
 (i.e., a trajectory over time).
 
 ``` r
+
 compound_scores <- hubExamples::forecast_outputs |>
   dplyr::filter(output_type == "sample") |>
   score_model_out(
@@ -145,6 +150,7 @@ used as an input to `scoringutils` functions and use their tooling
 directly.
 
 ``` r
+
 median_forecast <- transform_point_model_out(
   model_out_tbl = hubExamples::forecast_outputs |>
     dplyr::filter(output_type == "median"),
