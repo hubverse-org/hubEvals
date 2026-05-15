@@ -175,7 +175,7 @@ See \link[scoringutils:get_metrics.forecast_sample]{scoringutils::get_metrics.fo
 \item variogram_score
 }
 
-See \link[scoringutils:get_metrics.forecast_multivariate_sample]{scoringutils::get_metrics.forecast_sample_multivariate} for details.
+See \link[scoringutils:get_metrics.forecast_multivariate_sample]{scoringutils::get_metrics.forecast_multivariate_sample} for details.
 The output includes a \code{.mv_group_id} column assigned by \code{scoringutils} to
 identify the multivariate groups used for scoring (equivalent to the
 \code{compound_idx} concept in the
@@ -246,5 +246,5 @@ compound_scores
 }
 \references{
 Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the
-American Statistical Association 106 (494): 746–62. <doi: 10.1198/jasa.2011.r10138>.
+American Statistical Association 106 (494): 746–62. \doi{10.1198/jasa.2011.r10138}.
 }

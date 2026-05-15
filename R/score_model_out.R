@@ -114,7 +114,7 @@
 #'
 #' `r .metrics_list(scoringutils::example_multivariate_sample)`
 #'
-#' See [scoringutils::get_metrics.forecast_sample_multivariate] for details.
+#' See [scoringutils::get_metrics.forecast_multivariate_sample] for details.
 #' The output includes a `.mv_group_id` column assigned by `scoringutils` to
 #' identify the multivariate groups used for scoring (equivalent to the
 #' `compound_idx` concept in the
@@ -186,7 +186,7 @@
 #'
 #' @references
 #' Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the
-#' American Statistical Association 106 (494): 746–62. <doi: 10.1198/jasa.2011.r10138>.
+#' American Statistical Association 106 (494): 746–62. \doi{10.1198/jasa.2011.r10138}.
 #'
 #' @export
 score_model_out <- function(

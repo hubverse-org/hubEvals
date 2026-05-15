@@ -9,7 +9,11 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.path = "man/figures/README-",
-  out.width = "100%"
+  out.width = "100%",
+  # All example chunks below depend on hubExamples (a Suggests dep). Gate
+  # them so the README still knits on a machine where hubExamples isn't
+  # installed; chunks that set `eval = FALSE` explicitly remain disabled.
+  eval = requireNamespace("hubExamples", quietly = TRUE)
 )
 options(width = 300)
 ```
@@ -24,7 +28,7 @@ options(width = 300)
 
 <!-- badges: end -->
 
-The goal of hubEvals is to provide tools for evaluating infectious disease model outputs. This package is part of the [Hubverse](https://hubverse.org) project, which aims to provide a suite of tools for infectious disease modeling hubs.
+The goal of hubEvals is to provide tools for evaluating infectious disease model outputs. This package is part of the [Hubverse](https://hubverse.io) project, which aims to provide a suite of tools for infectious disease modeling hubs.
 
 ## Installation
 

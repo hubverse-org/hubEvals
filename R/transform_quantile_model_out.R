@@ -6,6 +6,15 @@
 #'
 #' @return forecast_quantile
 #'
+#' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
+#' quantile_forecast <- hubExamples::forecast_outputs |>
+#'   dplyr::filter(.data[["output_type"]] == "quantile") |>
+#'   transform_quantile_model_out(
+#'     oracle_output = hubExamples::forecast_oracle_output
+#'   )
+#' quantile_forecast
+#'
+#' @importFrom rlang .data
 #' @export
 transform_quantile_model_out <- function(model_out_tbl, oracle_output) {
   model_out_tbl <- validate_model_oracle_out(model_out_tbl, oracle_output)

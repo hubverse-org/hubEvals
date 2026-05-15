@@ -25,9 +25,29 @@ as joint predictions across the task ID dimensions \strong{not} in
 }
 \value{
 A \code{forecast_sample} object (when \code{compound_taskid_set} is \code{NULL})
-or a \code{forecast_sample_multivariate} object (when \code{compound_taskid_set} is
+or a \code{forecast_multivariate_sample} object (when \code{compound_taskid_set} is
 provided).
 }
 \description{
 Transform sample model output into a forecast object
+}
+\examples{
+\dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+# Marginal sample forecast: each modeling task scored independently
+sample_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "sample") |>
+  transform_sample_model_out(
+    oracle_output = hubExamples::forecast_oracle_output
+  )
+sample_forecast
+
+# Compound sample forecast: jointly score across non-compound task IDs
+compound_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "sample") |>
+  transform_sample_model_out(
+    oracle_output = hubExamples::forecast_oracle_output,
+    compound_taskid_set = c("reference_date", "location")
+  )
+compound_forecast
+\dontshow{\}) # examplesIf}
 }

@@ -15,7 +15,7 @@ status](https://www.r-pkg.org/badges/version/hubEvals)](https://CRAN.R-project.o
 
 The goal of hubEvals is to provide tools for evaluating infectious
 disease model outputs. This package is part of the
-[Hubverse](https://hubverse.org) project, which aims to provide a suite
+[Hubverse](https://hubverse.io) project, which aims to provide a suite
 of tools for infectious disease modeling hubs.
 
 ## Installation
@@ -123,7 +123,7 @@ sample_scores <- hubExamples::forecast_outputs |>
 sample_scores
 #>             model_id     crps
 #>               <char>    <num>
-#> 1: Flusight-baseline 351.5888
+#> 1: Flusight-baseline 351.5887
 #> 2:   MOBS-GLEAM_FLUH 347.1502
 #> 3:          PSI-DICE 247.3640
 ```
@@ -148,7 +148,7 @@ compound_scores <- hubExamples::forecast_outputs |>
 compound_scores
 #>             model_id energy_score variogram_score
 #>               <char>        <num>           <num>
-#> 1: Flusight-baseline     772.7587        1523.954
+#> 1: Flusight-baseline     772.7608        1524.474
 #> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037
 #> 3:          PSI-DICE     571.0879        1264.238
 ```

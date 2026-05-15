@@ -9,9 +9,29 @@
 #' hub's tasks.json configuration file. For all output types other than pmf,
 #' this is ignored.
 #'
-#' @return forecast_quantile
-#' @importFrom rlang .data
+#' @return A `forecast_ordinal` object (when `output_type_id_order` is provided)
+#'   or a `forecast_nominal` object (when `output_type_id_order` is `NULL`).
 #'
+#' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
+#' # Nominal pmf forecast (no output_type_id_order provided)
+#' pmf_outputs <- hubExamples::forecast_outputs |>
+#'   dplyr::filter(.data[["output_type"]] == "pmf")
+#'
+#' nominal_forecast <- transform_pmf_model_out(
+#'   model_out_tbl = pmf_outputs,
+#'   oracle_output = hubExamples::forecast_oracle_output
+#' )
+#' nominal_forecast
+#'
+#' # Ordinal pmf forecast (output_type_id_order provided)
+#' ordinal_forecast <- transform_pmf_model_out(
+#'   model_out_tbl = pmf_outputs,
+#'   oracle_output = hubExamples::forecast_oracle_output,
+#'   output_type_id_order = c("low", "moderate", "high", "very high")
+#' )
+#' ordinal_forecast
+#'
+#' @importFrom rlang .data
 #' @export
 transform_pmf_model_out <- function(
   model_out_tbl,
