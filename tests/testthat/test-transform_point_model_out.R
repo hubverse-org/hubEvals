@@ -140,6 +140,7 @@ test_that("many-to-one relationship exists between model_out_tbl and oracle_outp
 })
 
 test_that("hubExamples data set is transformed correctly", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output

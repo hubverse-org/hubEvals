@@ -18,3 +18,13 @@ forecast_quantile
 \description{
 Transform quantile model output into a forecast object
 }
+\examples{
+\dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+quantile_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "quantile") |>
+  transform_quantile_model_out(
+    oracle_output = hubExamples::forecast_oracle_output
+  )
+quantile_forecast
+\dontshow{\}) # examplesIf}
+}

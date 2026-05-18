@@ -1,4 +1,5 @@
 test_that("score_model_out succeeds with valid inputs: quantile output_type, relative wis and ae, no baseline", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -27,6 +28,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
 
 
 test_that("score_model_out succeeds with valid inputs: quantile output_type, relative wis and ae, Flusight-baseline", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
@@ -55,6 +57,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
 
 
 test_that("score_model_out errors when invalid relative metrics are requested", {
+  skip_if_not_installed("hubExamples")
   # Forecast data from hubExamples: <https://hubverse-org.github.io/hubExamples/reference/forecast_data.html>
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output

@@ -11,6 +11,26 @@
 #' format (with either "mean" or "median" output type) to a scoringutils "point"
 #' forecast object
 #'
+#' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
+#' # Median point forecast
+#' median_forecast <- hubExamples::forecast_outputs |>
+#'   dplyr::filter(.data[["output_type"]] == "median") |>
+#'   transform_point_model_out(
+#'     oracle_output = hubExamples::forecast_oracle_output,
+#'     output_type = "median"
+#'   )
+#' median_forecast
+#'
+#' # Mean point forecast
+#' mean_forecast <- hubExamples::forecast_outputs |>
+#'   dplyr::filter(.data[["output_type"]] == "mean") |>
+#'   transform_point_model_out(
+#'     oracle_output = hubExamples::forecast_oracle_output,
+#'     output_type = "mean"
+#'   )
+#' mean_forecast
+#'
+#' @importFrom rlang .data
 #' @export
 transform_point_model_out <- function(
   model_out_tbl,

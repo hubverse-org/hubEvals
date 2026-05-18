@@ -25,3 +25,24 @@ This function transforms a model output tibble in the Hubverse
 format (with either "mean" or "median" output type) to a scoringutils "point"
 forecast object
 }
+\examples{
+\dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+# Median point forecast
+median_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "median") |>
+  transform_point_model_out(
+    oracle_output = hubExamples::forecast_oracle_output,
+    output_type = "median"
+  )
+median_forecast
+
+# Mean point forecast
+mean_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "mean") |>
+  transform_point_model_out(
+    oracle_output = hubExamples::forecast_oracle_output,
+    output_type = "mean"
+  )
+mean_forecast
+\dontshow{\}) # examplesIf}
+}

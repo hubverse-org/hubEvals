@@ -11,10 +11,28 @@
 #'   `compound_taskid_set`, and multivariate scoring metrics are used.
 #'
 #' @return A `forecast_sample` object (when `compound_taskid_set` is `NULL`)
-#'   or a `forecast_sample_multivariate` object (when `compound_taskid_set` is
+#'   or a `forecast_multivariate_sample` object (when `compound_taskid_set` is
 #'   provided).
-#' @importFrom rlang .data
 #'
+#' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
+#' # Marginal sample forecast: each modeling task scored independently
+#' sample_forecast <- hubExamples::forecast_outputs |>
+#'   dplyr::filter(.data[["output_type"]] == "sample") |>
+#'   transform_sample_model_out(
+#'     oracle_output = hubExamples::forecast_oracle_output
+#'   )
+#' sample_forecast
+#'
+#' # Compound sample forecast: jointly score across non-compound task IDs
+#' compound_forecast <- hubExamples::forecast_outputs |>
+#'   dplyr::filter(.data[["output_type"]] == "sample") |>
+#'   transform_sample_model_out(
+#'     oracle_output = hubExamples::forecast_oracle_output,
+#'     compound_taskid_set = c("reference_date", "location")
+#'   )
+#' compound_forecast
+#'
+#' @importFrom rlang .data
 #' @export
 transform_sample_model_out <- function(
   model_out_tbl,

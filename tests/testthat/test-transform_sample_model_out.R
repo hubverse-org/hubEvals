@@ -1,6 +1,7 @@
 # --- Marginal sample scoring ---
 
 test_that("hubExamples sample data transforms to forecast_sample for marginal scoring", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -70,6 +71,7 @@ test_that("hubExamples sample data transforms to forecast_sample for marginal sc
 
 
 test_that("oracle output without output_type/output_type_id columns works", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -101,6 +103,7 @@ test_that("oracle output without output_type/output_type_id columns works", {
 
 
 test_that("transform_sample_model_out errors on empty data", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -118,6 +121,7 @@ test_that("transform_sample_model_out errors on empty data", {
 
 
 test_that("transform_sample_model_out errors on missing required columns", {
+  skip_if_not_installed("hubExamples")
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   bad_tbl <- data.frame(
@@ -139,6 +143,7 @@ test_that("transform_sample_model_out errors on missing required columns", {
 # --- Compound sample scoring ---
 
 test_that("compound_taskid_set produces forecast_sample_multivariate", {
+  skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
@@ -264,6 +269,7 @@ test_that("finer compound_taskid_set with unique IDs errors", {
 
 
 test_that("coarser compound_taskid_set than actual structure passes", {
+  skip_if_not_installed("hubExamples")
   # The hubExamples data has compound_taskid_set = {reference_date, location}
   # per tasks.json: each draw has fixed ref_date + location, varying over
   # horizon. Scoring with just {reference_date} is coarser -- it treats
