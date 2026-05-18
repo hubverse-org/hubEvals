@@ -5,19 +5,19 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Basic tools for scoring hubverse forecasts • hubEvals</title>
+<title>Tools for Scoring and Evaluating Hubverse Model Outputs • hubEvals</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="icon" sizes="any" href="favicon.ico">
 <link rel="manifest" href="site.webmanifest">
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Basic tools for scoring hubverse forecasts">
-<meta name="description" content="Using functionality from the scoringutils package, this software provides basic tools for scoring hubverse forecasts.">
-<meta property="og:description" content="Using functionality from the scoringutils package, this software provides basic tools for scoring hubverse forecasts.">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Tools for Scoring and Evaluating Hubverse Model Outputs">
+<meta name="description" content="Provides tools for scoring and evaluating hubverse model outputs against observed data, wrapping scoring workflows from the scoringutils package and bridging hubverse model output formats to scoringutils forecast classes.">
+<meta property="og:description" content="Provides tools for scoring and evaluating hubverse model outputs against observed data, wrapping scoring workflows from the scoringutils package and bridging hubverse model output formats to scoringutils forecast classes.">
 <meta property="og:image" content="https://hubverse-org.github.io/hubEvals/logo.png">
 <meta name="robots" content="noindex">
 </head>
@@ -44,6 +44,7 @@
 </form></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/hubverse-org/hubEvals/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -60,7 +61,7 @@
 <!-- badges: start -->
 
 <!-- badges: end -->
-<p>The goal of hubEvals is to provide tools for evaluating infectious disease model outputs. This package is part of the <a href="https://hubverse.org" class="external-link">Hubverse</a> project, which aims to provide a suite of tools for infectious disease modeling hubs.</p>
+<p>The goal of hubEvals is to provide tools for evaluating infectious disease model outputs. This package is part of the <a href="https://hubverse.io" class="external-link">Hubverse</a> project, which aims to provide a suite of tools for infectious disease modeling hubs.</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -155,7 +156,7 @@
 <span><span class="va">sample_scores</span></span>
 <span><span class="co">#&gt;             model_id     crps</span></span>
 <span><span class="co">#&gt;               &lt;char&gt;    &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: Flusight-baseline 351.5888</span></span>
+<span><span class="co">#&gt; 1: Flusight-baseline 351.5887</span></span>
 <span><span class="co">#&gt; 2:   MOBS-GLEAM_FLUH 347.1502</span></span>
 <span><span class="co">#&gt; 3:          PSI-DICE 247.3640</span></span></code></pre></div>
 <p><a href="https://docs.hubverse.io/en/latest/user-guide/sample-output-type.html#compound-modeling-tasks" class="external-link">Compound scoring</a> uses the energy score to evaluate the joint distribution across task dimensions that vary within a sample draw. The <code>compound_taskid_set</code> specifies which task IDs stay constant within a sample group and can be found by referencing the hub’s <code>tasks.json</code> configuration file. Here, each draw spans all horizons for a given reference date and location (i.e., a trajectory over time).</p>
@@ -170,7 +171,7 @@
 <span><span class="va">compound_scores</span></span>
 <span><span class="co">#&gt;             model_id energy_score variogram_score</span></span>
 <span><span class="co">#&gt;               &lt;char&gt;        &lt;num&gt;           &lt;num&gt;</span></span>
-<span><span class="co">#&gt; 1: Flusight-baseline     772.7587        1523.954</span></span>
+<span><span class="co">#&gt; 1: Flusight-baseline     772.7608        1524.474</span></span>
 <span><span class="co">#&gt; 2:   MOBS-GLEAM_FLUH     811.4625        1695.037</span></span>
 <span><span class="co">#&gt; 3:          PSI-DICE     571.0879        1264.238</span></span></code></pre></div>
 <p>Or, users may transform predictions into a <code>forecast</code> object that can be used as an input to <code>scoringutils</code> functions and use their tooling directly.</p>
@@ -208,15 +209,23 @@
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
 </h2>
-<p>Please note that the hubEvals package is released with a <a href="CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+<p>Please note that the hubEvals package is released with a <a href="https://github.com/hubverse-org/hubEvals/blob/main/.github/CODE_OF_CONDUCT.md" class="external-link">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 </div>
 <div class="section level2">
 <h2 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
 </h2>
-<p>Interested in contributing back to the open-source Hubverse project? Learn more about how to <a href="https://hubverse.io/community/" class="external-link">get involved in the Hubverse Community</a> or <a href="CONTRIBUTING.html">how to contribute to the hubEvals package</a>.</p>
+<p>Interested in contributing back to the open-source Hubverse project? Learn more about how to <a href="https://hubverse.io/community/" class="external-link">get involved in the Hubverse Community</a> or <a href="https://github.com/hubverse-org/hubEvals/blob/main/.github/CONTRIBUTING.md" class="external-link">how to contribute to the hubEvals package</a>.</p>
 </div>
 </div>
-  </main><aside class="col-md-3"><div class="license">
+  </main><aside class="col-md-3"><div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/hubverse-org/hubEvals/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/hubverse-org/hubEvals/issues" class="external-link">Report a bug</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li><a href="LICENSE.html">Full license</a></li>
@@ -242,13 +251,11 @@
 <div class="developers">
 <h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
-<li>Nicholas Reich <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0003-3503-9899" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Anna Krystalli <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0002-2378-4915" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
+<li>Nicholas Reich <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0003-3503-9899" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li>Evan Ray <br><small class="roles"> Author </small>   </li>
 <li>Nikos Bosse <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-7750-5280" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-<li>Matthew Cornell <br><small class="roles"> Author </small>   </li>
-<li>Becky Sweger <br><small class="roles"> Author </small>   </li>
 <li>Kimberlyn Roosa <br><small class="roles"> Author </small>   </li>
-<li>Anna Krystalli <br><small class="roles"> Author </small> <a href="https://orcid.org/0000-0002-2378-4915" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
 <li><a href="authors.html">More about authors...</a></li>
 </ul>
 </div>
@@ -267,7 +274,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Nicholas Reich, Evan Ray, Nikos Bosse, Matthew Cornell, Becky Sweger, Kimberlyn Roosa, Anna Krystalli.</p>
+  <p>Developed by Anna Krystalli, Nicholas Reich, Evan Ray, Nikos Bosse, Kimberlyn Roosa.</p>
 </div>
 
 <div class="pkgdown-footer-right">

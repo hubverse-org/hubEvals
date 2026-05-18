@@ -2,7 +2,7 @@
 
 The goal of hubEvals is to provide tools for evaluating infectious
 disease model outputs. This package is part of the
-[Hubverse](https://hubverse.org) project, which aims to provide a suite
+[Hubverse](https://hubverse.io) project, which aims to provide a suite
 of tools for infectious disease modeling hubs.
 
 ## Installation
@@ -114,7 +114,7 @@ sample_scores <- hubExamples::forecast_outputs |>
 sample_scores
 #>             model_id     crps
 #>               <char>    <num>
-#> 1: Flusight-baseline 351.5888
+#> 1: Flusight-baseline 351.5887
 #> 2:   MOBS-GLEAM_FLUH 347.1502
 #> 3:          PSI-DICE 247.3640
 ```
@@ -140,7 +140,7 @@ compound_scores <- hubExamples::forecast_outputs |>
 compound_scores
 #>             model_id energy_score variogram_score
 #>               <char>        <num>           <num>
-#> 1: Flusight-baseline     772.7587        1523.954
+#> 1: Flusight-baseline     772.7608        1524.474
 #> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037
 #> 3:          PSI-DICE     571.0879        1264.238
 ```
@@ -186,7 +186,7 @@ sample_forecast
 
 Please note that the hubEvals package is released with a [Contributor
 Code of
-Conduct](https://hubverse-org.github.io/hubEvals/dev/CODE_OF_CONDUCT.md).
+Conduct](https://github.com/hubverse-org/hubEvals/blob/main/.github/CODE_OF_CONDUCT.md).
 By contributing to this project, you agree to abide by its terms.
 
 ## Contributing
@@ -195,4 +195,4 @@ Interested in contributing back to the open-source Hubverse project?
 Learn more about how to [get involved in the Hubverse
 Community](https://hubverse.io/community/) or [how to contribute to the
 hubEvals
-package](https://hubverse-org.github.io/hubEvals/dev/CONTRIBUTING.md).
+package](https://github.com/hubverse-org/hubEvals/blob/main/.github/CONTRIBUTING.md).

@@ -234,7 +234,7 @@ for details.
 - variogram_score
 
 See
-[scoringutils::get_metrics.forecast_sample_multivariate](https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_multivariate_sample.html)
+[scoringutils::get_metrics.forecast_multivariate_sample](https://epiforecasts.io/scoringutils/reference/get_metrics.forecast_multivariate_sample.html)
 for details. The output includes a `.mv_group_id` column assigned by
 `scoringutils` to identify the multivariate groups used for scoring
 (equivalent to the `compound_idx` concept in the [hubverse sample output
@@ -255,7 +255,8 @@ for details on relative skill scores.
 
 Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts."
 Journal of the American Statistical Association 106 (494): 746–62.
-\<doi: 10.1198/jasa.2011.r10138\>.
+[doi:10.1198/jasa.2011.r10138](https://doi.org/10.1198/jasa.2011.r10138)
+.
 
 ## Examples
 
@@ -270,11 +271,18 @@ quantile_scores <- score_model_out(
   relative_metrics = "wis",
   by = "model_id"
 )
-#> Error in dplyr::filter(hubExamples::forecast_outputs, .data[["output_type"]] ==     "quantile"): ℹ In argument: `.data[["output_type"]] == "quantile"`.
-#> Caused by error:
-#> ! `..1` must be of size 10224 or 1, not size 0.
 quantile_scores
-#> Error: object 'quantile_scores' not found
+#> Key: <model_id>
+#>             model_id      wis interval_coverage_80 interval_coverage_90
+#>               <char>    <num>                <num>                <num>
+#> 1: Flusight-baseline 329.4545                  0.0               0.1250
+#> 2:   MOBS-GLEAM_FLUH 315.2393                  0.5               0.5625
+#> 3:          PSI-DICE 227.9527                  0.5               0.5000
+#>    wis_relative_skill
+#>                 <num>
+#> 1:          1.1473659
+#> 2:          1.0978597
+#> 3:          0.7938733
 
 # compute log scores based on pmf predictions for categorical targets,
 # summarized by the mean score for each combination of model and location.
@@ -289,11 +297,15 @@ pmf_scores <- score_model_out(
   by = c("model_id", "location", "horizon"),
   output_type_id_order = c("low", "moderate", "high", "very high")
 )
-#> Error in dplyr::filter(hubExamples::forecast_outputs, .data[["output_type"]] ==     "pmf"): ℹ In argument: `.data[["output_type"]] == "pmf"`.
-#> Caused by error:
-#> ! `..1` must be of size 10224 or 1, not size 0.
 head(pmf_scores)
-#> Error: object 'pmf_scores' not found
+#>             model_id location horizon   log_score          rps
+#>               <char>   <char>   <int>       <num>        <num>
+#> 1: Flusight-baseline       25       0  0.02107606 0.0008531043
+#> 2: Flusight-baseline       25       1  6.69652380 0.5029240066
+#> 3: Flusight-baseline       25       2 17.73313203 1.0057355863
+#> 4: Flusight-baseline       25       3         Inf 1.8665126816
+#> 5: Flusight-baseline       48       0  2.18418007 0.4873966597
+#> 6: Flusight-baseline       48       1  7.49960792 0.9659026096
 
 # Score sample forecasts marginally (each modeling task scored independently).
 # Note: this data has compound structure (samples span horizons), but marginal
@@ -305,11 +317,12 @@ sample_scores <- score_model_out(
   metrics = "crps",
   by = "model_id"
 )
-#> Error in dplyr::filter(hubExamples::forecast_outputs, .data[["output_type"]] ==     "sample"): ℹ In argument: `.data[["output_type"]] == "sample"`.
-#> Caused by error:
-#> ! `..1` must be of size 10224 or 1, not size 0.
 sample_scores
-#> Error: object 'sample_scores' not found
+#>             model_id     crps
+#>               <char>    <num>
+#> 1: Flusight-baseline 351.5887
+#> 2:   MOBS-GLEAM_FLUH 347.1502
+#> 3:          PSI-DICE 247.3640
 
 # Score compound sample forecasts jointly using the energy score.
 # compound_taskid_set specifies which task IDs stay constant within
@@ -322,9 +335,10 @@ compound_scores <- score_model_out(
   compound_taskid_set = c("reference_date", "location"),
   by = "model_id"
 )
-#> Error in dplyr::filter(hubExamples::forecast_outputs, .data[["output_type"]] ==     "sample"): ℹ In argument: `.data[["output_type"]] == "sample"`.
-#> Caused by error:
-#> ! `..1` must be of size 10224 or 1, not size 0.
 compound_scores
-#> Error: object 'compound_scores' not found
+#>             model_id energy_score variogram_score
+#>               <char>        <num>           <num>
+#> 1: Flusight-baseline     772.7608        1524.474
+#> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037
+#> 3:          PSI-DICE     571.0879        1264.238
 ```

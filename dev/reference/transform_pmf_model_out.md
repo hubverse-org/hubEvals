@@ -33,4 +33,87 @@ transform_pmf_model_out(
 
 ## Value
 
-forecast_quantile
+A `forecast_ordinal` object (when `output_type_id_order` is provided) or
+a `forecast_nominal` object (when `output_type_id_order` is `NULL`).
+
+## Examples
+
+``` r
+# Nominal pmf forecast (no output_type_id_order provided)
+pmf_outputs <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "pmf")
+
+nominal_forecast <- transform_pmf_model_out(
+  model_out_tbl = pmf_outputs,
+  oracle_output = hubExamples::forecast_oracle_output
+)
+nominal_forecast
+#> Forecast type: nominal
+#> Forecast unit:
+#> model, reference_date, target, horizon, location, and target_end_date
+#> 
+#>      predicted_label    predicted observed             model reference_date
+#>               <fctr>        <num>   <fctr>            <char>         <Date>
+#>   1:             low 9.999997e-01      low Flusight-baseline     2022-11-19
+#>   2:        moderate 2.677124e-07      low Flusight-baseline     2022-11-19
+#>   3:            high 0.000000e+00      low Flusight-baseline     2022-11-19
+#>   4:       very high 0.000000e+00      low Flusight-baseline     2022-11-19
+#>   5:             low 9.999983e-01 moderate Flusight-baseline     2022-11-19
+#>  ---                                                                       
+#> 188:       very high 7.108169e-05 moderate          PSI-DICE     2022-12-17
+#> 189:             low 8.184334e-02 moderate          PSI-DICE     2022-12-17
+#> 190:        moderate 8.705084e-01 moderate          PSI-DICE     2022-12-17
+#> 191:            high 4.764736e-02 moderate          PSI-DICE     2022-12-17
+#> 192:       very high 8.894322e-07 moderate          PSI-DICE     2022-12-17
+#>                         target horizon location target_end_date
+#>                         <char>   <int>   <char>          <Date>
+#>   1: wk flu hosp rate category       0       25      2022-11-19
+#>   2: wk flu hosp rate category       0       25      2022-11-19
+#>   3: wk flu hosp rate category       0       25      2022-11-19
+#>   4: wk flu hosp rate category       0       25      2022-11-19
+#>   5: wk flu hosp rate category       1       25      2022-11-26
+#>  ---                                                           
+#> 188: wk flu hosp rate category       2       48      2022-12-31
+#> 189: wk flu hosp rate category       3       48      2023-01-07
+#> 190: wk flu hosp rate category       3       48      2023-01-07
+#> 191: wk flu hosp rate category       3       48      2023-01-07
+#> 192: wk flu hosp rate category       3       48      2023-01-07
+
+# Ordinal pmf forecast (output_type_id_order provided)
+ordinal_forecast <- transform_pmf_model_out(
+  model_out_tbl = pmf_outputs,
+  oracle_output = hubExamples::forecast_oracle_output,
+  output_type_id_order = c("low", "moderate", "high", "very high")
+)
+ordinal_forecast
+#> Forecast type: ordinal
+#> Forecast unit:
+#> model, reference_date, target, horizon, location, and target_end_date
+#> 
+#>      predicted_label    predicted observed             model reference_date
+#>                <ord>        <num>    <ord>            <char>         <Date>
+#>   1:             low 9.999997e-01      low Flusight-baseline     2022-11-19
+#>   2:        moderate 2.677124e-07      low Flusight-baseline     2022-11-19
+#>   3:            high 0.000000e+00      low Flusight-baseline     2022-11-19
+#>   4:       very high 0.000000e+00      low Flusight-baseline     2022-11-19
+#>   5:             low 9.999983e-01 moderate Flusight-baseline     2022-11-19
+#>  ---                                                                       
+#> 188:       very high 7.108169e-05 moderate          PSI-DICE     2022-12-17
+#> 189:             low 8.184334e-02 moderate          PSI-DICE     2022-12-17
+#> 190:        moderate 8.705084e-01 moderate          PSI-DICE     2022-12-17
+#> 191:            high 4.764736e-02 moderate          PSI-DICE     2022-12-17
+#> 192:       very high 8.894322e-07 moderate          PSI-DICE     2022-12-17
+#>                         target horizon location target_end_date
+#>                         <char>   <int>   <char>          <Date>
+#>   1: wk flu hosp rate category       0       25      2022-11-19
+#>   2: wk flu hosp rate category       0       25      2022-11-19
+#>   3: wk flu hosp rate category       0       25      2022-11-19
+#>   4: wk flu hosp rate category       0       25      2022-11-19
+#>   5: wk flu hosp rate category       1       25      2022-11-26
+#>  ---                                                           
+#> 188: wk flu hosp rate category       2       48      2022-12-31
+#> 189: wk flu hosp rate category       3       48      2023-01-07
+#> 190: wk flu hosp rate category       3       48      2023-01-07
+#> 191: wk flu hosp rate category       3       48      2023-01-07
+#> 192: wk flu hosp rate category       3       48      2023-01-07
+```

@@ -11,12 +11,13 @@
   Marginal scoring produces metrics such as CRPS, bias, and DSS;
   compound scoring (via the new `compound_taskid_set` argument) produces
   multivariate scores such as energy score and variogram score for joint
-  forecasts (#94).
+  forecasts
+  ([\#94](https://github.com/hubverse-org/hubEvals/issues/94)).
 
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   now errors with a clear message when a scale transformation produces
   non-finite values (NaN or Inf), instead of silently returning invalid
-  scores (#99).
+  scores ([\#99](https://github.com/hubverse-org/hubEvals/issues/99)).
 
 ## hubEvals 0.1.0
 
@@ -24,7 +25,9 @@
   to
   [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   for computing scores on transformed scales (e.g., log, sqrt).
-  Supported for quantile, mean, and median output types (#48, \#91).
+  Supported for quantile, mean, and median output types
+  ([\#48](https://github.com/hubverse-org/hubEvals/issues/48),
+  [\#91](https://github.com/hubverse-org/hubEvals/issues/91)).
 
 ## hubEvals 0.0.1
 
