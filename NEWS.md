@@ -1,5 +1,7 @@
 # hubEvals (development version)
 
+* Fix `transform_quantile_model_out()`, `transform_point_model_out()`, and `transform_sample_model_out()` to handle oracle outputs that carry an `output_type_id` column without an `output_type` column. Previously, this combination caused `as_forecast_*()` to error on a stray `output_type_id` (#73).
+
 # hubEvals 0.2.0
 
 * Add support for scoring sample output types via `transform_sample_model_out()` and the `"sample"` case in `score_model_out()`. Marginal scoring produces metrics such as CRPS, bias, and DSS; compound scoring (via the new `compound_taskid_set` argument) produces multivariate scores such as energy score and variogram score for joint forecasts (#94).

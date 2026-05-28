@@ -26,11 +26,21 @@ transform_quantile_model_out <- function(model_out_tbl, oracle_output) {
     dplyr::mutate(output_type_id = as.numeric(.data[["output_type_id"]])) |>
     dplyr::rename(model = "model_id")
 
-  if (c("output_type") %in% colnames(oracle_output)) {
-    oracle_output <- oracle_output |>
-      dplyr::filter(.data[["output_type"]] == "quantile") |>
-      dplyr::select(-c("output_type", "output_type_id"))
+  # Filter oracle_output to quantile rows only when it still carries the
+  # `output_type` column (i.e. mixed output types).
+  if ("output_type" %in% colnames(oracle_output)) {
+    oracle_output <- dplyr::filter(
+      oracle_output,
+      .data[["output_type"]] == "quantile"
+    )
   }
+  # Always drop output_type/output_type_id if present: output_type_id can
+  # remain after a user-side filter that removed output_type, and a stray
+  # output_type_id breaks `as_forecast_quantile`.
+  oracle_output <- dplyr::select(
+    oracle_output,
+    -dplyr::any_of(c("output_type", "output_type_id"))
+  )
 
   data <- dplyr::left_join(
     model_out_tbl,

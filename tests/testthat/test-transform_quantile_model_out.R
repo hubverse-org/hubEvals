@@ -137,3 +137,28 @@ test_that("hubExamples data set is transformed correctly", {
   )
   expect_equal(exp_act_forecast$observed, exp_act_forecast$oracle_value)
 })
+
+test_that("oracle_output without output_type but with output_type_id works (#73)", {
+  skip_if_not_installed("hubExamples")
+  forecast_outputs <- hubExamples::forecast_outputs
+  oracle_no_output_type <- hubExamples::forecast_oracle_output |>
+    dplyr::filter(output_type == "quantile") |>
+    dplyr::select(-"output_type")
+
+  act_forecast <- transform_quantile_model_out(
+    model_out_tbl = forecast_outputs,
+    oracle_output = oracle_no_output_type
+  )
+
+  expect_s3_class(
+    act_forecast,
+    c("forecast_quantile", "forecast", "data.table", "data.frame")
+  )
+
+  # cross-check against the regular pathway (oracle keeps both columns)
+  exp_forecast <- transform_quantile_model_out(
+    model_out_tbl = forecast_outputs,
+    oracle_output = hubExamples::forecast_oracle_output
+  )
+  expect_equal(act_forecast, exp_forecast)
+})

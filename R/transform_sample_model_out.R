@@ -47,11 +47,21 @@ transform_sample_model_out <- function(
     dplyr::filter(.data[["output_type"]] == "sample") |>
     dplyr::rename(model = "model_id")
 
-  if (c("output_type") %in% colnames(oracle_output)) {
-    oracle_output <- oracle_output |>
-      dplyr::filter(.data[["output_type"]] == "sample") |>
-      dplyr::select(-c("output_type", "output_type_id"))
+  # Filter oracle_output to sample rows only when it still carries the
+  # `output_type` column (i.e. mixed output types).
+  if ("output_type" %in% colnames(oracle_output)) {
+    oracle_output <- dplyr::filter(
+      oracle_output,
+      .data[["output_type"]] == "sample"
+    )
   }
+  # Always drop output_type/output_type_id if present: output_type_id can
+  # remain after a user-side filter that removed output_type, and oracle
+  # output has no sample id to join on.
+  oracle_output <- dplyr::select(
+    oracle_output,
+    -dplyr::any_of(c("output_type", "output_type_id"))
+  )
 
   data <- dplyr::left_join(
     model_out_tbl,
