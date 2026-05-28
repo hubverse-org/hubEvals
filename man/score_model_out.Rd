@@ -91,7 +91,10 @@ example, allows use of the \code{offset} and \code{base} arguments of
 \code{\link[scoringutils:log_shift]{scoringutils::log_shift()}}. Ignored if \code{transform = NULL}.}
 }
 \value{
-A data.table with scores
+A tibble of scores, inheriting from scoringutils' \code{scores} class so
+that downstream scoringutils helpers (e.g. \code{\link[scoringutils:get_metrics]{scoringutils::get_metrics()}})
+continue to work. The tibble has a \code{metrics} attribute holding the names of
+the scoring rules that were applied.
 }
 \description{
 Scores model outputs with a single \code{output_type} against observed data.

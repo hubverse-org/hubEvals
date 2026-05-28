@@ -182,7 +182,10 @@
 #' )
 #' compound_scores
 #'
-#' @return A data.table with scores
+#' @return A tibble of scores, inheriting from scoringutils' `scores` class so
+#' that downstream scoringutils helpers (e.g. [scoringutils::get_metrics()])
+#' continue to work. The tibble has a `metrics` attribute holding the names of
+#' the scoring rules that were applied.
 #'
 #' @references
 #' Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the
@@ -287,6 +290,25 @@ score_model_out <- function(
     scores <- scoringutils::summarize_scores(scores = scores, by = by)
   }
 
+  # BEGIN workaround for https://github.com/epiforecasts/scoringutils/issues/1179
+  # summarize_scores() can emit duplicate column names (the by-column + a
+  # failed-mean NA column of the same name) when given a scores object with
+  # no score columns. data.table tolerates duplicates, tibble does not. Drop
+  # the duplicate (always the later occurrence, which holds the failed-mean
+  # NAs) before conversion.
+  # Remove this block once the upstream issue is resolved and the
+  # `scoringutils` minimum version in DESCRIPTION is bumped accordingly.
+  dup_cols <- duplicated(colnames(scores))
+  if (any(dup_cols)) {
+    scores <- scores[, !dup_cols, with = FALSE]
+  }
+  # END workaround for scoringutils#1179
+
+  # Convert to tibble for friendlier user-facing behaviour, but keep the
+  # `scores` class on top so scoringutils helpers (e.g. get_metrics) still
+  # dispatch. The `metrics` attribute is preserved by as_tibble().
+  scores <- tibble::as_tibble(scores)
+  class(scores) <- c("scores", class(scores))
   scores
 }
 

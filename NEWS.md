@@ -1,5 +1,7 @@
 # hubEvals (development version)
 
+* `score_model_out()` now returns a tibble (inheriting from scoringutils' `scores` class) instead of a `data.table`. This gives more predictable user-facing behaviour (e.g. with `$` access, printing, and dplyr) while keeping the `scores` class so downstream scoringutils helpers like `get_metrics()` continue to work (#70).
+
 * Fix `transform_quantile_model_out()`, `transform_point_model_out()`, and `transform_sample_model_out()` to handle oracle outputs that carry an `output_type_id` column without an `output_type` column. Previously, this combination caused `as_forecast_*()` to error on a stray `output_type_id` (#73).
 
 # hubEvals 0.2.0
