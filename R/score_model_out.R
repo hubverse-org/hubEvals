@@ -287,22 +287,26 @@ score_model_out <- function(
         baseline = baseline
       )
     }
+    # BEGIN workaround mirror for https://github.com/epiforecasts/scoringutils/pull/1180
+    # Mirror the upstream check (merged but not yet on CRAN) so the
+    # user-facing behaviour of score_model_out() does not shift once we
+    # bump the scoringutils minimum version and delete this block. Wording
+    # and condition match the upstream implementation exactly.
+    metric_cols <- intersect(colnames(scores), attr(scores, "metrics"))
+    if (length(metric_cols) == 0) {
+      cli::cli_abort(
+        c(
+          `!` = "No score columns to summarise.",
+          i = "The {.cls scores} object has no columns matching its
+               {.code metrics} attribute. This usually means every metric
+               passed to {.fn score} failed (e.g. warned and returned no
+               values)."
+        )
+      )
+    }
+    # END workaround mirror for scoringutils#1180
     scores <- scoringutils::summarize_scores(scores = scores, by = by)
   }
-
-  # BEGIN workaround for https://github.com/epiforecasts/scoringutils/issues/1179
-  # summarize_scores() can emit duplicate column names (the by-column + a
-  # failed-mean NA column of the same name) when given a scores object with
-  # no score columns. data.table tolerates duplicates, tibble does not. Drop
-  # the duplicate (always the later occurrence, which holds the failed-mean
-  # NAs) before conversion.
-  # Remove this block once the upstream issue is resolved and the
-  # `scoringutils` minimum version in DESCRIPTION is bumped accordingly.
-  dup_cols <- duplicated(colnames(scores))
-  if (any(dup_cols)) {
-    scores <- scores[, !dup_cols, with = FALSE]
-  }
-  # END workaround for scoringutils#1179
 
   # Convert to tibble for friendlier user-facing behaviour, but keep the
   # `scores` class on top so scoringutils helpers (e.g. get_metrics) still

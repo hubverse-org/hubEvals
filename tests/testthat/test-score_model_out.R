@@ -529,14 +529,16 @@ test_that("score_model_out works with all kinds of interval levels are requested
   )
 
   suppressWarnings({
-    expect_warning(
+    # Non-standard interval level: scoringutils warns and produces no score
+    # columns, then score_model_out() aborts (mirroring scoringutils#1180).
+    expect_error(
       score_model_out(
         model_out_tbl = forecast_outputs |>
           dplyr::filter(.data[["output_type"]] == "quantile"),
         oracle_output = forecast_oracle_output,
         metrics = "interval_coverage_55"
       ),
-      "To compute the interval coverage for an interval range of" #scoringutils warning
+      regexp = "No score columns to summarise"
     )
 
     expect_error(
@@ -549,14 +551,14 @@ test_that("score_model_out works with all kinds of interval levels are requested
       regexp = "must be a number between 0 and 100"
     )
 
-    expect_warning(
+    expect_error(
       score_model_out(
         model_out_tbl = forecast_outputs |>
           dplyr::filter(.data[["output_type"]] == "quantile"),
         oracle_output = forecast_oracle_output,
         metrics = "interval_coverage_5.3"
       ),
-      "To compute the interval coverage for an interval range of" #scoringutils warning
+      regexp = "No score columns to summarise"
     )
   })
 })
