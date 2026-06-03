@@ -2,6 +2,27 @@
 
 ## hubEvals (development version)
 
+- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
+  now returns a tibble (inheriting from scoringutils’ `scores` class)
+  instead of a `data.table`. This gives more predictable user-facing
+  behaviour (e.g. with `$` access, printing, and dplyr) while keeping
+  the `scores` class so downstream scoringutils helpers like
+  `get_metrics()` continue to work
+  ([\#70](https://github.com/hubverse-org/hubEvals/issues/70)).
+
+- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
+  now errors when no requested metric produces a score.
+
+- Fix
+  [`transform_quantile_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/transform_quantile_model_out.md),
+  [`transform_point_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/transform_point_model_out.md),
+  and
+  [`transform_sample_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/transform_sample_model_out.md)
+  to handle oracle outputs that carry an `output_type_id` column without
+  an `output_type` column. Previously, this combination caused
+  `as_forecast_*()` to error on a stray `output_type_id`
+  ([\#73](https://github.com/hubverse-org/hubEvals/issues/73)).
+
 ## hubEvals 0.2.0
 
 - Add support for scoring sample output types via

@@ -123,7 +123,11 @@ score_model_out(
 
 ## Value
 
-A data.table with scores
+A tibble of scores, inheriting from scoringutils' `scores` class so that
+downstream scoringutils helpers (e.g.
+[`scoringutils::get_metrics()`](https://epiforecasts.io/scoringutils/reference/get_metrics.html))
+continue to work. The tibble has a `metrics` attribute holding the names
+of the scoring rules that were applied.
 
 ## Details
 
@@ -272,17 +276,12 @@ quantile_scores <- score_model_out(
   by = "model_id"
 )
 quantile_scores
-#> Key: <model_id>
-#>             model_id      wis interval_coverage_80 interval_coverage_90
-#>               <char>    <num>                <num>                <num>
-#> 1: Flusight-baseline 329.4545                  0.0               0.1250
-#> 2:   MOBS-GLEAM_FLUH 315.2393                  0.5               0.5625
-#> 3:          PSI-DICE 227.9527                  0.5               0.5000
-#>    wis_relative_skill
-#>                 <num>
-#> 1:          1.1473659
-#> 2:          1.0978597
-#> 3:          0.7938733
+#> # A tibble: 3 × 5
+#>   model_id      wis interval_coverage_80 interval_coverage_90 wis_relative_skill
+#>   <chr>       <dbl>                <dbl>                <dbl>              <dbl>
+#> 1 Flusight-b…  329.                  0                  0.125              1.15 
+#> 2 MOBS-GLEAM…  315.                  0.5                0.562              1.10 
+#> 3 PSI-DICE     228.                  0.5                0.5                0.794
 
 # compute log scores based on pmf predictions for categorical targets,
 # summarized by the mean score for each combination of model and location.
@@ -298,14 +297,15 @@ pmf_scores <- score_model_out(
   output_type_id_order = c("low", "moderate", "high", "very high")
 )
 head(pmf_scores)
-#>             model_id location horizon   log_score          rps
-#>               <char>   <char>   <int>       <num>        <num>
-#> 1: Flusight-baseline       25       0  0.02107606 0.0008531043
-#> 2: Flusight-baseline       25       1  6.69652380 0.5029240066
-#> 3: Flusight-baseline       25       2 17.73313203 1.0057355863
-#> 4: Flusight-baseline       25       3         Inf 1.8665126816
-#> 5: Flusight-baseline       48       0  2.18418007 0.4873966597
-#> 6: Flusight-baseline       48       1  7.49960792 0.9659026096
+#> # A tibble: 6 × 5
+#>   model_id          location horizon log_score      rps
+#>   <chr>             <chr>      <int>     <dbl>    <dbl>
+#> 1 Flusight-baseline 25             0    0.0211 0.000853
+#> 2 Flusight-baseline 25             1    6.70   0.503   
+#> 3 Flusight-baseline 25             2   17.7    1.01    
+#> 4 Flusight-baseline 25             3  Inf      1.87    
+#> 5 Flusight-baseline 48             0    2.18   0.487   
+#> 6 Flusight-baseline 48             1    7.50   0.966   
 
 # Score sample forecasts marginally (each modeling task scored independently).
 # Note: this data has compound structure (samples span horizons), but marginal
@@ -318,11 +318,12 @@ sample_scores <- score_model_out(
   by = "model_id"
 )
 sample_scores
-#>             model_id     crps
-#>               <char>    <num>
-#> 1: Flusight-baseline 351.5887
-#> 2:   MOBS-GLEAM_FLUH 347.1502
-#> 3:          PSI-DICE 247.3640
+#> # A tibble: 3 × 2
+#>   model_id           crps
+#>   <chr>             <dbl>
+#> 1 Flusight-baseline  352.
+#> 2 MOBS-GLEAM_FLUH    347.
+#> 3 PSI-DICE           247.
 
 # Score compound sample forecasts jointly using the energy score.
 # compound_taskid_set specifies which task IDs stay constant within
@@ -336,9 +337,10 @@ compound_scores <- score_model_out(
   by = "model_id"
 )
 compound_scores
-#>             model_id energy_score variogram_score
-#>               <char>        <num>           <num>
-#> 1: Flusight-baseline     772.7608        1524.474
-#> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037
-#> 3:          PSI-DICE     571.0879        1264.238
+#> # A tibble: 3 × 3
+#>   model_id          energy_score variogram_score
+#>   <chr>                    <dbl>           <dbl>
+#> 1 Flusight-baseline         773.           1524.
+#> 2 MOBS-GLEAM_FLUH           811.           1695.
+#> 3 PSI-DICE                  571.           1264.
 ```

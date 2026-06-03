@@ -156,7 +156,10 @@ example, allows use of the <code>offset</code> and <code>base</code> arguments o
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data.table with scores</p>
+    <p>A tibble of scores, inheriting from scoringutils' <code>scores</code> class so
+that downstream scoringutils helpers (e.g. <code><a href="https://epiforecasts.io/scoringutils/reference/get_metrics.html" class="external-link">scoringutils::get_metrics()</a></code>)
+continue to work. The tibble has a <code>metrics</code> attribute holding the names of
+the scoring rules that were applied.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -234,17 +237,12 @@ American Statistical Association 106 (494): 746–62. <a href="https://doi.org/1
 <span class="r-in"><span>  by <span class="op">=</span> <span class="st">"model_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">quantile_scores</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Key: &lt;model_id&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             model_id      wis interval_coverage_80 interval_coverage_90</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;    &lt;num&gt;                &lt;num&gt;                &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: Flusight-baseline 329.4545                  0.0               0.1250</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:   MOBS-GLEAM_FLUH 315.2393                  0.5               0.5625</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          PSI-DICE 227.9527                  0.5               0.5000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    wis_relative_skill</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                 &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1:          1.1473659</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:          1.0978597</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          0.7938733</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   model_id      wis interval_coverage_80 interval_coverage_90 wis_relative_skill</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Flusight-b…  329.                  0                  0.125              1.15 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> MOBS-GLEAM…  315.                  0.5                0.562              1.10 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> PSI-DICE     228.                  0.5                0.5                0.794</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># compute log scores based on pmf predictions for categorical targets,</span></span></span>
 <span class="r-in"><span><span class="co"># summarized by the mean score for each combination of model and location.</span></span></span>
@@ -260,14 +258,15 @@ American Statistical Association 106 (494): 746–62. <a href="https://doi.org/1
 <span class="r-in"><span>  output_type_id_order <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"low"</span>, <span class="st">"moderate"</span>, <span class="st">"high"</span>, <span class="st">"very high"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pmf_scores</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             model_id location horizon   log_score          rps</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;   &lt;char&gt;   &lt;int&gt;       &lt;num&gt;        &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: Flusight-baseline       25       0  0.02107606 0.0008531043</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2: Flusight-baseline       25       1  6.69652380 0.5029240066</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3: Flusight-baseline       25       2 17.73313203 1.0057355863</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4: Flusight-baseline       25       3         Inf 1.8665126816</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5: Flusight-baseline       48       0  2.18418007 0.4873966597</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6: Flusight-baseline       48       1  7.49960792 0.9659026096</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 5</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   model_id          location horizon log_score      rps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Flusight-baseline 25             0    0.021<span style="text-decoration: underline;">1</span> 0.000<span style="text-decoration: underline;">853</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> Flusight-baseline 25             1    6.70   0.503   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> Flusight-baseline 25             2   17.7    1.01    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> Flusight-baseline 25             3  <span style="color: #BB0000;">Inf</span>      1.87    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> Flusight-baseline 48             0    2.18   0.487   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> Flusight-baseline 48             1    7.50   0.966   </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Score sample forecasts marginally (each modeling task scored independently).</span></span></span>
 <span class="r-in"><span><span class="co"># Note: this data has compound structure (samples span horizons), but marginal</span></span></span>
@@ -280,11 +279,12 @@ American Statistical Association 106 (494): 746–62. <a href="https://doi.org/1
 <span class="r-in"><span>  by <span class="op">=</span> <span class="st">"model_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">sample_scores</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             model_id     crps</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;    &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: Flusight-baseline 351.5887</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:   MOBS-GLEAM_FLUH 347.1502</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          PSI-DICE 247.3640</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   model_id           crps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Flusight-baseline  352.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> MOBS-GLEAM_FLUH    347.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> PSI-DICE           247.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Score compound sample forecasts jointly using the energy score.</span></span></span>
 <span class="r-in"><span><span class="co"># compound_taskid_set specifies which task IDs stay constant within</span></span></span>
@@ -298,11 +298,12 @@ American Statistical Association 106 (494): 746–62. <a href="https://doi.org/1
 <span class="r-in"><span>  by <span class="op">=</span> <span class="st">"model_id"</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">compound_scores</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             model_id energy_score variogram_score</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>               &lt;char&gt;        &lt;num&gt;           &lt;num&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1: Flusight-baseline     772.7608        1524.474</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3:          PSI-DICE     571.0879        1264.238</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 3</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   model_id          energy_score variogram_score</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> Flusight-baseline         773.           <span style="text-decoration: underline;">1</span>524.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> MOBS-GLEAM_FLUH           811.           <span style="text-decoration: underline;">1</span>695.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> PSI-DICE                  571.           <span style="text-decoration: underline;">1</span>264.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
