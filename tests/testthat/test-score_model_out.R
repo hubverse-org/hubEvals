@@ -163,7 +163,8 @@ test_that("score_model_out succeeds with valid inputs: mean output_type, charact
     by = c("model_id", "location")
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
-  expect_equal(merged_scores$ae_point.x, merged_scores$ae_point.y)
+  # `ae_point` is intentionally not returned for mean (see Gneiting 2011),
+  # so only `se_point` is checked here even though it was also requested.
   expect_equal(merged_scores$se_point.x, merged_scores$se_point.y)
 })
 
@@ -469,7 +470,7 @@ test_that("score_model_out succeeds with valid inputs: nominal pmf output_type, 
     by = c("model_id", "location")
   )
   expect_equal(nrow(act_scores), nrow(merged_scores))
-  expect_equal(merged_scores$ae_point.x, merged_scores$ae_point.y)
+  expect_equal(merged_scores$log_score.x, merged_scores$log_score.y)
 })
 
 
@@ -528,14 +529,16 @@ test_that("score_model_out works with all kinds of interval levels are requested
   )
 
   suppressWarnings({
-    expect_warning(
+    # Non-standard interval level: scoringutils warns and produces no score
+    # columns, then score_model_out() aborts (mirroring scoringutils#1180).
+    expect_error(
       score_model_out(
         model_out_tbl = forecast_outputs |>
           dplyr::filter(.data[["output_type"]] == "quantile"),
         oracle_output = forecast_oracle_output,
         metrics = "interval_coverage_55"
       ),
-      "To compute the interval coverage for an interval range of" #scoringutils warning
+      regexp = "No score columns to summarise"
     )
 
     expect_error(
@@ -548,14 +551,14 @@ test_that("score_model_out works with all kinds of interval levels are requested
       regexp = "must be a number between 0 and 100"
     )
 
-    expect_warning(
+    expect_error(
       score_model_out(
         model_out_tbl = forecast_outputs |>
           dplyr::filter(.data[["output_type"]] == "quantile"),
         oracle_output = forecast_oracle_output,
         metrics = "interval_coverage_5.3"
       ),
-      "To compute the interval coverage for an interval range of" #scoringutils warning
+      regexp = "No score columns to summarise"
     )
   })
 })
@@ -843,7 +846,7 @@ test_that("score_model_out succeeds with sample output_type, marginal scoring, b
     by = "model_id"
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(scores, c("model_id", "crps"))
   expect_equal(nrow(scores), 3L)
 })
@@ -862,7 +865,7 @@ test_that("score_model_out succeeds with sample output_type, summarize = FALSE",
     summarize = FALSE
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(
     scores,
     c(
@@ -897,7 +900,7 @@ test_that("score_model_out succeeds with sample output_type, default metrics", {
     regexp = "integer-valued"
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(
     scores,
     c(
@@ -1006,7 +1009,7 @@ test_that("score_model_out succeeds with compound sample scoring (energy score)"
     by = "model_id"
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(scores, c("model_id", "energy_score"))
   expect_equal(nrow(scores), 3L)
 })
@@ -1032,7 +1035,7 @@ test_that("score_model_out succeeds with marginal sample and scale transformatio
     by = "model_id"
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(scores, c("model_id", "crps"))
   expect_equal(nrow(scores), 3L)
 })
@@ -1057,7 +1060,7 @@ test_that("score_model_out with sample transform_append=TRUE includes both scale
     summarize = FALSE
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(
     scores,
     c(
@@ -1096,7 +1099,7 @@ test_that("score_model_out succeeds with compound sample and scale transformatio
     by = "model_id"
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(scores, c("model_id", "energy_score"))
   expect_equal(nrow(scores), 3L)
 })
@@ -1122,7 +1125,7 @@ test_that("score_model_out with compound sample transform_append=TRUE includes b
     summarize = FALSE
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(
     scores,
     c(
@@ -1155,7 +1158,7 @@ test_that("score_model_out succeeds with sample and relative metrics", {
     by = "model_id"
   )
 
-  expect_s3_class(scores, c("scores", "data.table", "data.frame"))
+  expect_s3_class(scores, c("scores", "tbl_df", "tbl", "data.frame"))
   expect_named(scores, c("model_id", "crps", "crps_relative_skill"))
   expect_equal(nrow(scores), 3L)
 })

@@ -182,7 +182,10 @@
 #' )
 #' compound_scores
 #'
-#' @return A data.table with scores
+#' @return A tibble of scores, inheriting from scoringutils' `scores` class so
+#' that downstream scoringutils helpers (e.g. [scoringutils::get_metrics()])
+#' continue to work. The tibble has a `metrics` attribute holding the names of
+#' the scoring rules that were applied.
 #'
 #' @references
 #' Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the
@@ -284,9 +287,32 @@ score_model_out <- function(
         baseline = baseline
       )
     }
+    # BEGIN workaround mirror for https://github.com/epiforecasts/scoringutils/pull/1180
+    # Mirror the upstream check (merged but not yet on CRAN) so the
+    # user-facing behaviour of score_model_out() does not shift once we
+    # bump the scoringutils minimum version and delete this block. Wording
+    # and condition match the upstream implementation exactly.
+    metric_cols <- intersect(colnames(scores), attr(scores, "metrics"))
+    if (length(metric_cols) == 0) {
+      cli::cli_abort(
+        c(
+          `!` = "No score columns to summarise.",
+          i = "The {.cls scores} object has no columns matching its
+               {.code metrics} attribute. This usually means every metric
+               passed to {.fn score} failed (e.g. warned and returned no
+               values)."
+        )
+      )
+    }
+    # END workaround mirror for scoringutils#1180
     scores <- scoringutils::summarize_scores(scores = scores, by = by)
   }
 
+  # Convert to tibble for friendlier user-facing behaviour, but keep the
+  # `scores` class on top so scoringutils helpers (e.g. get_metrics) still
+  # dispatch. The `metrics` attribute is preserved by as_tibble().
+  scores <- tibble::as_tibble(scores)
+  class(scores) <- c("scores", class(scores))
   scores
 }
 

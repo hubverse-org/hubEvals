@@ -55,11 +55,18 @@ transform_point_model_out <- function(
     dplyr::filter(output_type == type) |>
     dplyr::rename(model = "model_id")
 
-  if (c("output_type") %in% colnames(oracle_output)) {
-    oracle_output <- oracle_output |>
-      dplyr::filter(output_type == type) |>
-      dplyr::select(-c("output_type", "output_type_id"))
+  # Filter oracle_output to `type` rows only when it still carries the
+  # `output_type` column (i.e. mixed output types).
+  if ("output_type" %in% colnames(oracle_output)) {
+    oracle_output <- dplyr::filter(oracle_output, output_type == type)
   }
+  # Always drop output_type/output_type_id if present: output_type_id can
+  # remain after a user-side filter that removed output_type, and neither is
+  # used for the point join.
+  oracle_output <- dplyr::select(
+    oracle_output,
+    -dplyr::any_of(c("output_type", "output_type_id"))
+  )
 
   data <- dplyr::left_join(
     model_out_tbl,
