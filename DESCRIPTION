@@ -64,7 +64,9 @@ BugReports: https://github.com/hubverse-org/hubEvals/issues
 Additional_repositories: https://hubverse-org.r-universe.dev
 Depends:
     R (>= 4.1.0)
-Config/Needs/website: hubverse-org/hubStyle
+Config/Needs/website: 
+    hubExamples,
+    hubverse-org/hubStyle
 Suggests:
     hubExamples,
     testthat (>= 3.0.0)
