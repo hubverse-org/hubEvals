@@ -480,8 +480,11 @@ data that contain zeros produces `-Inf` and propagates `NaN` through the
 scores.
 
 To compare natural-scale and transformed-scale scores side by side, set
-`transform_append = TRUE`. The result has a `scale` column distinguishing
-rows scored on each scale:
+`transform_append = TRUE`. The result carries a `scale` column
+distinguishing rows scored on each scale, so you must also include
+`"scale"` in `by` for the summarisation step to preserve that
+distinction (otherwise the natural and transformed rows are averaged
+together):
 
 ```{r}
 score_model_out(
@@ -490,7 +493,8 @@ score_model_out(
   metrics = "wis",
   transform = scoringutils::log_shift,
   transform_append = TRUE,
-  offset = 1
+  offset = 1,
+  by = c("model_id", "scale")
 )
 ```
 
@@ -503,7 +507,8 @@ score_model_out(
   oracle_output = hubExamples::forecast_oracle_output,
   transform = function(x) sqrt(x),
   transform_label = "sqrt",
-  transform_append = TRUE
+  transform_append = TRUE,
+  by = c("model_id", "scale")
 )
 ```
 
@@ -517,6 +522,13 @@ Scale transformations are not supported for `pmf` output types.
 
 ## Where to go next
 
+* `score_model_out()` is a convenience that bundles the
+  hubverse-to-scoringutils transformation with the scoring step. If you
+  need the intermediate scoringutils forecast object (for example, to use
+  `scoringutils` plotting helpers or to compose custom scoring metrics),
+  the `transform_quantile_model_out()`, `transform_point_model_out()`,
+  `transform_pmf_model_out()`, and `transform_sample_model_out()`
+  exported helpers produce it directly.
 * See `?score_model_out` for the full argument reference and a list of
   available metrics per output type.
 * The
