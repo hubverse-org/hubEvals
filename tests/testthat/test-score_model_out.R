@@ -733,6 +733,43 @@ test_that("score_model_out with transform_append=TRUE includes both scales", {
 })
 
 
+test_that("score_model_out with transform_append=TRUE preserves scale when summarising (#122)", {
+  skip_if_not_installed("hubExamples")
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+  quantile_out <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+
+  # Default summarize = TRUE + default by = "model_id" should keep the two
+  # scales distinct (regression test: previously the natural and
+  # transformed-scale rows were collapsed into a single average per model).
+  scores <- score_model_out(
+    model_out_tbl = quantile_out,
+    oracle_output = forecast_oracle_output,
+    metrics = "wis",
+    transform = scoringutils::log_shift,
+    transform_append = TRUE,
+    offset = 1
+  )
+
+  expect_true("scale" %in% colnames(scores))
+  expect_setequal(unique(scores$scale), c("natural", "log_shift"))
+  expect_equal(nrow(scores), 2 * dplyr::n_distinct(scores$model_id))
+
+  # Cross-check: default by must match explicit `by = c("model_id", "scale")`.
+  scores_explicit <- score_model_out(
+    model_out_tbl = quantile_out,
+    oracle_output = forecast_oracle_output,
+    metrics = "wis",
+    transform = scoringutils::log_shift,
+    transform_append = TRUE,
+    offset = 1,
+    by = c("model_id", "scale")
+  )
+  expect_equal(scores, scores_explicit)
+})
+
+
 test_that("score_model_out errors when transform requested for pmf output_type", {
   skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
