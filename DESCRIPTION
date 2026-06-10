@@ -59,7 +59,7 @@ Imports:
     tibble
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-URL: https://hubverse-org.github.io/hubEvals/
+URL: https://hubverse-org.github.io/hubEvals/, https://github.com/hubverse-org/hubEvals
 BugReports: https://github.com/hubverse-org/hubEvals/issues
 Additional_repositories: https://hubverse-org.r-universe.dev
 Depends:
