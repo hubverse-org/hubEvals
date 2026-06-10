@@ -12,11 +12,14 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(width = 200)
 ```
 
-`hubEvals` provides tools for scoring and evaluating model outputs from a
-[hubverse](https://hubverse.io) forecasting hub. It bridges the hubverse
-`model_out_tbl` format and the [`scoringutils`](https://epiforecasts.io/scoringutils/)
+`hubEvals` provides tools for scoring and evaluating
+[hubverse](https://hubverse.io)-formatted model outputs, typically from a
+forecasting hub. It bridges the hubverse
+[`model_out_tbl`](https://docs.hubverse.io/en/latest/user-guide/model-output.html)
+format and the [`scoringutils`](https://epiforecasts.io/scoringutils/)
 package, so that an analyst can move from a tibble of model outputs plus
 the matching
 [oracle output](https://docs.hubverse.io/en/latest/user-guide/target-data.html#oracle-output)
@@ -38,7 +41,9 @@ library(dplyr)
 
 `hubEvals` consumes two tibbles:
 
-* a **`model_out_tbl`** of model predictions (one row per prediction)
+* a
+  **[`model_out_tbl`](https://docs.hubverse.io/en/latest/user-guide/model-output.html)**
+  of model predictions (one row per prediction)
 * an
   **[`oracle_output`](https://docs.hubverse.io/en/latest/user-guide/target-data.html#oracle-output)**
   of target data at the same task-id resolution (one row per observation;
@@ -103,6 +108,17 @@ considers appropriate for the given output type. For quantile forecasts,
 these are `r quantile_metric_list`. See `?score_model_out` for short
 descriptions of each metric and the defaults for the other output types.
 
+To compute only a subset, name them via the `metrics` argument (more in
+[Selecting a subset of metrics](#selecting-a-subset-of-metrics) below):
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = c("wis", "ae_median")
+)
+```
+
 ### Custom interval coverage levels
 
 To request interval coverage at different levels, name them explicitly via
@@ -133,7 +149,7 @@ score_model_out(
 )
 ```
 
-## Point forecasts
+## Point forecasts (mean and median)
 
 The hubverse defines two point forecast output types: `mean` and
 `median`. `score_model_out()` scores `mean` output types with squared
@@ -143,8 +159,8 @@ The pairing follows from a property of these metrics
 ([Gneiting 2011](https://doi.org/10.1198/jasa.2011.r10138)):
 
 - The expected squared error of a prediction against draws from a
-  distribution F is minimised when the prediction equals the **mean** of
-  F.
+  distribution F is minimised when the prediction equals the **mean**
+  of F.
 - The expected absolute error is minimised when the prediction equals
   the **median** of F.
 
@@ -188,9 +204,12 @@ whether the `output_type_id_order` argument is provided.
 
 ### Nominal scoring (no category order)
 
-```{r, include = FALSE}
+```{r}
 pmf_out <- hubExamples::forecast_outputs |>
   dplyr::filter(output_type == "pmf")
+```
+
+```{r, include = FALSE}
 pmf_nominal_forecast <- transform_pmf_model_out(
   model_out_tbl = pmf_out,
   oracle_output = hubExamples::forecast_oracle_output
@@ -420,10 +439,11 @@ scoring rules like `wis`, `crps`, `log_score`, `rps`, `ae_point`,
 components `overprediction`, `underprediction`, and `dispersion` also
 work mathematically, though `dispersion` should be interpreted with care
 (a smaller ratio means a sharper forecast, which is only beneficial if
-the model is calibrated). Interval coverage metrics are rejected outright
-by `score_model_out()`, and signed metrics such as `bias` will not compute
-because the geometric mean of pairwise ratios is undefined on signed
-quantities.
+the model is calibrated). Interval coverage metrics and `bias` are
+rejected outright by `score_model_out()`: interval coverage targets a
+nominal level rather than a "lower is better" direction, and `bias` is a
+signed quantity for which the geometric mean of pairwise ratios is
+undefined.
 
 By default, the column is named `<metric>_relative_skill` and holds the
 geometric mean of pairwise score ratios across all other models. Values
@@ -480,11 +500,8 @@ data that contain zeros produces `-Inf` and propagates `NaN` through the
 scores.
 
 To compare natural-scale and transformed-scale scores side by side, set
-`transform_append = TRUE`. The result carries a `scale` column
-distinguishing rows scored on each scale, so you must also include
-`"scale"` in `by` for the summarisation step to preserve that
-distinction (otherwise the natural and transformed rows are averaged
-together):
+`transform_append = TRUE`. The result has a `scale` column distinguishing
+rows scored on each scale:
 
 ```{r}
 score_model_out(
@@ -493,13 +510,32 @@ score_model_out(
   metrics = "wis",
   transform = scoringutils::log_shift,
   transform_append = TRUE,
-  offset = 1,
-  by = c("model_id", "scale")
+  offset = 1
 )
 ```
 
-For a custom (anonymous) transformation, pass a `transform_label` so the
-`scale` column has a meaningful value:
+### Custom transform labels
+
+When `transform_append = TRUE`, the `scale` column labels the transformed
+rows using a name inferred from the `transform` function (e.g.
+`"log_shift"` for `scoringutils::log_shift`, `"sqrt"` for `sqrt`).
+Override the inferred label by passing `transform_label` explicitly, for
+example to shorten `"log_shift"` to `"log"`:
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = "wis",
+  transform = scoringutils::log_shift,
+  transform_label = "log",
+  transform_append = TRUE,
+  offset = 1
+)
+```
+
+For anonymous transformations, `transform_label` is **required**, because
+there is no function name to infer from:
 
 ```{r}
 score_model_out(
@@ -507,8 +543,7 @@ score_model_out(
   oracle_output = hubExamples::forecast_oracle_output,
   transform = function(x) sqrt(x),
   transform_label = "sqrt",
-  transform_append = TRUE,
-  by = c("model_id", "scale")
+  transform_append = TRUE
 )
 ```
 

@@ -1,5 +1,7 @@
 # hubEvals (development version)
 
+* New "Getting started with hubEvals" vignette walking through the main scoring workflows for each supported output type (quantile, mean, median, pmf nominal/ordinal, sample marginal/compound), the `relative_metrics` and `baseline` arguments for relative-skill scoring, and the `transform` and `transform_append` arguments for scoring on transformed scales (#38).
+
 * Fix `score_model_out()` so that requesting `transform_append = TRUE` with default `summarize = TRUE` now correctly returns one row per `scale` (natural and transformed) per model, instead of silently averaging across scales (#122).
 
 * `score_model_out()` now errors with a clear hubEvals message when `"bias"` is requested as a relative metric, instead of letting `scoringutils` fail downstream with a cryptic "all values must have the same sign" error. Bias is a signed quantity, so a geometric-mean pairwise ratio has no clean interpretation (#119).
