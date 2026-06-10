@@ -1059,9 +1059,6 @@ test_that("score_model_out succeeds with marginal sample and scale transformatio
 
   sample_tbl <- forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "sample")
-  # Workaround for stale negative value in hubExamples data
-  # (hubverse-org/hubExamples#62). Remove once fixed.
-  sample_tbl$value[sample_tbl$value < 0] <- 0
 
   scores <- score_model_out(
     model_out_tbl = sample_tbl,
@@ -1085,7 +1082,6 @@ test_that("score_model_out with sample transform_append=TRUE includes both scale
 
   sample_tbl <- forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "sample")
-  sample_tbl$value[sample_tbl$value < 0] <- 0
 
   scores <- score_model_out(
     model_out_tbl = sample_tbl,
@@ -1124,7 +1120,6 @@ test_that("score_model_out succeeds with compound sample and scale transformatio
 
   sample_tbl <- forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "sample")
-  sample_tbl$value[sample_tbl$value < 0] <- 0
 
   scores <- score_model_out(
     model_out_tbl = sample_tbl,
@@ -1149,7 +1144,6 @@ test_that("score_model_out with compound sample transform_append=TRUE includes b
 
   sample_tbl <- forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "sample")
-  sample_tbl$value[sample_tbl$value < 0] <- 0
 
   scores <- score_model_out(
     model_out_tbl = sample_tbl,
