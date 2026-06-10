@@ -1,5 +1,7 @@
 # hubEvals (development version)
 
+* `score_model_out()` now handles single-model input gracefully when relative metrics are requested. Previously this errored via `scoringutils` ("not enough comparators"); now the relative-skill columns are filled with `1`, matching the trivial fact that a model has skill `1` relative to itself. If a `baseline` is supplied that does not match the lone model, `score_model_out()` errors with a clear message (#75).
+
 * Fix `score_model_out()` so that requesting `transform_append = TRUE` with default `summarize = TRUE` now correctly returns one row per `scale` (natural and transformed) per model, instead of silently averaging across scales (#122).
 
 * `score_model_out()` now errors with a clear hubEvals message when `"bias"` is requested as a relative metric, instead of letting `scoringutils` fail downstream with a cryptic "all values must have the same sign" error. Bias is a signed quantity, so a geometric-mean pairwise ratio has no clean interpretation (#119).

@@ -17,6 +17,9 @@
 #' pairwise ratio has no clean interpretation. If `NULL` (the default), no
 #' relative metrics will be computed. Relative metrics are only computed if
 #' `summarize = TRUE`, and require that `"model_id"` is included in `by`.
+#' If only one model is present in the data, relative-skill columns are
+#' filled with `1` (a model has trivial skill `1` relative to itself)
+#' rather than erroring.
 #' @param baseline String with the name of a model to use as a baseline for
 #' relative skill scores. If a baseline is given, then a scaled relative skill
 #' with respect to the baseline will be returned. By default (`NULL`), relative
@@ -281,15 +284,7 @@ score_model_out <- function(
 
   # if requested, summarize scores, including computation of relative metrics
   if (summarize) {
-    for (metric in relative_metrics) {
-      scores <- scoringutils::add_relative_skill(
-        scores,
-        compare = "model_id",
-        by = by[by != "model_id"],
-        metric = metric,
-        baseline = baseline
-      )
-    }
+    scores <- add_relative_skill_metrics(scores, relative_metrics, by, baseline)
     # BEGIN workaround mirror for https://github.com/epiforecasts/scoringutils/pull/1180
     # Mirror the upstream check (merged but not yet on CRAN) so the
     # user-facing behaviour of score_model_out() does not shift once we
@@ -323,6 +318,58 @@ score_model_out <- function(
   # dispatch. The `metrics` attribute is preserved by as_tibble().
   scores <- tibble::as_tibble(scores)
   class(scores) <- c("scores", class(scores))
+  scores
+}
+
+
+#' Add relative-skill columns to a per-row scores object
+#'
+#' Wraps the per-metric loop over [scoringutils::add_relative_skill()] and
+#' provides a single-model fall-back: when only one model is present in
+#' `scores`, scoringutils errors with "not enough comparators". In that
+#' case we instead fill the relative-skill column(s) with `1`, matching the
+#' fact that a model has skill `1` relative to itself.
+#'
+#' @noRd
+add_relative_skill_metrics <- function(scores, relative_metrics, by, baseline) {
+  if (length(relative_metrics) == 0L) {
+    return(scores)
+  }
+
+  unique_models <- unique(scores[["model_id"]])
+  if (length(unique_models) > 1L) {
+    for (metric in relative_metrics) {
+      scores <- scoringutils::add_relative_skill(
+        scores,
+        compare = "model_id",
+        by = by[by != "model_id"],
+        metric = metric,
+        baseline = baseline
+      )
+    }
+    return(scores)
+  }
+
+  # Only one model in the data. Mirror scoringutils' baseline-presence
+  # check so that a baseline that is not the lone model still errors.
+  if (!is.null(baseline) && baseline != unique_models) {
+    cli::cli_abort(c(
+      "Requested {.arg baseline} {.val {baseline}} is not present in the data.",
+      "i" = "Only model present: {.val {unique_models}}."
+    ))
+  }
+
+  for (metric in relative_metrics) {
+    rel_col <- paste0(metric, "_relative_skill")
+    scores[[rel_col]] <- 1
+    new_cols <- rel_col
+    if (!is.null(baseline)) {
+      scaled_col <- paste0(metric, "_scaled_relative_skill")
+      scores[[scaled_col]] <- 1
+      new_cols <- c(new_cols, scaled_col)
+    }
+    attr(scores, "metrics") <- c(attr(scores, "metrics"), new_cols)
+  }
   scores
 }
 
