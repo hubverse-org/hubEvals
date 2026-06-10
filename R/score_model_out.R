@@ -305,7 +305,14 @@ score_model_out <- function(
       )
     }
     # END workaround mirror for scoringutils#1180
-    scores <- scoringutils::summarize_scores(scores = scores, by = by)
+
+    # When transform_append = TRUE, scoringutils emits both natural- and
+    # transformed-scale rows distinguished by a `scale` column. Include
+    # "scale" in `by` for the summary so the two scales are reported
+    # separately rather than collapsed into a meaningless average. The
+    # user-facing `by` argument is not modified outside this block.
+    summary_by <- if (isTRUE(transform_append)) union(by, "scale") else by
+    scores <- scoringutils::summarize_scores(scores = scores, by = summary_by)
   }
 
   # Convert to tibble for friendlier user-facing behaviour, but keep the
