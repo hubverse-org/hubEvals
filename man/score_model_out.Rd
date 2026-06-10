@@ -38,7 +38,10 @@ metrics: interval coverage targets a nominal level rather than a "lower is
 better" direction, and bias is a signed quantity for which a geometric-mean
 pairwise ratio has no clean interpretation. If \code{NULL} (the default), no
 relative metrics will be computed. Relative metrics are only computed if
-\code{summarize = TRUE}, and require that \code{"model_id"} is included in \code{by}.}
+\code{summarize = TRUE}, and require that \code{"model_id"} is included in \code{by}.
+If only one model is present in the data, relative-skill columns are
+filled with \code{1} (a model has trivial skill \code{1} relative to itself)
+rather than erroring.}
 
 \item{baseline}{String with the name of a model to use as a baseline for
 relative skill scores. If a baseline is given, then a scaled relative skill
