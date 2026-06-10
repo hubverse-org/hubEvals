@@ -2,6 +2,13 @@
 
 ## hubEvals (development version)
 
+- Fix
+  [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
+  so that requesting `transform_append = TRUE` with default
+  `summarize = TRUE` now correctly returns one row per `scale` (natural
+  and transformed) per model, instead of silently averaging across
+  scales ([\#122](https://github.com/hubverse-org/hubEvals/issues/122)).
+
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   now returns a tibble (inheriting from scoringutils’ `scores` class)
   instead of a `data.table`. This gives more predictable user-facing
