@@ -10,6 +10,14 @@
   scales ([\#122](https://github.com/hubverse-org/hubEvals/issues/122)).
 
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
+  now errors with a clear hubEvals message when `"bias"` is requested as
+  a relative metric, instead of letting `scoringutils` fail downstream
+  with a cryptic “all values must have the same sign” error. Bias is a
+  signed quantity, so a geometric-mean pairwise ratio has no clean
+  interpretation
+  ([\#119](https://github.com/hubverse-org/hubEvals/issues/119)).
+
+- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   now returns a tibble (inheriting from scoringutils’ `scores` class)
   instead of a `data.table`. This gives more predictable user-facing
   behaviour (e.g. with `$` access, printing, and dplyr) while keeping

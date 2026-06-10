@@ -77,10 +77,13 @@ for more.</p></dd>
 <dt id="arg-relative-metrics">relative_metrics<a class="anchor" aria-label="anchor" href="#arg-relative-metrics"></a></dt>
 <dd><p>Character vector of scoring metrics for which to
 compute relative skill scores. The <code>relative_metrics</code> should be a subset of
-<code>metrics</code> and should only include proper scores (e.g., it should not contain
-interval coverage metrics).  If <code>NULL</code> (the default), no relative metrics
-will be computed.  Relative metrics are only computed if <code>summarize = TRUE</code>,
-and require that <code>"model_id"</code> is included in <code>by</code>.</p></dd>
+<code>metrics</code> and should only include proper scores. Interval coverage metrics
+(e.g., <code>"interval_coverage_90"</code>) and <code>"bias"</code> are not supported as relative
+metrics: interval coverage targets a nominal level rather than a "lower is
+better" direction, and bias is a signed quantity for which a geometric-mean
+pairwise ratio has no clean interpretation. If <code>NULL</code> (the default), no
+relative metrics will be computed. Relative metrics are only computed if
+<code>summarize = TRUE</code>, and require that <code>"model_id"</code> is included in <code>by</code>.</p></dd>
 
 
 <dt id="arg-baseline">baseline<a class="anchor" aria-label="anchor" href="#arg-baseline"></a></dt>
