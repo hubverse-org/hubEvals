@@ -27,3 +27,25 @@ test_that("get_transform_label errors for anonymous function without label", {
     regexp = "transform_label.*required.*anonymous transform function"
   )
 })
+
+
+test_that("validate_relative_metrics rejects bias as a relative metric", {
+  expect_error(
+    validate_relative_metrics(
+      relative_metrics = "bias",
+      metrics = c("wis", "bias"),
+      by = "model_id"
+    ),
+    regexp = "bias.*not supported for relative skill scores"
+  )
+
+  # Mixed with a valid relative metric: still errors
+  expect_error(
+    validate_relative_metrics(
+      relative_metrics = c("wis", "bias"),
+      metrics = c("wis", "bias"),
+      by = "model_id"
+    ),
+    regexp = "bias.*not supported for relative skill scores"
+  )
+})

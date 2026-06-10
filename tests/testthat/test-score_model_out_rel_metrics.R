@@ -74,6 +74,20 @@ test_that("score_model_out errors when invalid relative metrics are requested", 
     regexp = "Interval coverage metrics are not supported for relative skill scores."
   )
 
+  # not allowed to compute relative skill for bias: hubEvals errors at the
+  # boundary, before scoringutils fails with its "same sign" message.
+  quantile_out <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+  expect_error(
+    score_model_out(
+      model_out_tbl = quantile_out,
+      oracle_output = forecast_oracle_output,
+      metrics = c("wis", "bias"),
+      relative_metrics = "bias"
+    ),
+    regexp = "bias.*not supported for relative skill scores"
+  )
+
   # relative_metrics must be a subset of metrics
   expect_error(
     score_model_out(

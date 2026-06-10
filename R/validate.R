@@ -121,6 +121,16 @@ validate_relative_metrics <- function(relative_metrics, metrics, by) {
     )
   }
 
+  if ("bias" %in% relative_metrics) {
+    cli::cli_abort(
+      c(
+        "{.val bias} is not supported for relative skill scores.",
+        "i" = "Bias is a signed quantity, so a geometric-mean pairwise ratio has no clean interpretation.",
+        "i" = "Drop {.val bias} from {.arg relative_metrics} (it can still be requested via {.arg metrics})."
+      )
+    )
+  }
+
   if (length(relative_metrics) > 0 && !"model_id" %in% by) {
     cli::cli_abort(
       "Relative metrics require 'model_id' to be included in {.arg by}."

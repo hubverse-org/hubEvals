@@ -10,10 +10,13 @@
 #' for more.
 #' @param relative_metrics Character vector of scoring metrics for which to
 #' compute relative skill scores. The `relative_metrics` should be a subset of
-#' `metrics` and should only include proper scores (e.g., it should not contain
-#' interval coverage metrics).  If `NULL` (the default), no relative metrics
-#' will be computed.  Relative metrics are only computed if `summarize = TRUE`,
-#' and require that `"model_id"` is included in `by`.
+#' `metrics` and should only include proper scores. Interval coverage metrics
+#' (e.g., `"interval_coverage_90"`) and `"bias"` are not supported as relative
+#' metrics: interval coverage targets a nominal level rather than a "lower is
+#' better" direction, and bias is a signed quantity for which a geometric-mean
+#' pairwise ratio has no clean interpretation. If `NULL` (the default), no
+#' relative metrics will be computed. Relative metrics are only computed if
+#' `summarize = TRUE`, and require that `"model_id"` is included in `by`.
 #' @param baseline String with the name of a model to use as a baseline for
 #' relative skill scores. If a baseline is given, then a scaled relative skill
 #' with respect to the baseline will be returned. By default (`NULL`), relative
