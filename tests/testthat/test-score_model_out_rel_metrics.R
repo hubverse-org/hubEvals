@@ -113,3 +113,59 @@ test_that("score_model_out errors when invalid relative metrics are requested", 
     regexp = "Relative metrics require 'model_id' to be included in `by`."
   )
 })
+
+
+test_that("score_model_out handles single-model input gracefully for relative metrics", {
+  skip_if_not_installed("hubExamples")
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  single <- forecast_outputs |>
+    dplyr::filter(
+      .data[["output_type"]] == "quantile",
+      .data[["model_id"]] == "Flusight-baseline"
+    )
+
+  # No baseline: just fills in the relative-skill column with 1
+  scores_no_baseline <- score_model_out(
+    model_out_tbl = single,
+    oracle_output = forecast_oracle_output,
+    metrics = c("wis", "ae_median"),
+    relative_metrics = c("wis", "ae_median")
+  )
+  expect_equal(nrow(scores_no_baseline), 1L)
+  expect_equal(scores_no_baseline$wis_relative_skill, 1)
+  expect_equal(scores_no_baseline$ae_median_relative_skill, 1)
+  expect_false("wis_scaled_relative_skill" %in% names(scores_no_baseline))
+  expect_true(all(
+    c("wis_relative_skill", "ae_median_relative_skill") %in%
+      attr(scores_no_baseline, "metrics")
+  ))
+
+  # Baseline matching the lone model: both relative_skill and scaled_relative_skill = 1
+  scores_baseline <- score_model_out(
+    model_out_tbl = single,
+    oracle_output = forecast_oracle_output,
+    metrics = "wis",
+    relative_metrics = "wis",
+    baseline = "Flusight-baseline"
+  )
+  expect_equal(scores_baseline$wis_relative_skill, 1)
+  expect_equal(scores_baseline$wis_scaled_relative_skill, 1)
+  expect_true(all(
+    c("wis_relative_skill", "wis_scaled_relative_skill") %in%
+      attr(scores_baseline, "metrics")
+  ))
+
+  # Baseline that is not the lone model: errors
+  expect_error(
+    score_model_out(
+      model_out_tbl = single,
+      oracle_output = forecast_oracle_output,
+      metrics = "wis",
+      relative_metrics = "wis",
+      baseline = "MOBS-GLEAM_FLUH"
+    ),
+    regexp = "baseline.*MOBS-GLEAM_FLUH.*not present"
+  )
+})
