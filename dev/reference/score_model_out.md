@@ -50,7 +50,9 @@ score_model_out(
   which a geometric-mean pairwise ratio has no clean interpretation. If
   `NULL` (the default), no relative metrics will be computed. Relative
   metrics are only computed if `summarize = TRUE`, and require that
-  `"model_id"` is included in `by`.
+  `"model_id"` is included in `by`. If only one model is present in the
+  data, relative-skill columns are filled with `1` (a model has trivial
+  skill `1` relative to itself) rather than erroring.
 
 - baseline:
 
