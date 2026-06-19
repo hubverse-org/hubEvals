@@ -13,6 +13,14 @@
   errors with a clear message
   ([\#75](https://github.com/hubverse-org/hubEvals/issues/75)).
 
+- New “Getting started with hubEvals” vignette walking through the main
+  scoring workflows for each supported output type (quantile, mean,
+  median, pmf nominal/ordinal, sample marginal/compound), the
+  `relative_metrics` and `baseline` arguments for relative-skill
+  scoring, and the `transform` and `transform_append` arguments for
+  scoring on transformed scales
+  ([\#38](https://github.com/hubverse-org/hubEvals/issues/38)).
+
 - Fix
   [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   so that requesting `transform_append = TRUE` with default

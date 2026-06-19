@@ -213,3 +213,9 @@ package](https://github.com/hubverse-org/hubEvals/blob/main/.github/CONTRIBUTING
 - [`transform_sample_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/transform_sample_model_out.md)
   : Transform sample model output into a forecast object
 
+# Articles
+
+### All vignettes
+
+- [Getting started with
+  hubEvals](https://hubverse-org.github.io/hubEvals/dev/articles/hubEvals.md):
