@@ -21,3 +21,4 @@
 ^CLAUDE\.md$
 ^\.attic$
 ^\.claude$
+^vignettes/articles$
