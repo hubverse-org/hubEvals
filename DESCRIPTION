@@ -67,5 +67,8 @@ Depends:
 Config/Needs/website: hubverse-org/hubStyle
 Suggests:
     hubExamples,
+    knitr,
+    rmarkdown,
     testthat (>= 3.0.0)
+VignetteBuilder: knitr
 Config/testthat/edition: 3

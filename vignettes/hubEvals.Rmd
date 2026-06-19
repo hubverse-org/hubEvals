@@ -1,0 +1,578 @@
+---
+title: "Getting started with hubEvals"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with hubEvals}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+options(width = 200)
+```
+
+`hubEvals` provides tools for scoring and evaluating
+[hubverse](https://hubverse.io)-formatted model outputs, typically from a
+forecasting hub. It bridges the hubverse
+[`model_out_tbl`](https://docs.hubverse.io/en/latest/user-guide/model-output.html)
+format and the [`scoringutils`](https://epiforecasts.io/scoringutils/)
+package, so that an analyst can move from a tibble of model outputs plus
+the matching
+[oracle output](https://docs.hubverse.io/en/latest/user-guide/target-data.html#oracle-output)
+target data to a tibble of scores in a single call.
+
+This vignette walks through the main scoring workflows for each output type
+supported by hubEvals, using example data from the
+[`hubExamples`](https://hubverse-org.github.io/hubExamples/) package. The
+example data come from the
+[example-complex-forecast-hub](https://github.com/hubverse-org/example-complex-forecast-hub),
+a small synthetic flu forecasting hub.
+
+```{r, message = FALSE}
+library(hubEvals)
+library(dplyr)
+```
+
+## The input data
+
+`hubEvals` consumes two tibbles:
+
+* a
+  **[`model_out_tbl`](https://docs.hubverse.io/en/latest/user-guide/model-output.html)**
+  of model predictions (one row per prediction)
+* an
+  **[`oracle_output`](https://docs.hubverse.io/en/latest/user-guide/target-data.html#oracle-output)**
+  of target data at the same task-id resolution (one row per observation;
+  the `oracle_value` column holds the observed value)
+
+`hubExamples::forecast_outputs` is a `model_out_tbl` that contains
+predictions in the five hubverse output types currently supported by
+hubEvals: `quantile`, `mean`, `median`, `pmf`, and `sample`. (The
+hubverse spec also defines a `cdf` output type, evaluation of which is
+not yet supported.)
+
+```{r}
+head(hubExamples::forecast_outputs)
+```
+
+`hubExamples::forecast_oracle_output` is the matching oracle output.
+
+```{r}
+head(hubExamples::forecast_oracle_output)
+```
+
+The main entry point is `score_model_out()`. It accepts a `model_out_tbl`
+of a **single** output type at a time, transforms it into a `scoringutils`
+forecast object, computes scores using metrics appropriate for that output
+type, and (by default) summarizes the per-row scores by model.
+
+> **Note:** While `model_out_tbl` must be filtered to a single `output_type`
+> per scoring call, `oracle_output` can contain rows for multiple
+> `output_type`s. The same full `oracle_output` can be passed to every
+> scoring call.
+
+## Quantile forecasts
+
+Quantile forecasts are the most common output type in current hubverse
+hubs. To score them, filter the `model_out_tbl` to `output_type == "quantile"`
+and pass it to `score_model_out()`:
+
+```{r}
+quantile_out <- hubExamples::forecast_outputs |>
+  dplyr::filter(output_type == "quantile")
+
+quantile_scores <- score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output
+)
+quantile_scores
+```
+
+```{r, include = FALSE}
+quantile_forecast <- transform_quantile_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output
+)
+quantile_metric_list <- paste0(
+  "`", names(scoringutils::get_metrics(quantile_forecast)), "`",
+  collapse = ", "
+)
+```
+
+By default, `score_model_out()` returns the metrics that `scoringutils`
+considers appropriate for the given output type. For quantile forecasts,
+these are `r quantile_metric_list`. See `?score_model_out` for short
+descriptions of each metric and the defaults for the other output types.
+
+To compute only a subset, name them via the `metrics` argument (more in
+[Selecting a subset of metrics](#selecting-a-subset-of-metrics) below):
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = c("wis", "ae_median")
+)
+```
+
+### Custom interval coverage levels
+
+To request interval coverage at different levels, name them explicitly via
+the `metrics` argument (covered in general in [Selecting a subset of
+metrics](#selecting-a-subset-of-metrics) below). `interval_coverage_XX`
+reports coverage of the **central XX% interval**, which is bounded by the
+`(100 - XX) / 200` and `1 - (100 - XX) / 200` quantiles. Both bounds must
+be present in the data.
+
+A common gotcha: having the `0.95` quantile in the data is not enough to
+compute `interval_coverage_95`. The 95% central interval is bounded by the
+0.025 and 0.975 quantiles; the 0.95 quantile is the upper bound of the
+**90%** central interval (paired with 0.05). The example hub provides the
+0.05, 0.10, 0.25, 0.50, 0.75, 0.90, and 0.95 quantiles, so only the
+following interval coverage levels are computable:
+
+| `interval_coverage_XX` | Lower quantile | Upper quantile |
+|---|---|---|
+| `interval_coverage_50` | 0.25 | 0.75 |
+| `interval_coverage_80` | 0.10 | 0.90 |
+| `interval_coverage_90` | 0.05 | 0.95 |
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = c("wis", "interval_coverage_80")
+)
+```
+
+## Point forecasts (mean and median)
+
+The hubverse defines two point forecast output types: `mean` and
+`median`. `score_model_out()` scores `mean` output types with squared
+error (`se_point`) and `median` output types with absolute error
+(`ae_point`).
+The pairing follows from a property of these metrics
+([Gneiting 2011](https://doi.org/10.1198/jasa.2011.r10138)):
+
+- The expected squared error of a prediction against draws from a
+  distribution F is minimised when the prediction equals the **mean**
+  of F.
+- The expected absolute error is minimised when the prediction equals
+  the **median** of F.
+
+Squared error therefore directly measures how close a `mean` forecast is
+to the true mean of the data, and absolute error does the same for the
+`median`. A mismatched pairing (e.g. scoring `mean` output types with
+absolute error) would measure how close the model's reported mean is to
+the true median rather than the true mean.
+
+```{r}
+mean_out <- hubExamples::forecast_outputs |>
+  dplyr::filter(output_type == "mean")
+
+score_model_out(
+  model_out_tbl = mean_out,
+  oracle_output = hubExamples::forecast_oracle_output
+)
+```
+
+```{r}
+median_out <- hubExamples::forecast_outputs |>
+  dplyr::filter(output_type == "median")
+
+score_model_out(
+  model_out_tbl = median_out,
+  oracle_output = hubExamples::forecast_oracle_output
+)
+```
+
+## Probability mass function (pmf) forecasts
+
+PMF forecasts assign a probability to each category of a categorical target.
+The example hub has a `wk flu hosp rate category` target with four
+categories: `low`, `moderate`, `high`, `very high`.
+
+The categories carry a natural ordering (severity), so scoring rules that
+exploit that ordering give a more informative picture than scoring rules
+that treat the categories as unordered labels. `score_model_out()` switches
+between nominal (no ordering) and ordinal (with ordering) scoring based on
+whether the `output_type_id_order` argument is provided.
+
+### Nominal scoring (no category order)
+
+```{r}
+pmf_out <- hubExamples::forecast_outputs |>
+  dplyr::filter(output_type == "pmf")
+```
+
+```{r, include = FALSE}
+pmf_nominal_forecast <- transform_pmf_model_out(
+  model_out_tbl = pmf_out,
+  oracle_output = hubExamples::forecast_oracle_output
+)
+pmf_nominal_metric_list <- paste0(
+  "`", names(scoringutils::get_metrics(pmf_nominal_forecast)), "`",
+  collapse = ", "
+)
+```
+
+Without `output_type_id_order`, the forecast is treated as nominal. The
+default metric set is `r pmf_nominal_metric_list`. Nominal scoring does
+not use any ordering between categories: any wrong category is "equally"
+wrong, weighted only by the probability placed on the true one.
+
+```{r}
+score_model_out(
+  model_out_tbl = pmf_out,
+  oracle_output = hubExamples::forecast_oracle_output
+)
+```
+
+Every model scores `Inf`. This is the proper scoring rule behaving
+correctly: each of these models assigns probability `0` to some category
+that is then observed, giving `log_score = -log(0) = Inf` on that row,
+and averaging propagates the `Inf` through to the model's overall score.
+The result makes cross-model comparison impossible whenever any single
+row hits a zero. A common workaround, used by FluSight
+([Reich et al. 2019](https://doi.org/10.1371/journal.pcbi.1007486)), is
+to cap `log_score` at a finite value before aggregation; FluSight
+truncates at `-10` under the `log(p)` convention, which corresponds to
+capping `log_score = -log(p)` at `10` in the scoringutils convention
+used here. The cap is a domain judgement and the resulting score is no
+longer a proper scoring rule. Apply the cap manually using
+`summarize = FALSE` to expose per-row scores (covered in
+[Summarising scores](#summarising-scores) below):
+
+```{r}
+score_model_out(
+  model_out_tbl = pmf_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  summarize = FALSE
+) |>
+  dplyr::mutate(log_score = pmin(log_score, 10)) |>
+  dplyr::group_by(model_id) |>
+  dplyr::summarise(log_score = mean(log_score), .groups = "drop")
+```
+
+### Ordinal scoring (with category order)
+
+```{r, include = FALSE}
+pmf_ordinal_forecast <- transform_pmf_model_out(
+  model_out_tbl = pmf_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  output_type_id_order = c("low", "moderate", "high", "very high")
+)
+pmf_ordinal_metric_list <- paste0(
+  "`", names(scoringutils::get_metrics(pmf_ordinal_forecast)), "`",
+  collapse = ", "
+)
+```
+
+Providing `output_type_id_order` declares the order of the categories from
+lowest to highest. `score_model_out()` then scores the forecasts as
+ordinal, with the default metric set `r pmf_ordinal_metric_list`. Ordinal
+scoring uses the declared category order, so a probability mass placed
+one category away from the truth is penalised less than one placed
+several categories away. A forecaster who is "nearly right" on the
+severity scale will therefore score better under ordinal scoring than
+under nominal scoring, which treats any wrong category as equally wrong.
+
+The category order is declared in the hub's `tasks.json` config (under
+`output_type.pmf.output_type_id.required` for the relevant model task).
+For this hub, the order is `low`, `moderate`, `high`, `very high`:
+
+```{r}
+score_model_out(
+  model_out_tbl = pmf_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  output_type_id_order = c("low", "moderate", "high", "very high")
+)
+```
+
+`log_score` runs into the same `Inf` issue described above; `rps` is
+finite even when the model assigns `0` probability to the observed
+category, so it remains comparable across models without any correction.
+The same manual cap workaround applies to `log_score` here.
+
+If a hub has pmf targets with different bin sets (for example, one target
+with three categories and another with five), score them in separate calls
+so that each call has a single coherent category set.
+
+## Sample forecasts
+
+Sample-based forecasts represent the predictive distribution as a set of
+draws. The hubverse supports two scoring modes:
+
+* **Marginal**: each modeling task (each combination of task IDs) is scored
+  independently. This is appropriate when the inferential target is the
+  marginal predictive distribution at each task ID.
+* **Compound**: samples are scored jointly across a subset of task ID
+  dimensions, treating each sample draw as a joint prediction over those
+  dimensions. This is appropriate when the inferential target is the joint
+  distribution (for example, a trajectory over horizons).
+
+### Marginal sample scoring
+
+```{r, include = FALSE}
+sample_out <- hubExamples::forecast_outputs |>
+  dplyr::filter(output_type == "sample")
+sample_marginal_forecast <- transform_sample_model_out(
+  model_out_tbl = sample_out,
+  oracle_output = hubExamples::forecast_oracle_output
+)
+sample_marginal_metric_list <- paste0(
+  "`", names(scoringutils::get_metrics(sample_marginal_forecast)), "`",
+  collapse = ", "
+)
+```
+
+By default, `score_model_out()` scores sample forecasts marginally. The
+default metric set is `r sample_marginal_metric_list`, headlined by the
+[continuous ranked probability score (CRPS)](https://epiforecasts.io/scoringutils/reference/crps_sample.html).
+Below we restrict the output to just CRPS for readability, using the
+`metrics` argument covered in
+[Selecting a subset of metrics](#selecting-a-subset-of-metrics) below:
+
+```{r}
+score_model_out(
+  model_out_tbl = sample_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = "crps"
+)
+```
+
+### Compound sample scoring
+
+```{r, include = FALSE}
+sample_compound_forecast <- transform_sample_model_out(
+  model_out_tbl = sample_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  compound_taskid_set = c("reference_date", "location")
+)
+sample_compound_metric_list <- paste0(
+  "`", names(scoringutils::get_metrics(sample_compound_forecast)), "`",
+  collapse = ", "
+)
+```
+
+To score samples jointly, supply `compound_taskid_set`: the task ID columns
+that stay constant within a single sample draw. The remaining task ID
+columns vary within a draw and are scored jointly using multivariate scoring
+rules: the default metric set is `r sample_compound_metric_list`.
+
+The `compound_taskid_set` is declared in the hub's `tasks.json` config
+(under `output_type.sample.output_type_id_params.compound_taskid_set`).
+For the example hub, each sample draw spans all horizons for a given
+`reference_date` and `location`, so the `compound_taskid_set` is
+`c("reference_date", "location")`:
+
+```{r}
+score_model_out(
+  model_out_tbl = sample_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  compound_taskid_set = c("reference_date", "location")
+)
+```
+
+`score_model_out()` validates that the submitted samples are compatible with
+the requested `compound_taskid_set` and errors with a clear message if they
+are not.
+
+## Selecting a subset of metrics
+
+The `metrics` argument applies across all output types: pass any subset of
+the metric names valid for the relevant output type to compute only those.
+For quantile forecasts, for example:
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = c("wis", "ae_median")
+)
+```
+
+## Summarising scores
+
+By default, `score_model_out()` returns one row per model, with each metric
+averaged across all task-ID combinations. Two arguments control this
+behaviour for any output type.
+
+### Per-row scores
+
+Setting `summarize = FALSE` returns one score per row of the input
+`model_out_tbl`, with no aggregation across task-ID combinations:
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  summarize = FALSE
+) |>
+  head()
+```
+
+### Custom grouping
+
+A custom `by` argument summarises by a different grouping, for example
+each model's scores by horizon:
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  by = c("model_id", "horizon")
+)
+```
+
+## Relative skill scores
+
+Specifying `relative_metrics` adds a column expressing each model's score
+for that metric relative to the rest of the model set. `relative_metrics`
+should only be set to positive-valued, lower-is-better metrics. Proper
+scoring rules like `wis`, `crps`, `log_score`, `rps`, `ae_point`,
+`se_point`, `ae_median` are the natural choices; the WIS decomposition
+components `overprediction`, `underprediction`, and `dispersion` also
+work mathematically, though `dispersion` should be interpreted with care
+(a smaller ratio means a sharper forecast, which is only beneficial if
+the model is calibrated). Interval coverage metrics and `bias` are
+rejected outright by `score_model_out()`: interval coverage targets a
+nominal level rather than a "lower is better" direction, and `bias` is a
+signed quantity for which the geometric mean of pairwise ratios is
+undefined.
+
+By default, the column is named `<metric>_relative_skill` and holds the
+geometric mean of pairwise score ratios across all other models. Values
+below 1 indicate a model that scored lower on average than its opponents.
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
+  relative_metrics = "wis"
+)
+```
+
+Providing a `baseline` rescales the relative skill so that the chosen
+baseline model has a skill of 1, and returns it in a column named
+`<metric>_scaled_relative_skill`. Other models' values are then
+interpretable directly with respect to the baseline (e.g. 0.7 means
+"30% lower WIS than the baseline on average"):
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = c("wis", "interval_coverage_80", "interval_coverage_90"),
+  relative_metrics = "wis",
+  baseline = "Flusight-baseline"
+)
+```
+
+Relative-skill computation requires that `"model_id"` is included in `by`,
+which is the default.
+
+## Scale transformations
+
+Quantile, mean, median, and sample forecasts can be scored on a
+transformed scale, which is useful when forecasts span several orders of
+magnitude or when an exponential-growth process is better assessed on the
+log scale. Pass a transformation function to the `transform` argument:
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = "wis",
+  transform = scoringutils::log_shift,
+  offset = 1
+)
+```
+
+`scoringutils::log_shift()` is recommended for log transformations because
+the `offset` argument handles zeros gracefully; using `log()` directly on
+data that contain zeros produces `-Inf` and propagates `NaN` through the
+scores.
+
+To compare natural-scale and transformed-scale scores side by side, set
+`transform_append = TRUE`. The result has a `scale` column distinguishing
+rows scored on each scale:
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = "wis",
+  transform = scoringutils::log_shift,
+  transform_append = TRUE,
+  offset = 1
+)
+```
+
+### Custom transform labels
+
+When `transform_append = TRUE`, the `scale` column labels the transformed
+rows using a name inferred from the `transform` function (e.g.
+`"log_shift"` for `scoringutils::log_shift`, `"sqrt"` for `sqrt`).
+Override the inferred label by passing `transform_label` explicitly, for
+example to shorten `"log_shift"` to `"log"`:
+
+```{r}
+score_model_out(
+  model_out_tbl = quantile_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  metrics = "wis",
+  transform = scoringutils::log_shift,
+  transform_label = "log",
+  transform_append = TRUE,
+  offset = 1
+)
+```
+
+For anonymous transformations, `transform_label` is **required**, because
+there is no function name to infer from:
+
+```{r}
+score_model_out(
+  model_out_tbl = mean_out,
+  oracle_output = hubExamples::forecast_oracle_output,
+  transform = function(x) sqrt(x),
+  transform_label = "sqrt",
+  transform_append = TRUE
+)
+```
+
+Interval coverage metrics are invariant under monotonic transforms (the
+0.25 quantile is still the 0.25 quantile after a log transform, so whether
+the observation falls inside a central interval is unchanged), so
+requesting them alongside a `transform` yields the same values on the
+transformed scale as on the natural scale.
+
+Scale transformations are not supported for `pmf` output types.
+
+## Where to go next
+
+* `score_model_out()` is a convenience that bundles the
+  hubverse-to-scoringutils transformation with the scoring step. If you
+  need the intermediate scoringutils forecast object (for example, to use
+  `scoringutils` plotting helpers or to compose custom scoring metrics),
+  the `transform_quantile_model_out()`, `transform_point_model_out()`,
+  `transform_pmf_model_out()`, and `transform_sample_model_out()`
+  exported helpers produce it directly.
+* See `?score_model_out` for the full argument reference and a list of
+  available metrics per output type.
+* The
+  [`scoringutils`](https://epiforecasts.io/scoringutils/) package provides
+  rich tooling for visualizing and further analyzing the score tibbles
+  produced by `score_model_out()`, including
+  [`plot_wis()`](https://epiforecasts.io/scoringutils/reference/plot_wis.html)
+  and
+  [`plot_pairwise_comparison()`](https://epiforecasts.io/scoringutils/reference/plot_pairwise_comparison.html).
+* The
+  [`hubExamples`](https://hubverse-org.github.io/hubExamples/) package
+  contains additional example data sets for experimenting with hubEvals.
