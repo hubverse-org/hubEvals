@@ -21,4 +21,5 @@
 ^CLAUDE\.md$
 ^\.attic$
 ^\.claude$
+^cran-comments\.md$
 ^vignettes/articles$
