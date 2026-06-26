@@ -50,7 +50,10 @@ with respect to the baseline will be returned. By default (\code{NULL}), relativ
 skill will not be scaled with respect to a baseline model. If the baseline is
 absent from a comparison group, that group's relative and scaled relative
 skill are reported as \code{NA} (with a warning) while its absolute scores are
-still returned; a baseline absent from the data entirely is an error.}
+still returned. This \code{NA} case only arises when scoring is disaggregated:
+with \code{by = "model_id"} alone there is a single comparison group containing
+every model, so relative skill is always defined and is never \code{NA}. A
+baseline absent from the data entirely is an error.}
 
 \item{summarize}{Boolean indicator of whether summaries of forecast scores
 should be computed. Defaults to \code{TRUE}.}
