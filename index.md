@@ -2,7 +2,7 @@
 
 The goal of hubEvals is to provide tools for evaluating infectious
 disease model outputs. This package is part of the
-[Hubverse](https://hubverse.org) project, which aims to provide a suite
+[Hubverse](https://hubverse.io) project, which aims to provide a suite
 of tools for infectious disease modeling hubs.
 
 ## Installation
@@ -13,6 +13,7 @@ You can install the [latest version of hubEvals from the
 R-universe](https://hubverse-org.r-universe.dev/hubEvals):
 
 ``` r
+
 install.packages("hubEvals", repos = c("https://hubverse-org.r-universe.dev", "https://cloud.r-project.org"))
 ```
 
@@ -23,6 +24,7 @@ you can install the development version of hubEvals from
 [GitHub](https://github.com/) with:
 
 ``` r
+
 # install.packages("remotes")
 remotes::install_github("hubverse-org/hubEvals")
 ```
@@ -34,6 +36,7 @@ Predictions can be evaluated directly using the scoring function in
 target data:
 
 ``` r
+
 library(hubEvals)
 
 # compute default metrics (in this case, absolute error) for
@@ -99,6 +102,7 @@ can be scored marginally (each modeling task scored independently) or
 jointly using compound scoring:
 
 ``` r
+
 # marginal sample scoring with CRPS
 sample_scores <- hubExamples::forecast_outputs |>
   dplyr::filter(output_type == "sample") |>
@@ -110,7 +114,7 @@ sample_scores <- hubExamples::forecast_outputs |>
 sample_scores
 #>             model_id     crps
 #>               <char>    <num>
-#> 1: Flusight-baseline 351.5888
+#> 1: Flusight-baseline 351.5887
 #> 2:   MOBS-GLEAM_FLUH 347.1502
 #> 3:          PSI-DICE 247.3640
 ```
@@ -125,6 +129,7 @@ each draw spans all horizons for a given reference date and location
 (i.e., a trajectory over time).
 
 ``` r
+
 compound_scores <- hubExamples::forecast_outputs |>
   dplyr::filter(output_type == "sample") |>
   score_model_out(
@@ -135,7 +140,7 @@ compound_scores <- hubExamples::forecast_outputs |>
 compound_scores
 #>             model_id energy_score variogram_score
 #>               <char>        <num>           <num>
-#> 1: Flusight-baseline     772.7587        1523.954
+#> 1: Flusight-baseline     772.7608        1524.474
 #> 2:   MOBS-GLEAM_FLUH     811.4625        1695.037
 #> 3:          PSI-DICE     571.0879        1264.238
 ```
@@ -145,6 +150,7 @@ used as an input to `scoringutils` functions and use their tooling
 directly.
 
 ``` r
+
 median_forecast <- transform_point_model_out(
   model_out_tbl = hubExamples::forecast_outputs |>
     dplyr::filter(output_type == "median"),
@@ -180,8 +186,8 @@ sample_forecast
 
 Please note that the hubEvals package is released with a [Contributor
 Code of
-Conduct](https://hubverse-org.github.io/hubEvals/CODE_OF_CONDUCT.md). By
-contributing to this project, you agree to abide by its terms.
+Conduct](https://github.com/hubverse-org/hubEvals/blob/main/.github/CODE_OF_CONDUCT.md).
+By contributing to this project, you agree to abide by its terms.
 
 ## Contributing
 
@@ -189,4 +195,4 @@ Interested in contributing back to the open-source Hubverse project?
 Learn more about how to [get involved in the Hubverse
 Community](https://hubverse.io/community/) or [how to contribute to the
 hubEvals
-package](https://hubverse-org.github.io/hubEvals/CONTRIBUTING.md).
+package](https://github.com/hubverse-org/hubEvals/blob/main/.github/CONTRIBUTING.md).

@@ -22,3 +22,44 @@ transform_quantile_model_out(model_out_tbl, oracle_output)
 ## Value
 
 forecast_quantile
+
+## Examples
+
+``` r
+quantile_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "quantile") |>
+  transform_quantile_model_out(
+    oracle_output = hubExamples::forecast_oracle_output
+  )
+quantile_forecast
+#> Forecast type: quantile
+#> Forecast unit:
+#> model, reference_date, target, horizon, location, and target_end_date
+#> 
+#>      quantile_level predicted observed             model reference_date
+#>               <num>     <num>    <num>            <char>         <Date>
+#>   1:           0.05        22       79 Flusight-baseline     2022-11-19
+#>   2:           0.10        31       79 Flusight-baseline     2022-11-19
+#>   3:           0.25        45       79 Flusight-baseline     2022-11-19
+#>   4:           0.50        51       79 Flusight-baseline     2022-11-19
+#>   5:           0.75        57       79 Flusight-baseline     2022-11-19
+#>  ---                                                                   
+#> 332:           0.25       914     1170          PSI-DICE     2022-12-17
+#> 333:           0.50      1077     1170          PSI-DICE     2022-12-17
+#> 334:           0.75      1240     1170          PSI-DICE     2022-12-17
+#> 335:           0.90      1396     1170          PSI-DICE     2022-12-17
+#> 336:           0.95      1490     1170          PSI-DICE     2022-12-17
+#>               target horizon location target_end_date
+#>               <char>   <int>   <char>          <Date>
+#>   1: wk inc flu hosp       0       25      2022-11-19
+#>   2: wk inc flu hosp       0       25      2022-11-19
+#>   3: wk inc flu hosp       0       25      2022-11-19
+#>   4: wk inc flu hosp       0       25      2022-11-19
+#>   5: wk inc flu hosp       0       25      2022-11-19
+#>  ---                                                 
+#> 332: wk inc flu hosp       3       48      2023-01-07
+#> 333: wk inc flu hosp       3       48      2023-01-07
+#> 334: wk inc flu hosp       3       48      2023-01-07
+#> 335: wk inc flu hosp       3       48      2023-01-07
+#> 336: wk inc flu hosp       3       48      2023-01-07
+```

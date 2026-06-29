@@ -33,3 +33,241 @@ forecast_point
 This function transforms a model output tibble in the Hubverse format
 (with either "mean" or "median" output type) to a scoringutils "point"
 forecast object
+
+## Examples
+
+``` r
+# Median point forecast
+median_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "median") |>
+  transform_point_model_out(
+    oracle_output = hubExamples::forecast_oracle_output,
+    output_type = "median"
+  )
+median_forecast
+#> Forecast type: point
+#> Forecast unit:
+#> model, reference_date, target, horizon, location, and target_end_date
+#> 
+#>     predicted observed             model reference_date          target horizon
+#>         <num>    <num>            <char>         <Date>          <char>   <int>
+#>  1:        51       79 Flusight-baseline     2022-11-19 wk inc flu hosp       0
+#>  2:        51      221 Flusight-baseline     2022-11-19 wk inc flu hosp       1
+#>  3:        51      446 Flusight-baseline     2022-11-19 wk inc flu hosp       2
+#>  4:        51      578 Flusight-baseline     2022-11-19 wk inc flu hosp       3
+#>  5:      1052     1230 Flusight-baseline     2022-11-19 wk inc flu hosp       0
+#>  6:      1052     1929 Flusight-baseline     2022-11-19 wk inc flu hosp       1
+#>  7:      1052     2139 Flusight-baseline     2022-11-19 wk inc flu hosp       2
+#>  8:      1052     1781 Flusight-baseline     2022-11-19 wk inc flu hosp       3
+#>  9:       582      694 Flusight-baseline     2022-12-17 wk inc flu hosp       0
+#> 10:       582      769 Flusight-baseline     2022-12-17 wk inc flu hosp       1
+#> 11:       582      733 Flusight-baseline     2022-12-17 wk inc flu hosp       2
+#> 12:       582      466 Flusight-baseline     2022-12-17 wk inc flu hosp       3
+#> 13:      1791     1462 Flusight-baseline     2022-12-17 wk inc flu hosp       0
+#> 14:      1791     1225 Flusight-baseline     2022-12-17 wk inc flu hosp       1
+#> 15:      1791     1434 Flusight-baseline     2022-12-17 wk inc flu hosp       2
+#> 16:      1791     1170 Flusight-baseline     2022-12-17 wk inc flu hosp       3
+#> 17:        43       79   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp       0
+#> 18:        45      221   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp       1
+#> 19:        43      446   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp       2
+#> 20:        43      578   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp       3
+#> 21:      1172     1230   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp       0
+#> 22:      1072     1929   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp       1
+#> 23:       820     2139   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp       2
+#> 24:       688     1781   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp       3
+#> 25:       596      694   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp       0
+#> 26:       664      769   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp       1
+#> 27:       575      733   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp       2
+#> 28:       408      466   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp       3
+#> 29:      1958     1462   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp       0
+#> 30:      1671     1225   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp       1
+#> 31:      1095     1434   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp       2
+#> 32:       685     1170   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp       3
+#> 33:        66       79          PSI-DICE     2022-11-19 wk inc flu hosp       0
+#> 34:        90      221          PSI-DICE     2022-11-19 wk inc flu hosp       1
+#> 35:       121      446          PSI-DICE     2022-11-19 wk inc flu hosp       2
+#> 36:       159      578          PSI-DICE     2022-11-19 wk inc flu hosp       3
+#> 37:      1172     1230          PSI-DICE     2022-11-19 wk inc flu hosp       0
+#> 38:      1226     1929          PSI-DICE     2022-11-19 wk inc flu hosp       1
+#> 39:      1233     2139          PSI-DICE     2022-11-19 wk inc flu hosp       2
+#> 40:      1195     1781          PSI-DICE     2022-11-19 wk inc flu hosp       3
+#> 41:       648      694          PSI-DICE     2022-12-17 wk inc flu hosp       0
+#> 42:       613      769          PSI-DICE     2022-12-17 wk inc flu hosp       1
+#> 43:       512      733          PSI-DICE     2022-12-17 wk inc flu hosp       2
+#> 44:       410      466          PSI-DICE     2022-12-17 wk inc flu hosp       3
+#> 45:      1736     1462          PSI-DICE     2022-12-17 wk inc flu hosp       0
+#> 46:      1578     1225          PSI-DICE     2022-12-17 wk inc flu hosp       1
+#> 47:      1342     1434          PSI-DICE     2022-12-17 wk inc flu hosp       2
+#> 48:      1077     1170          PSI-DICE     2022-12-17 wk inc flu hosp       3
+#>     predicted observed             model reference_date          target horizon
+#>         <num>    <num>            <char>         <Date>          <char>   <int>
+#>     location target_end_date
+#>       <char>          <Date>
+#>  1:       25      2022-11-19
+#>  2:       25      2022-11-26
+#>  3:       25      2022-12-03
+#>  4:       25      2022-12-10
+#>  5:       48      2022-11-19
+#>  6:       48      2022-11-26
+#>  7:       48      2022-12-03
+#>  8:       48      2022-12-10
+#>  9:       25      2022-12-17
+#> 10:       25      2022-12-24
+#> 11:       25      2022-12-31
+#> 12:       25      2023-01-07
+#> 13:       48      2022-12-17
+#> 14:       48      2022-12-24
+#> 15:       48      2022-12-31
+#> 16:       48      2023-01-07
+#> 17:       25      2022-11-19
+#> 18:       25      2022-11-26
+#> 19:       25      2022-12-03
+#> 20:       25      2022-12-10
+#> 21:       48      2022-11-19
+#> 22:       48      2022-11-26
+#> 23:       48      2022-12-03
+#> 24:       48      2022-12-10
+#> 25:       25      2022-12-17
+#> 26:       25      2022-12-24
+#> 27:       25      2022-12-31
+#> 28:       25      2023-01-07
+#> 29:       48      2022-12-17
+#> 30:       48      2022-12-24
+#> 31:       48      2022-12-31
+#> 32:       48      2023-01-07
+#> 33:       25      2022-11-19
+#> 34:       25      2022-11-26
+#> 35:       25      2022-12-03
+#> 36:       25      2022-12-10
+#> 37:       48      2022-11-19
+#> 38:       48      2022-11-26
+#> 39:       48      2022-12-03
+#> 40:       48      2022-12-10
+#> 41:       25      2022-12-17
+#> 42:       25      2022-12-24
+#> 43:       25      2022-12-31
+#> 44:       25      2023-01-07
+#> 45:       48      2022-12-17
+#> 46:       48      2022-12-24
+#> 47:       48      2022-12-31
+#> 48:       48      2023-01-07
+#>     location target_end_date
+#>       <char>          <Date>
+
+# Mean point forecast
+mean_forecast <- hubExamples::forecast_outputs |>
+  dplyr::filter(.data[["output_type"]] == "mean") |>
+  transform_point_model_out(
+    oracle_output = hubExamples::forecast_oracle_output,
+    output_type = "mean"
+  )
+mean_forecast
+#> Forecast type: point
+#> Forecast unit:
+#> model, reference_date, target, horizon, location, and target_end_date
+#> 
+#>      predicted observed             model reference_date          target
+#>          <num>    <num>            <char>         <Date>          <char>
+#>  1:   51.18476       79 Flusight-baseline     2022-11-19 wk inc flu hosp
+#>  2:   51.39129      221 Flusight-baseline     2022-11-19 wk inc flu hosp
+#>  3:   51.89889      446 Flusight-baseline     2022-11-19 wk inc flu hosp
+#>  4:   52.54409      578 Flusight-baseline     2022-11-19 wk inc flu hosp
+#>  5: 1052.09543     1230 Flusight-baseline     2022-11-19 wk inc flu hosp
+#>  6: 1052.03144     1929 Flusight-baseline     2022-11-19 wk inc flu hosp
+#>  7: 1050.96930     2139 Flusight-baseline     2022-11-19 wk inc flu hosp
+#>  8: 1052.50018     1781 Flusight-baseline     2022-11-19 wk inc flu hosp
+#>  9:  581.85858      694 Flusight-baseline     2022-12-17 wk inc flu hosp
+#> 10:  582.06888      769 Flusight-baseline     2022-12-17 wk inc flu hosp
+#> 11:  582.18895      733 Flusight-baseline     2022-12-17 wk inc flu hosp
+#> 12:  581.70341      466 Flusight-baseline     2022-12-17 wk inc flu hosp
+#> 13: 1791.21527     1462 Flusight-baseline     2022-12-17 wk inc flu hosp
+#> 14: 1790.07008     1225 Flusight-baseline     2022-12-17 wk inc flu hosp
+#> 15: 1790.40082     1434 Flusight-baseline     2022-12-17 wk inc flu hosp
+#> 16: 1790.67826     1170 Flusight-baseline     2022-12-17 wk inc flu hosp
+#> 17:   44.62361       79   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp
+#> 18:   46.90887      221   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp
+#> 19:   45.85161      446   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp
+#> 20:   47.15687      578   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp
+#> 21: 1168.02069     1230   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp
+#> 22: 1073.21815     1929   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp
+#> 23:  825.96336     2139   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp
+#> 24:  701.17279     1781   MOBS-GLEAM_FLUH     2022-11-19 wk inc flu hosp
+#> 25:  631.12719      694   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp
+#> 26:  704.73469      769   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp
+#> 27:  604.88211      733   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp
+#> 28:  428.16205      466   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp
+#> 29: 1978.39990     1462   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp
+#> 30: 1710.46963     1225   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp
+#> 31: 1140.22637     1434   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp
+#> 32:  724.21445     1170   MOBS-GLEAM_FLUH     2022-12-17 wk inc flu hosp
+#> 33:   67.62974       79          PSI-DICE     2022-11-19 wk inc flu hosp
+#> 34:   91.91770      221          PSI-DICE     2022-11-19 wk inc flu hosp
+#> 35:  123.36858      446          PSI-DICE     2022-11-19 wk inc flu hosp
+#> 36:  158.84921      578          PSI-DICE     2022-11-19 wk inc flu hosp
+#> 37: 1171.85295     1230          PSI-DICE     2022-11-19 wk inc flu hosp
+#> 38: 1222.15034     1929          PSI-DICE     2022-11-19 wk inc flu hosp
+#> 39: 1227.52430     2139          PSI-DICE     2022-11-19 wk inc flu hosp
+#> 40: 1190.16311     1781          PSI-DICE     2022-11-19 wk inc flu hosp
+#> 41:  602.31998      694          PSI-DICE     2022-12-17 wk inc flu hosp
+#> 42:  594.46223      769          PSI-DICE     2022-12-17 wk inc flu hosp
+#> 43:  514.95352      733          PSI-DICE     2022-12-17 wk inc flu hosp
+#> 44:  454.32435      466          PSI-DICE     2022-12-17 wk inc flu hosp
+#> 45: 1733.13521     1462          PSI-DICE     2022-12-17 wk inc flu hosp
+#> 46: 1569.99346     1225          PSI-DICE     2022-12-17 wk inc flu hosp
+#> 47: 1341.15016     1434          PSI-DICE     2022-12-17 wk inc flu hosp
+#> 48: 1080.24987     1170          PSI-DICE     2022-12-17 wk inc flu hosp
+#>      predicted observed             model reference_date          target
+#>          <num>    <num>            <char>         <Date>          <char>
+#>     horizon location target_end_date
+#>       <int>   <char>          <Date>
+#>  1:       0       25      2022-11-19
+#>  2:       1       25      2022-11-26
+#>  3:       2       25      2022-12-03
+#>  4:       3       25      2022-12-10
+#>  5:       0       48      2022-11-19
+#>  6:       1       48      2022-11-26
+#>  7:       2       48      2022-12-03
+#>  8:       3       48      2022-12-10
+#>  9:       0       25      2022-12-17
+#> 10:       1       25      2022-12-24
+#> 11:       2       25      2022-12-31
+#> 12:       3       25      2023-01-07
+#> 13:       0       48      2022-12-17
+#> 14:       1       48      2022-12-24
+#> 15:       2       48      2022-12-31
+#> 16:       3       48      2023-01-07
+#> 17:       0       25      2022-11-19
+#> 18:       1       25      2022-11-26
+#> 19:       2       25      2022-12-03
+#> 20:       3       25      2022-12-10
+#> 21:       0       48      2022-11-19
+#> 22:       1       48      2022-11-26
+#> 23:       2       48      2022-12-03
+#> 24:       3       48      2022-12-10
+#> 25:       0       25      2022-12-17
+#> 26:       1       25      2022-12-24
+#> 27:       2       25      2022-12-31
+#> 28:       3       25      2023-01-07
+#> 29:       0       48      2022-12-17
+#> 30:       1       48      2022-12-24
+#> 31:       2       48      2022-12-31
+#> 32:       3       48      2023-01-07
+#> 33:       0       25      2022-11-19
+#> 34:       1       25      2022-11-26
+#> 35:       2       25      2022-12-03
+#> 36:       3       25      2022-12-10
+#> 37:       0       48      2022-11-19
+#> 38:       1       48      2022-11-26
+#> 39:       2       48      2022-12-03
+#> 40:       3       48      2022-12-10
+#> 41:       0       25      2022-12-17
+#> 42:       1       25      2022-12-24
+#> 43:       2       25      2022-12-31
+#> 44:       3       25      2023-01-07
+#> 45:       0       48      2022-12-17
+#> 46:       1       48      2022-12-24
+#> 47:       2       48      2022-12-31
+#> 48:       3       48      2023-01-07
+#>     horizon location target_end_date
+#>       <int>   <char>          <Date>
+```
