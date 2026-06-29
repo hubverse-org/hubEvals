@@ -1,6 +1,6 @@
 Package: hubEvals
 Title: Tools for Scoring and Evaluating Hubverse Model Outputs
-Version: 0.2.0.9000
+Version: 0.3.0
 Authors@R: c(
     person(given = "Anna",
            family = "Krystalli",
@@ -70,5 +70,4 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
-VignetteBuilder: knitr
 Config/testthat/edition: 3
