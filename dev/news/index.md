@@ -2,6 +2,10 @@
 
 ## hubEvals (development version)
 
+## hubEvals 0.3.0
+
+CRAN release: 2026-06-29
+
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   now handles single-model input gracefully when relative metrics are
   requested. Previously this errored via `scoringutils` (“not enough

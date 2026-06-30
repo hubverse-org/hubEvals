@@ -32,12 +32,12 @@ Source:
 
 Krystalli A, Reich N, Ray E, Bosse N, Roosa K (2026). *hubEvals: Tools
 for Scoring and Evaluating Hubverse Model Outputs*. R package version
-0.2.0.9000, <https://hubverse-org.github.io/hubEvals/>.
+0.3.0.9000, <https://hubverse-org.github.io/hubEvals/>.
 
     @Manual{,
       title = {hubEvals: Tools for Scoring and Evaluating Hubverse Model Outputs},
       author = {Anna Krystalli and Nicholas Reich and Evan Ray and Nikos Bosse and Kimberlyn Roosa},
       year = {2026},
-      note = {R package version 0.2.0.9000},
+      note = {R package version 0.3.0.9000},
       url = {https://hubverse-org.github.io/hubEvals/},
     }
