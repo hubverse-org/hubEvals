@@ -1,3 +1,5 @@
+# hubEvals (development version)
+
 # hubEvals 0.3.0
 
 * `score_model_out()` now handles single-model input gracefully when relative metrics are requested. Previously this errored via `scoringutils` ("not enough comparators"); now the relative-skill columns are filled with `1`, matching the trivial fact that a model has skill `1` relative to itself. If a `baseline` is supplied that does not match the lone model, `score_model_out()` errors with a clear message (#75).
