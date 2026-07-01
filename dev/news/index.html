@@ -34,7 +34,9 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="hubevals-development-version">hubEvals (development version)<a class="anchor" aria-label="anchor" href="#hubevals-development-version"></a></h2>
-</div>
+<ul><li>
+<code><a href="../reference/score_model_out.html">score_model_out()</a></code> now handles disaggregated relative-skill scoring where some comparison groups (the <code>by</code> columns other than <code>model_id</code>) cannot be compared, instead of aborting the whole call with a cryptic <code>scoringutils</code> error (“Baseline comparator … missing”). A group containing only one model is treated like the global single-model case, with relative skill filled as <code>1</code> (a model has skill <code>1</code> relative to itself). A group from which a requested <code>baseline</code> is absent has its relative and scaled relative skill reported as <code>NA</code>, with a warning naming the affected groups; the absolute scores for those groups are still returned unchanged. A <code>baseline</code> that is absent from the data entirely remains an error (<a href="https://github.com/hubverse-org/hubEvals/issues/135" class="external-link">#135</a>).</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="hubevals-030">hubEvals 0.3.0<a class="anchor" aria-label="anchor" href="#hubevals-030"></a></h2><p class="text-muted">CRAN release: 2026-06-29</p>
 <ul><li><p><code><a href="../reference/score_model_out.html">score_model_out()</a></code> now handles single-model input gracefully when relative metrics are requested. Previously this errored via <code>scoringutils</code> (“not enough comparators”); now the relative-skill columns are filled with <code>1</code>, matching the trivial fact that a model has skill <code>1</code> relative to itself. If a <code>baseline</code> is supplied that does not match the lone model, <code><a href="../reference/score_model_out.html">score_model_out()</a></code> errors with a clear message (<a href="https://github.com/hubverse-org/hubEvals/issues/75" class="external-link">#75</a>).</p></li>
