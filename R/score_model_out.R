@@ -17,13 +17,20 @@
 #' pairwise ratio has no clean interpretation. If `NULL` (the default), no
 #' relative metrics will be computed. Relative metrics are only computed if
 #' `summarize = TRUE`, and require that `"model_id"` is included in `by`.
-#' If only one model is present in the data, relative-skill columns are
-#' filled with `1` (a model has trivial skill `1` relative to itself)
-#' rather than erroring.
+#' Relative skill is computed within each comparison group (the `by` columns
+#' other than `"model_id"`). If a comparison group contains only one model,
+#' that group's relative-skill columns are filled with `1` (a model has trivial
+#' skill `1` relative to itself) rather than erroring.
 #' @param baseline String with the name of a model to use as a baseline for
 #' relative skill scores. If a baseline is given, then a scaled relative skill
 #' with respect to the baseline will be returned. By default (`NULL`), relative
-#' skill will not be scaled with respect to a baseline model.
+#' skill will not be scaled with respect to a baseline model. If the baseline is
+#' absent from a comparison group, that group's relative and scaled relative
+#' skill are reported as `NA` (with a warning) while its absolute scores are
+#' still returned. This `NA` case only arises when scoring is disaggregated:
+#' with `by = "model_id"` alone there is a single comparison group containing
+#' every model, so relative skill is always defined and is never `NA`. A
+#' baseline absent from the data entirely is an error.
 #' @param summarize Boolean indicator of whether summaries of forecast scores
 #' should be computed. Defaults to `TRUE`.
 #' @param by Character vector naming columns to summarize by. For example,
@@ -284,6 +291,11 @@ score_model_out <- function(
 
   # if requested, summarize scores, including computation of relative metrics
   if (summarize) {
+    # Relative skill is a per-group quantity (one value per model per `by`
+    # group, not per scored forecast unit). It is added here on the per-row
+    # scores as a column that is constant within each (model_id, `by`) group,
+    # then collapsed by summarize_scores() below to one row per group. Pairwise
+    # comparison needs the per-row scores, so this must run before summarising.
     scores <- add_relative_skill_metrics(scores, relative_metrics, by, baseline)
     # BEGIN workaround mirror for https://github.com/epiforecasts/scoringutils/pull/1180
     # Mirror the upstream check (merged but not yet on CRAN) so the
@@ -324,11 +336,11 @@ score_model_out <- function(
 
 #' Add relative-skill columns to a per-row scores object
 #'
-#' Wraps the per-metric loop over [scoringutils::add_relative_skill()] and
-#' provides a single-model fall-back: when only one model is present in
-#' `scores`, scoringutils errors with "not enough comparators". In that
-#' case we instead fill the relative-skill column(s) with `1`, matching the
-#' fact that a model has skill `1` relative to itself.
+#' Validates that any requested `baseline` is present in the data (a baseline
+#' absent entirely is a user error), then delegates to
+#' [add_relative_skill_by_group()], which computes relative skill within each
+#' comparison group and gracefully handles groups scoringutils cannot compare
+#' (single-model groups, or groups missing the baseline) instead of aborting.
 #'
 #' @noRd
 add_relative_skill_metrics <- function(scores, relative_metrics, by, baseline) {
@@ -336,41 +348,267 @@ add_relative_skill_metrics <- function(scores, relative_metrics, by, baseline) {
     return(scores)
   }
 
-  unique_models <- unique(scores[["model_id"]])
-  if (length(unique_models) > 1L) {
-    for (metric in relative_metrics) {
-      scores <- scoringutils::add_relative_skill(
-        scores,
-        compare = "model_id",
-        by = by[by != "model_id"],
-        metric = metric,
-        baseline = baseline
-      )
-    }
-    return(scores)
-  }
+  models <- unique(scores[["model_id"]])
 
-  # Only one model in the data. Mirror scoringutils' baseline-presence
-  # check so that a baseline that is not the lone model still errors.
-  if (!is.null(baseline) && baseline != unique_models) {
+  # A baseline must exist somewhere in the data. (A baseline missing from only
+  # *some* comparison groups is handled gracefully by
+  # add_relative_skill_by_group(); one absent entirely is a typo-style user
+  # error and aborts here.)
+  if (!is.null(baseline) && !baseline %in% models) {
     cli::cli_abort(c(
       "Requested {.arg baseline} {.val {baseline}} is not present in the data.",
-      "i" = "Only model present: {.val {unique_models}}."
+      "i" = "Available models: {.val {models}}."
     ))
   }
 
-  for (metric in relative_metrics) {
-    rel_col <- paste0(metric, "_relative_skill")
-    scores[[rel_col]] <- 1
-    new_cols <- rel_col
-    if (!is.null(baseline)) {
-      scaled_col <- paste0(metric, "_scaled_relative_skill")
-      scores[[scaled_col]] <- 1
-      new_cols <- c(new_cols, scaled_col)
-    }
-    attr(scores, "metrics") <- c(attr(scores, "metrics"), new_cols)
+  add_relative_skill_by_group(scores, relative_metrics, by, baseline)
+}
+
+
+#' Column names added by relative-skill scoring
+#'
+#' For each requested metric, scoringutils adds `<metric>_relative_skill`, plus
+#' `<metric>_scaled_relative_skill` when a `baseline` is supplied. Returns those
+#' names in the order the columns are produced.
+#'
+#' @noRd
+relative_skill_col_names <- function(relative_metrics, baseline) {
+  suffixes <- if (is.null(baseline)) {
+    "_relative_skill"
+  } else {
+    c("_relative_skill", "_scaled_relative_skill")
+  }
+  purrr::map(relative_metrics, \(metric) paste0(metric, suffixes)) |>
+    purrr::list_c()
+}
+
+
+#' Add relative-skill columns, classifying groups by how skill is produced
+#'
+#' Relative skill is computed within each comparison group: one combination of
+#' the disaggregation columns (`by` without `"model_id"`), or a single group
+#' spanning the whole data when there is no disaggregation. A group scoringutils
+#' cannot score would otherwise abort the whole run (e.g. "Baseline comparator
+#' `<name>` missing."), so each group is classified and handled instead.
+#' Predictions in every group are still scoreable, so absolute scores stay
+#' intact; only relative skill needs special handling.
+#'
+#' Each comparison group is one of:
+#' * **computable** (>= 2 models, and the baseline present if one is requested):
+#'   scored by scoringutils.
+#' * **trivial** (a single model, with no baseline requested or where that lone
+#'   model is the baseline): relative skill is `1` (a model has skill `1`
+#'   relative to itself). This subsumes the single-model-everywhere case.
+#' * **skipped** (a baseline was requested but is absent from the group, e.g. a
+#'   baseline missing some of the `reference_date`s being scored when
+#'   disaggregating by `reference_date`): relative skill is `NA`, with one
+#'   warning naming the affected group levels. See #135.
+#'
+#' The caller ([add_relative_skill_metrics()]) has already checked that any
+#' `baseline` is present somewhere in the data.
+#'
+#' @return `scores` with relative-skill columns added.
+#' @noRd
+add_relative_skill_by_group <- function(
+  scores,
+  relative_metrics,
+  by,
+  baseline
+) {
+  group_cols <- by[by != "model_id"]
+  orig_metrics <- attr(scores, "metrics")
+  skill_cols <- relative_skill_col_names(relative_metrics, baseline)
+
+  # Classify each comparison group by how its relative skill must be produced
+  # (see the function docs): computable groups are scored, trivial single-model
+  # groups get 1, and groups missing a requested baseline are skipped to NA.
+  # With no disaggregation `group_cols` is empty and this is a single group
+  # spanning the whole data: that case (and single-model data) runs through
+  # this same path rather than a fast early return, so the two cannot drift
+  # apart, which is worth more than the small summarise/join overhead.
+  group_status <- scores |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(group_cols))) |>
+    dplyr::summarise(
+      has_baseline = is.null(baseline) || baseline %in% .data[["model_id"]],
+      n_models = dplyr::n_distinct(.data[["model_id"]]),
+      .groups = "drop"
+    )
+  has_baseline <- group_status[["has_baseline"]]
+  n_models <- group_status[["n_models"]]
+  computable_groups <- group_status[
+    has_baseline & n_models >= 2L,
+    group_cols,
+    drop = FALSE
+  ]
+  trivial_groups <- group_status[
+    has_baseline & n_models < 2L,
+    group_cols,
+    drop = FALSE
+  ]
+  skipped_groups <- group_status[!has_baseline, group_cols, drop = FALSE]
+
+  # Assemble one (model_id, group) -> relative-skill lookup, then broadcast it
+  # onto the full scores. Skipped groups are absent from the lookup, so they
+  # find no match in the join and become NA by construction.
+  lookup <- dplyr::bind_rows(
+    compute_skills(
+      scores,
+      computable_groups,
+      group_cols,
+      skill_cols,
+      relative_metrics,
+      baseline
+    ),
+    assign_trivial_skills(scores, trivial_groups, group_cols, skill_cols)
+  )
+  scores <- dplyr::left_join(scores, lookup, by = c("model_id", group_cols))
+  attr(scores, "metrics") <- c(orig_metrics, skill_cols)
+
+  if (nrow(skipped_groups) > 0L) {
+    warn_relative_skill_skipped(skipped_groups, group_cols, baseline)
   }
   scores
+}
+
+
+#' Subset scores to the rows whose group is in `groups`
+#'
+#' A `semi_join` on `group_cols`. When `group_cols` is empty (no disaggregation)
+#' there is a single group spanning all of `scores`, so there is nothing to
+#' subset by and every row is returned unchanged; handling that explicitly also
+#' avoids dplyr's deprecated empty-key cross join.
+#'
+#' @noRd
+subset_scores_to_groups <- function(scores, groups, group_cols) {
+  if (length(group_cols) == 0L) {
+    # No grouping columns: a single group spans all of `scores`, so every row
+    # is already in it. There is nothing to subset by, so keep all rows.
+    scores
+  } else {
+    dplyr::semi_join(scores, groups, by = group_cols)
+  }
+}
+
+
+#' Per-(model_id, group) relative skill for groups scoringutils can score
+#'
+#' Scores the computable subset with [scoringutils::add_relative_skill()] (once
+#' per metric) and reduces it to one row per `(model_id, group)`, since relative
+#' skill is constant within a group. Returns `NULL` when there are no computable
+#' groups, so [dplyr::bind_rows()] drops it.
+#'
+#' @param scores The full per-row scores object.
+#' @param computable_groups One row per computable group, holding its
+#'   `group_cols` values.
+#' @param group_cols Character vector of disaggregation column names.
+#' @param skill_cols Names of the relative-skill columns to return, as produced
+#'   by [relative_skill_col_names()] (e.g. `"wis_relative_skill"`, plus
+#'   `"wis_scaled_relative_skill"` when a baseline is given).
+#' @param relative_metrics Character vector of metrics to score relative skill for.
+#' @param baseline The requested baseline model, or `NULL`.
+#' @noRd
+compute_skills <- function(
+  scores,
+  computable_groups,
+  group_cols,
+  skill_cols,
+  relative_metrics,
+  baseline
+) {
+  if (nrow(computable_groups) == 0L) {
+    return(NULL)
+  }
+  computable_scores <- subset_scores_to_groups(
+    scores,
+    computable_groups,
+    group_cols
+  )
+  for (metric in relative_metrics) {
+    computable_scores <- scoringutils::add_relative_skill(
+      computable_scores,
+      compare = "model_id",
+      by = group_cols,
+      metric = metric,
+      baseline = baseline
+    )
+  }
+  # The lookup we merge back onto the scored data needs only the join keys
+  # (model_id, group_cols) and the skill columns. Scoring above used the per-row
+  # metric columns, so we drop them and de-dup to one row per group here, after
+  # add_relative_skill().
+  computable_scores |>
+    tibble::as_tibble() |>
+    dplyr::select(dplyr::all_of(c("model_id", group_cols, skill_cols))) |>
+    dplyr::distinct()
+}
+
+
+#' Per-(model_id, group) relative skill of 1 for single-model groups
+#'
+#' A group with one model has no comparator, so relative (and scaled relative)
+#' skill is `1` by the single-model convention. Returns one row per `(model_id,
+#' group)` with every relative-skill column set to `1`, or `NULL` when there are
+#' no such groups.
+#'
+#' @param scores The full per-row scores object.
+#' @param trivial_groups One row per single-model group, holding its
+#'   `group_cols` values.
+#' @param group_cols Character vector of disaggregation column names.
+#' @param skill_cols Names of the relative-skill columns to set to `1`, as
+#'   produced by [relative_skill_col_names()].
+#' @noRd
+assign_trivial_skills <- function(
+  scores,
+  trivial_groups,
+  group_cols,
+  skill_cols
+) {
+  if (nrow(trivial_groups) == 0L) {
+    return(NULL)
+  }
+  # The same merge-back lookup (join keys + skill columns, one row per group),
+  # but nothing is scored here, so unlike compute_skills we drop the metric
+  # columns and de-dup to the keys up front, then assign 1 to the skill columns.
+  trivial_scores <- subset_scores_to_groups(
+    scores,
+    trivial_groups,
+    group_cols
+  ) |>
+    tibble::as_tibble() |>
+    dplyr::distinct(dplyr::across(dplyr::all_of(c("model_id", group_cols))))
+  for (col in skill_cols) {
+    trivial_scores[[col]] <- 1
+  }
+  trivial_scores
+}
+
+
+#' Warn that relative skill could not be scaled to the baseline for some groups
+#'
+#' Only baseline-absent groups are skipped to `NA`; single-model groups are
+#' filled with `1` and do not warn. A skipped group therefore always implies a
+#' `baseline` was requested.
+#'
+#' @param skipped_groups Data frame of disaggregation-column values for the
+#'   groups from which the baseline is absent.
+#' @param group_cols Character vector of disaggregation column names.
+#' @param baseline The requested baseline model.
+#' @noRd
+warn_relative_skill_skipped <- function(skipped_groups, group_cols, baseline) {
+  labels <- apply(skipped_groups, 1L, function(row) {
+    paste(group_cols, row, sep = " = ", collapse = ", ")
+  })
+  n <- length(labels)
+  shown <- utils::head(labels, 5L)
+  if (n > length(shown)) {
+    shown <- c(shown, "...")
+  }
+  cli::cli_warn(c(
+    "!" = "Relative skill could not be scaled to the baseline
+           {.val {baseline}} for {n} disaggregation group{?s} with no baseline
+           prediction; reporting NA for them.",
+    "i" = "Affected levels of {.val {group_cols}}: {.val {shown}}."
+  ))
 }
 
 

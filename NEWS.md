@@ -1,5 +1,7 @@
 # hubEvals (development version)
 
+* `score_model_out()` now handles disaggregated relative-skill scoring where some comparison groups (the `by` columns other than `model_id`) cannot be compared, instead of aborting the whole call with a cryptic `scoringutils` error ("Baseline comparator ... missing"). A group containing only one model is treated like the global single-model case, with relative skill filled as `1` (a model has skill `1` relative to itself). A group from which a requested `baseline` is absent has its relative and scaled relative skill reported as `NA`, with a warning naming the affected groups; the absolute scores for those groups are still returned unchanged. A `baseline` that is absent from the data entirely remains an error (#135).
+
 # hubEvals 0.3.0
 
 * `score_model_out()` now handles single-model input gracefully when relative metrics are requested. Previously this errored via `scoringutils` ("not enough comparators"); now the relative-skill columns are filled with `1`, matching the trivial fact that a model has skill `1` relative to itself. If a `baseline` is supplied that does not match the lone model, `score_model_out()` errors with a clear message (#75).

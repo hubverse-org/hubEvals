@@ -39,14 +39,21 @@ better" direction, and bias is a signed quantity for which a geometric-mean
 pairwise ratio has no clean interpretation. If \code{NULL} (the default), no
 relative metrics will be computed. Relative metrics are only computed if
 \code{summarize = TRUE}, and require that \code{"model_id"} is included in \code{by}.
-If only one model is present in the data, relative-skill columns are
-filled with \code{1} (a model has trivial skill \code{1} relative to itself)
-rather than erroring.}
+Relative skill is computed within each comparison group (the \code{by} columns
+other than \code{"model_id"}). If a comparison group contains only one model,
+that group's relative-skill columns are filled with \code{1} (a model has trivial
+skill \code{1} relative to itself) rather than erroring.}
 
 \item{baseline}{String with the name of a model to use as a baseline for
 relative skill scores. If a baseline is given, then a scaled relative skill
 with respect to the baseline will be returned. By default (\code{NULL}), relative
-skill will not be scaled with respect to a baseline model.}
+skill will not be scaled with respect to a baseline model. If the baseline is
+absent from a comparison group, that group's relative and scaled relative
+skill are reported as \code{NA} (with a warning) while its absolute scores are
+still returned. This \code{NA} case only arises when scoring is disaggregated:
+with \code{by = "model_id"} alone there is a single comparison group containing
+every model, so relative skill is always defined and is never \code{NA}. A
+baseline absent from the data entirely is an error.}
 
 \item{summarize}{Boolean indicator of whether summaries of forecast scores
 should be computed. Defaults to \code{TRUE}.}
