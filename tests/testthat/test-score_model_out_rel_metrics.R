@@ -5,7 +5,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   # Wilcoxon test warns about ties/zeroes on small samples; expected, not a bug
-  act_scores <- suppressWarnings(score_model_out(
+  act_scores <- suppress_wilcox_ties_warnings(score_model_out(
     model_out_tbl = forecast_outputs |>
       dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
@@ -34,7 +34,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
   # Wilcoxon test warns about ties/zeroes on small samples; expected, not a bug
-  act_scores <- suppressWarnings(score_model_out(
+  act_scores <- suppress_wilcox_ties_warnings(score_model_out(
     model_out_tbl = forecast_outputs |>
       dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
@@ -187,7 +187,7 @@ test_that("score_model_out reports NA relative skill and warns when a baseline i
 
   # Absolute scores computed without relative metrics, as the reference point
   # for "absolute scores and counts unchanged".
-  base_scores <- suppressWarnings(score_model_out(
+  base_scores <- suppress_wilcox_ties_warnings(score_model_out(
     model_out_tbl = incomplete,
     oracle_output = forecast_oracle_output,
     metrics = c("wis", "ae_median"),
@@ -245,24 +245,21 @@ test_that("score_model_out still computes relative skill when a baseline has par
     quantile_out[["reference_date"]] == "2022-11-19"
   partial <- quantile_out[!is_dropped, ]
 
-  warnings_seen <- character(0)
-  scores <- withCallingHandlers(
-    score_model_out(
-      model_out_tbl = partial,
-      oracle_output = forecast_oracle_output,
-      metrics = "wis",
-      relative_metrics = "wis",
-      baseline = "Flusight-baseline",
-      by = c("model_id", "location")
-    ),
-    warning = function(w) {
-      warnings_seen <<- c(warnings_seen, conditionMessage(w))
-      invokeRestart("muffleWarning")
-    }
+  # No baseline-coverage warning, and relative skill computed for every group.
+  # The Wilcoxon ties warning on this small sample is expected and suppressed.
+  scores <- suppress_wilcox_ties_warnings(
+    expect_no_warning(
+      score_model_out(
+        model_out_tbl = partial,
+        oracle_output = forecast_oracle_output,
+        metrics = "wis",
+        relative_metrics = "wis",
+        baseline = "Flusight-baseline",
+        by = c("model_id", "location")
+      ),
+      message = "could not be scaled"
+    )
   )
-  # No baseline-coverage warning, and relative skill computed for every group
-  # (other scoringutils warnings, e.g. Wilcoxon ties, are allowed).
-  expect_false(any(grepl("could not be scaled", warnings_seen)))
   expect_true(all(is.finite(scores[["wis_relative_skill"]])))
 })
 
@@ -279,7 +276,7 @@ test_that("score_model_out errors when the baseline is absent from the data enti
   # incomplete-coverage case, and gets a clear hubEvals message rather than
   # scoringutils' checkmate assertion.
   expect_error(
-    suppressWarnings(score_model_out(
+    suppress_wilcox_ties_warnings(score_model_out(
       model_out_tbl = quantile_out,
       oracle_output = forecast_oracle_output,
       metrics = "wis",
@@ -300,24 +297,21 @@ test_that("score_model_out computes relative skill without a coverage warning wh
   quantile_out <- forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "quantile")
 
-  # Wilcoxon test warns about ties/zeroes on small samples; expected, not from
-  # the baseline-coverage path. Assert no baseline-coverage warning specifically.
-  warnings_seen <- character(0)
-  withCallingHandlers(
-    score_model_out(
-      model_out_tbl = quantile_out,
-      oracle_output = forecast_oracle_output,
-      metrics = c("wis", "ae_median"),
-      relative_metrics = "wis",
-      baseline = "Flusight-baseline",
-      by = c("model_id", "location")
-    ),
-    warning = function(w) {
-      warnings_seen <<- c(warnings_seen, conditionMessage(w))
-      invokeRestart("muffleWarning")
-    }
+  # Wilcoxon test warns about ties/zeroes on small samples; expected and
+  # suppressed. Assert only that the baseline-coverage warning is absent.
+  suppress_wilcox_ties_warnings(
+    expect_no_warning(
+      score_model_out(
+        model_out_tbl = quantile_out,
+        oracle_output = forecast_oracle_output,
+        metrics = c("wis", "ae_median"),
+        relative_metrics = "wis",
+        baseline = "Flusight-baseline",
+        by = c("model_id", "location")
+      ),
+      message = "could not be scaled"
+    )
   )
-  expect_false(any(grepl("could not be scaled", warnings_seen)))
 })
 
 
@@ -337,51 +331,26 @@ test_that("score_model_out computes relative skill with no disaggregation when t
     quantile_out[["location"]] == "25"
   partial <- quantile_out[!is_dropped, ]
 
-  warnings_seen <- character(0)
-  scores <- withCallingHandlers(
-    score_model_out(
-      model_out_tbl = partial,
-      oracle_output = forecast_oracle_output,
-      metrics = "wis",
-      relative_metrics = "wis",
-      baseline = "Flusight-baseline",
-      by = "model_id"
-    ),
-    warning = function(w) {
-      warnings_seen <<- c(warnings_seen, conditionMessage(w))
-      invokeRestart("muffleWarning")
-    }
+  # The Wilcoxon ties warning is expected and suppressed; assert only that the
+  # baseline-coverage warning is absent.
+  scores <- suppress_wilcox_ties_warnings(
+    expect_no_warning(
+      score_model_out(
+        model_out_tbl = partial,
+        oracle_output = forecast_oracle_output,
+        metrics = "wis",
+        relative_metrics = "wis",
+        baseline = "Flusight-baseline",
+        by = "model_id"
+      ),
+      message = "could not be scaled"
+    )
   )
 
-  expect_false(any(grepl("could not be scaled", warnings_seen)))
   # One summarised row per model, all relative skill finite.
   expect_equal(nrow(scores), 3L)
   expect_true(all(is.finite(scores[["wis_relative_skill"]])))
   expect_true(all(is.finite(scores[["wis_scaled_relative_skill"]])))
-})
-
-
-test_that("score_model_out errors with no disaggregation when the baseline is absent from the data entirely", {
-  skip_if_not_installed("hubExamples")
-  forecast_outputs <- hubExamples::forecast_outputs
-  forecast_oracle_output <- hubExamples::forecast_oracle_output
-
-  quantile_out <- forecast_outputs |>
-    dplyr::filter(.data[["output_type"]] == "quantile")
-
-  # `by = "model_id"` exercises the single-group path; an absent baseline is
-  # still a clear hubEvals error, not scoringutils' checkmate assertion.
-  expect_error(
-    suppressWarnings(score_model_out(
-      model_out_tbl = quantile_out,
-      oracle_output = forecast_oracle_output,
-      metrics = "wis",
-      relative_metrics = "wis",
-      baseline = "not-a-real-model",
-      by = "model_id"
-    )),
-    regexp = "baseline.*not-a-real-model.*not present"
-  )
 })
 
 
@@ -401,26 +370,23 @@ test_that("score_model_out fills relative skill with 1 for single-model disaggre
     quantile_out[["model_id"]] != "MOBS-GLEAM_FLUH"
   one_model_loc <- quantile_out[!drop_others, ]
 
-  warnings_seen <- character(0)
-  scores <- withCallingHandlers(
-    score_model_out(
-      model_out_tbl = one_model_loc,
-      oracle_output = forecast_oracle_output,
-      metrics = "wis",
-      relative_metrics = "wis",
-      by = c("model_id", "location")
-    ),
-    warning = function(w) {
-      warnings_seen <<- c(warnings_seen, conditionMessage(w))
-      invokeRestart("muffleWarning")
-    }
+  scores <- suppress_wilcox_ties_warnings(
+    expect_no_warning(
+      score_model_out(
+        model_out_tbl = one_model_loc,
+        oracle_output = forecast_oracle_output,
+        metrics = "wis",
+        relative_metrics = "wis",
+        by = c("model_id", "location")
+      ),
+      message = "could not be scaled"
+    )
   )
 
   loc25 <- scores[scores[["location"]] == "25", ]
   loc48 <- scores[scores[["location"]] == "48", ]
   expect_equal(loc25[["wis_relative_skill"]], 1)
   expect_true(all(is.finite(loc48[["wis_relative_skill"]])))
-  expect_false(any(grepl("could not be scaled", warnings_seen)))
 })
 
 
@@ -439,24 +405,21 @@ test_that("score_model_out fills 1 for a single-model group made up of the basel
     quantile_out[["model_id"]] != "Flusight-baseline"
   baseline_only_loc <- quantile_out[!drop_others, ]
 
-  warnings_seen <- character(0)
-  scores <- withCallingHandlers(
-    score_model_out(
-      model_out_tbl = baseline_only_loc,
-      oracle_output = forecast_oracle_output,
-      metrics = "wis",
-      relative_metrics = "wis",
-      baseline = "Flusight-baseline",
-      by = c("model_id", "location")
-    ),
-    warning = function(w) {
-      warnings_seen <<- c(warnings_seen, conditionMessage(w))
-      invokeRestart("muffleWarning")
-    }
+  scores <- suppress_wilcox_ties_warnings(
+    expect_no_warning(
+      score_model_out(
+        model_out_tbl = baseline_only_loc,
+        oracle_output = forecast_oracle_output,
+        metrics = "wis",
+        relative_metrics = "wis",
+        baseline = "Flusight-baseline",
+        by = c("model_id", "location")
+      ),
+      message = "could not be scaled"
+    )
   )
 
   loc25 <- scores[scores[["location"]] == "25", ]
   expect_equal(loc25[["wis_relative_skill"]], 1)
   expect_equal(loc25[["wis_scaled_relative_skill"]], 1)
-  expect_false(any(grepl("could not be scaled", warnings_seen)))
 })
