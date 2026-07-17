@@ -2,7 +2,7 @@
 
 0 errors | 0 warnings | 1 note
 
-* This is a new release.
+* This is an update from the current CRAN release (0.3.0 to 0.3.1).
 
 * Suggests or Enhances not in mainstream repositories:
     hubExamples
