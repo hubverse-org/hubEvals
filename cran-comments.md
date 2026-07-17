@@ -14,4 +14,6 @@
 
 ## revdepcheck check
 
-There are currently no downstream dependencies for this package
+We checked the 1 reverse dependency on CRAN (modelimportance), comparing the
+current CRAN version of hubEvals to this release. We saw no new problems and no
+failures.
