@@ -63,3 +63,6 @@ docs
 CLAUDE.md
 .attic/
 .claude/
+
+# revdepcheck output (local only)
+revdep/

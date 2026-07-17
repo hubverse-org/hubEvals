@@ -2,7 +2,7 @@
 
 0 errors | 0 warnings | 1 note
 
-* This is a new release.
+* This is an update from the current CRAN release (0.3.0 to 0.3.1).
 
 * Suggests or Enhances not in mainstream repositories:
     hubExamples
@@ -14,4 +14,6 @@
 
 ## revdepcheck check
 
-There are currently no downstream dependencies for this package
+We checked the 1 reverse dependency on CRAN (modelimportance), comparing the
+current CRAN version of hubEvals to this release. We saw no new problems and no
+failures.

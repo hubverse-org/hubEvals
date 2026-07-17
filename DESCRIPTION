@@ -1,6 +1,6 @@
 Package: hubEvals
 Title: Tools for Scoring and Evaluating Hubverse Model Outputs
-Version: 0.3.0.9000
+Version: 0.3.1
 Authors@R: c(
     person(given = "Anna",
            family = "Krystalli",
