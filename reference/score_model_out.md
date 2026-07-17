@@ -50,16 +50,25 @@ score_model_out(
   which a geometric-mean pairwise ratio has no clean interpretation. If
   `NULL` (the default), no relative metrics will be computed. Relative
   metrics are only computed if `summarize = TRUE`, and require that
-  `"model_id"` is included in `by`. If only one model is present in the
-  data, relative-skill columns are filled with `1` (a model has trivial
-  skill `1` relative to itself) rather than erroring.
+  `"model_id"` is included in `by`. Relative skill is computed within
+  each comparison group (the `by` columns other than `"model_id"`). If a
+  comparison group contains only one model, that group's relative-skill
+  columns are filled with `1` (a model has trivial skill `1` relative to
+  itself) rather than erroring.
 
 - baseline:
 
   String with the name of a model to use as a baseline for relative
   skill scores. If a baseline is given, then a scaled relative skill
   with respect to the baseline will be returned. By default (`NULL`),
-  relative skill will not be scaled with respect to a baseline model.
+  relative skill will not be scaled with respect to a baseline model. If
+  the baseline is absent from a comparison group, that group's relative
+  and scaled relative skill are reported as `NA` (with a warning) while
+  its absolute scores are still returned. This `NA` case only arises
+  when scoring is disaggregated: with `by = "model_id"` alone there is a
+  single comparison group containing every model, so relative skill is
+  always defined and is never `NA`. A baseline absent from the data
+  entirely is an error.
 
 - summarize:
 

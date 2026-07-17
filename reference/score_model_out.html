@@ -7,7 +7,7 @@
     <a href="https://hubdocs.readthedocs.io/en/latest/" class="external-link"><img src="https://raw.githubusercontent.com/hubverse-org/hubStyle/main/inst/hubverse.png" id="logo" height="30" alt="hubverse"></a>
     <a class="navbar-brand me-2" href="../index.html">hubEvals</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,7 +29,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Score model output predictions</h1>
-      <small class="dont-index">Source: <a href="https://github.com/hubverse-org/hubEvals/blob/v0.3.0/R/score_model_out.R" class="external-link"><code>R/score_model_out.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/hubverse-org/hubEvals/blob/main/R/score_model_out.R" class="external-link"><code>R/score_model_out.R</code></a></small>
       <div class="d-none name"><code>score_model_out.Rd</code></div>
     </div>
 
@@ -85,16 +85,23 @@ better" direction, and bias is a signed quantity for which a geometric-mean
 pairwise ratio has no clean interpretation. If <code>NULL</code> (the default), no
 relative metrics will be computed. Relative metrics are only computed if
 <code>summarize = TRUE</code>, and require that <code>"model_id"</code> is included in <code>by</code>.
-If only one model is present in the data, relative-skill columns are
-filled with <code>1</code> (a model has trivial skill <code>1</code> relative to itself)
-rather than erroring.</p></dd>
+Relative skill is computed within each comparison group (the <code>by</code> columns
+other than <code>"model_id"</code>). If a comparison group contains only one model,
+that group's relative-skill columns are filled with <code>1</code> (a model has trivial
+skill <code>1</code> relative to itself) rather than erroring.</p></dd>
 
 
 <dt id="arg-baseline">baseline<a class="anchor" aria-label="anchor" href="#arg-baseline"></a></dt>
 <dd><p>String with the name of a model to use as a baseline for
 relative skill scores. If a baseline is given, then a scaled relative skill
 with respect to the baseline will be returned. By default (<code>NULL</code>), relative
-skill will not be scaled with respect to a baseline model.</p></dd>
+skill will not be scaled with respect to a baseline model. If the baseline is
+absent from a comparison group, that group's relative and scaled relative
+skill are reported as <code>NA</code> (with a warning) while its absolute scores are
+still returned. This <code>NA</code> case only arises when scoring is disaggregated:
+with <code>by = "model_id"</code> alone there is a single comparison group containing
+every model, so relative skill is always defined and is never <code>NA</code>. A
+baseline absent from the data entirely is an error.</p></dd>
 
 
 <dt id="arg-summarize">summarize<a class="anchor" aria-label="anchor" href="#arg-summarize"></a></dt>
@@ -322,7 +329,7 @@ American Statistical Association 106 (494): 746–62. <a href="https://doi.org/1
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0. PR Previews built by <a href="https://www.netlify.com" class="external-link">Netlify</a>. Provided without <strong>any warranty</strong>.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1. PR Previews built by <a href="https://www.netlify.com" class="external-link">Netlify</a>. Provided without <strong>any warranty</strong>.</p>
 </div>
 
     </footer></div>

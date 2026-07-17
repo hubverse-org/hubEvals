@@ -28,16 +28,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/hubverse-org/hubEvals/blob/v0.3.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/hubverse-org/hubEvals/blob/main/DESCRIPTION)
 
 Krystalli A, Reich N, Ray E, Bosse N, Roosa K (2026). *hubEvals: Tools
 for Scoring and Evaluating Hubverse Model Outputs*. R package version
-0.3.0, <https://hubverse-org.github.io/hubEvals/>.
+0.3.1, <https://hubverse-org.github.io/hubEvals/>.
 
     @Manual{,
       title = {hubEvals: Tools for Scoring and Evaluating Hubverse Model Outputs},
       author = {Anna Krystalli and Nicholas Reich and Evan Ray and Nikos Bosse and Kimberlyn Roosa},
       year = {2026},
-      note = {R package version 0.3.0},
+      note = {R package version 0.3.1},
       url = {https://hubverse-org.github.io/hubEvals/},
     }
