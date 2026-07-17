@@ -2,6 +2,8 @@
 
 ## hubEvals (development version)
 
+## hubEvals 0.3.1
+
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   now handles disaggregated relative-skill scoring where some comparison
   groups (the `by` columns other than `model_id`) cannot be compared,
