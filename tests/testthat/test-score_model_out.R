@@ -637,6 +637,158 @@ test_that("score_model_out errors when an unsupported output_type is provided", 
 })
 
 
+# --- Tests for include_count (#134) ---
+
+test_that("include_count appends a `count` column only when TRUE, with correct counts", {
+  skip_if_not_installed("hubExamples")
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  mean_out <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "mean")
+  by <- c("model_id", "location")
+
+  # `include_count` defaults to FALSE, so this baseline has no `count` column.
+  scores_off <- score_model_out(
+    model_out_tbl = mean_out,
+    oracle_output = forecast_oracle_output,
+    by = by
+  )
+  scores_on <- score_model_out(
+    model_out_tbl = mean_out,
+    oracle_output = forecast_oracle_output,
+    by = by,
+    include_count = TRUE
+  )
+
+  # `count` is absent by default and is the only added column when requested,
+  # appended after the existing columns.
+  expect_false("count" %in% colnames(scores_off))
+  expect_equal(colnames(scores_on), c(colnames(scores_off), "count"))
+  expect_type(scores_on[["count"]], "integer")
+
+  # Counts match a direct count of forecasts that survived the oracle join.
+  exp_counts <- mean_out |>
+    dplyr::left_join(
+      forecast_oracle_output |>
+        dplyr::filter(.data[["output_type"]] == "mean"),
+      by = c("location", "target_end_date", "target")
+    ) |>
+    dplyr::filter(!is.na(.data[["oracle_value"]])) |>
+    dplyr::count(dplyr::across(dplyr::all_of(by)), name = "count")
+
+  merged <- dplyr::left_join(
+    scores_on,
+    exp_counts,
+    by = by,
+    suffix = c("", "_exp")
+  )
+  expect_equal(merged[["count"]], merged[["count_exp"]])
+})
+
+
+test_that("include_count = TRUE keeps `count` out of the metrics attribute", {
+  skip_if_not_installed("hubExamples")
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  mean_out <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "mean")
+
+  scores <- score_model_out(
+    model_out_tbl = mean_out,
+    oracle_output = forecast_oracle_output,
+    by = "model_id",
+    include_count = TRUE
+  )
+
+  # get_metrics() reads the `metrics` attribute, so this covers both the raw
+  # attribute and the public accessor downstream consumers use.
+  expect_false("count" %in% names(scoringutils::get_metrics(scores)))
+})
+
+
+test_that("include_count = TRUE gives correct per-scale counts under transform_append = TRUE", {
+  skip_if_not_installed("hubExamples")
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  quantile_out <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "quantile")
+  by <- "model_id"
+  task_ids <- c(
+    "location",
+    "reference_date",
+    "horizon",
+    "target_end_date",
+    "target"
+  )
+
+  scores <- score_model_out(
+    model_out_tbl = quantile_out,
+    oracle_output = forecast_oracle_output,
+    metrics = "wis",
+    by = by,
+    transform = scoringutils::log_shift,
+    transform_append = TRUE,
+    offset = 1,
+    include_count = TRUE
+  )
+
+  expect_true(all(c("scale", "count") %in% colnames(scores)))
+  expect_setequal(unique(scores[["scale"]]), c("natural", "log_shift"))
+
+  # Independent expected count: forecast units (task-id combinations, collapsing
+  # over quantile level) per model that survived the oracle join.
+  exp_count <- quantile_out |>
+    dplyr::left_join(
+      forecast_oracle_output |>
+        dplyr::filter(.data[["output_type"]] == "quantile") |>
+        dplyr::select(-dplyr::all_of(c("output_type", "output_type_id"))),
+      by = c("location", "target_end_date", "target")
+    ) |>
+    dplyr::filter(!is.na(.data[["oracle_value"]])) |>
+    dplyr::distinct(dplyr::across(dplyr::all_of(c(by, task_ids)))) |>
+    dplyr::count(dplyr::across(dplyr::all_of(by)), name = "count")
+
+  # Both the natural- and transformed-scale rows must carry that exact count.
+  actual_count <- scores |>
+    dplyr::distinct(dplyr::across(dplyr::all_of(c(by, "scale", "count"))))
+  merged <- dplyr::left_join(
+    actual_count,
+    exp_count,
+    by = by,
+    suffix = c("", "_exp")
+  )
+  expect_equal(merged[["count"]], merged[["count_exp"]])
+})
+
+
+test_that("include_count = TRUE is a no-op when summarize = FALSE", {
+  skip_if_not_installed("hubExamples")
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  mean_out <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "mean")
+
+  scores_no_counts <- score_model_out(
+    model_out_tbl = mean_out,
+    oracle_output = forecast_oracle_output,
+    summarize = FALSE
+  )
+  scores_counts <- score_model_out(
+    model_out_tbl = mean_out,
+    oracle_output = forecast_oracle_output,
+    summarize = FALSE,
+    include_count = TRUE
+  )
+
+  expect_false("count" %in% colnames(scores_counts))
+  expect_identical(scores_counts, scores_no_counts)
+})
+
+
 # Tests for scale transformation functionality
 
 test_that("transform argument produces same scores as manually transformed data", {
