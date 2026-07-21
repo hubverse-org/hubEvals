@@ -524,12 +524,17 @@ compute_skills <- function(
     group_cols
   )
   for (metric in relative_metrics) {
+    # We keep only the relative-skill columns below, so skip the Wilcoxon tests
+    # (test_type = NULL): their pval/adj_pval are discarded, and computing them
+    # for every model pair dominates runtime and floods the logs with ties
+    # warnings.
     computable_scores <- scoringutils::add_relative_skill(
       computable_scores,
       compare = "model_id",
       by = group_cols,
       metric = metric,
-      baseline = baseline
+      baseline = baseline,
+      test_type = NULL
     )
   }
   # The lookup we merge back onto the scored data needs only the join keys

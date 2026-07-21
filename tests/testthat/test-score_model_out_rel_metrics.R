@@ -4,8 +4,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
-  # Wilcoxon test warns about ties/zeroes on small samples; expected, not a bug
-  act_scores <- suppress_wilcox_ties_warnings(score_model_out(
+  act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |>
       dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
@@ -17,7 +16,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
     ),
     relative_metrics = c("ae_median", "wis"),
     by = c("model_id", "location")
-  ))
+  )
 
   exp_scores <- read.csv(test_path("testdata", "exp_pairwise_scores.csv")) |>
     dplyr::mutate(location = as.character(location)) |>
@@ -33,8 +32,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
   forecast_outputs <- hubExamples::forecast_outputs
   forecast_oracle_output <- hubExamples::forecast_oracle_output
 
-  # Wilcoxon test warns about ties/zeroes on small samples; expected, not a bug
-  act_scores <- suppress_wilcox_ties_warnings(score_model_out(
+  act_scores <- score_model_out(
     model_out_tbl = forecast_outputs |>
       dplyr::filter(.data[["output_type"]] == "quantile"),
     oracle_output = forecast_oracle_output,
@@ -47,7 +45,7 @@ test_that("score_model_out succeeds with valid inputs: quantile output_type, rel
     relative_metrics = c("ae_median", "wis"),
     baseline = "Flusight-baseline",
     by = c("model_id", "location")
-  ))
+  )
 
   exp_scores <- read.csv(test_path("testdata", "exp_pairwise_scores.csv")) |>
     dplyr::mutate(location = as.character(location))
@@ -187,12 +185,12 @@ test_that("score_model_out reports NA relative skill and warns when a baseline i
 
   # Absolute scores computed without relative metrics, as the reference point
   # for "absolute scores and counts unchanged".
-  base_scores <- suppress_wilcox_ties_warnings(score_model_out(
+  base_scores <- score_model_out(
     model_out_tbl = incomplete,
     oracle_output = forecast_oracle_output,
     metrics = c("wis", "ae_median"),
     by = c("model_id", "location")
-  ))
+  )
 
   expect_warning(
     rel_scores <- score_model_out(
@@ -246,19 +244,16 @@ test_that("score_model_out still computes relative skill when a baseline has par
   partial <- quantile_out[!is_dropped, ]
 
   # No baseline-coverage warning, and relative skill computed for every group.
-  # The Wilcoxon ties warning on this small sample is expected and suppressed.
-  scores <- suppress_wilcox_ties_warnings(
-    expect_no_warning(
-      score_model_out(
-        model_out_tbl = partial,
-        oracle_output = forecast_oracle_output,
-        metrics = "wis",
-        relative_metrics = "wis",
-        baseline = "Flusight-baseline",
-        by = c("model_id", "location")
-      ),
-      message = "could not be scaled"
-    )
+  scores <- expect_no_warning(
+    score_model_out(
+      model_out_tbl = partial,
+      oracle_output = forecast_oracle_output,
+      metrics = "wis",
+      relative_metrics = "wis",
+      baseline = "Flusight-baseline",
+      by = c("model_id", "location")
+    ),
+    message = "could not be scaled"
   )
   expect_true(all(is.finite(scores[["wis_relative_skill"]])))
 })
@@ -276,14 +271,14 @@ test_that("score_model_out errors when the baseline is absent from the data enti
   # incomplete-coverage case, and gets a clear hubEvals message rather than
   # scoringutils' checkmate assertion.
   expect_error(
-    suppress_wilcox_ties_warnings(score_model_out(
+    score_model_out(
       model_out_tbl = quantile_out,
       oracle_output = forecast_oracle_output,
       metrics = "wis",
       relative_metrics = "wis",
       baseline = "not-a-real-model",
       by = c("model_id", "location")
-    )),
+    ),
     regexp = "baseline.*not-a-real-model.*not present"
   )
 })
@@ -297,20 +292,17 @@ test_that("score_model_out computes relative skill without a coverage warning wh
   quantile_out <- forecast_outputs |>
     dplyr::filter(.data[["output_type"]] == "quantile")
 
-  # Wilcoxon test warns about ties/zeroes on small samples; expected and
-  # suppressed. Assert only that the baseline-coverage warning is absent.
-  suppress_wilcox_ties_warnings(
-    expect_no_warning(
-      score_model_out(
-        model_out_tbl = quantile_out,
-        oracle_output = forecast_oracle_output,
-        metrics = c("wis", "ae_median"),
-        relative_metrics = "wis",
-        baseline = "Flusight-baseline",
-        by = c("model_id", "location")
-      ),
-      message = "could not be scaled"
-    )
+  # Assert only that the baseline-coverage warning is absent.
+  expect_no_warning(
+    score_model_out(
+      model_out_tbl = quantile_out,
+      oracle_output = forecast_oracle_output,
+      metrics = c("wis", "ae_median"),
+      relative_metrics = "wis",
+      baseline = "Flusight-baseline",
+      by = c("model_id", "location")
+    ),
+    message = "could not be scaled"
   )
 })
 
@@ -331,20 +323,17 @@ test_that("score_model_out computes relative skill with no disaggregation when t
     quantile_out[["location"]] == "25"
   partial <- quantile_out[!is_dropped, ]
 
-  # The Wilcoxon ties warning is expected and suppressed; assert only that the
-  # baseline-coverage warning is absent.
-  scores <- suppress_wilcox_ties_warnings(
-    expect_no_warning(
-      score_model_out(
-        model_out_tbl = partial,
-        oracle_output = forecast_oracle_output,
-        metrics = "wis",
-        relative_metrics = "wis",
-        baseline = "Flusight-baseline",
-        by = "model_id"
-      ),
-      message = "could not be scaled"
-    )
+  # Assert only that the baseline-coverage warning is absent.
+  scores <- expect_no_warning(
+    score_model_out(
+      model_out_tbl = partial,
+      oracle_output = forecast_oracle_output,
+      metrics = "wis",
+      relative_metrics = "wis",
+      baseline = "Flusight-baseline",
+      by = "model_id"
+    ),
+    message = "could not be scaled"
   )
 
   # One summarised row per model, all relative skill finite.
@@ -370,17 +359,15 @@ test_that("score_model_out fills relative skill with 1 for single-model disaggre
     quantile_out[["model_id"]] != "MOBS-GLEAM_FLUH"
   one_model_loc <- quantile_out[!drop_others, ]
 
-  scores <- suppress_wilcox_ties_warnings(
-    expect_no_warning(
-      score_model_out(
-        model_out_tbl = one_model_loc,
-        oracle_output = forecast_oracle_output,
-        metrics = "wis",
-        relative_metrics = "wis",
-        by = c("model_id", "location")
-      ),
-      message = "could not be scaled"
-    )
+  scores <- expect_no_warning(
+    score_model_out(
+      model_out_tbl = one_model_loc,
+      oracle_output = forecast_oracle_output,
+      metrics = "wis",
+      relative_metrics = "wis",
+      by = c("model_id", "location")
+    ),
+    message = "could not be scaled"
   )
 
   loc25 <- scores[scores[["location"]] == "25", ]
@@ -405,18 +392,16 @@ test_that("score_model_out fills 1 for a single-model group made up of the basel
     quantile_out[["model_id"]] != "Flusight-baseline"
   baseline_only_loc <- quantile_out[!drop_others, ]
 
-  scores <- suppress_wilcox_ties_warnings(
-    expect_no_warning(
-      score_model_out(
-        model_out_tbl = baseline_only_loc,
-        oracle_output = forecast_oracle_output,
-        metrics = "wis",
-        relative_metrics = "wis",
-        baseline = "Flusight-baseline",
-        by = c("model_id", "location")
-      ),
-      message = "could not be scaled"
-    )
+  scores <- expect_no_warning(
+    score_model_out(
+      model_out_tbl = baseline_only_loc,
+      oracle_output = forecast_oracle_output,
+      metrics = "wis",
+      relative_metrics = "wis",
+      baseline = "Flusight-baseline",
+      by = c("model_id", "location")
+    ),
+    message = "could not be scaled"
   )
 
   loc25 <- scores[scores[["location"]] == "25", ]
