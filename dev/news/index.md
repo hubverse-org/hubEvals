@@ -3,6 +3,12 @@
 ## hubEvals (development version)
 
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
+  gains an `include_count` argument. Set it to `TRUE` (with
+  `summarize = TRUE`) to add a column `count` giving the number of
+  forecasts scored in each summary group. Defaults to `FALSE`
+  ([\#134](https://github.com/hubverse-org/hubEvals/issues/134)).
+
+- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   is faster when computing relative skill, and no longer emits
   `scoringutils` “cannot compute exact p-value with ties” warnings. The
   underlying pairwise comparison was computing significance-test

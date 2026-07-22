@@ -47,6 +47,7 @@
 <span>  baseline <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  summarize <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  by <span class="op">=</span> <span class="st">"model_id"</span>,</span>
+<span>  include_count <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  output_type_id_order <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  compound_taskid_set <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  transform <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -113,6 +114,12 @@ should be computed. Defaults to <code>TRUE</code>.</p></dd>
 <dd><p>Character vector naming columns to summarize by. For example,
 specifying <code>by = "model_id"</code> (the default) will compute average scores for
 each model.</p></dd>
+
+
+<dt id="arg-include-count">include_count<a class="anchor" aria-label="anchor" href="#arg-include-count"></a></dt>
+<dd><p>Boolean indicator of whether to add a column <code>count</code>
+giving the number of forecasts scored in each summary group. Only applies
+when <code>summarize = TRUE</code>. Defaults to <code>FALSE</code>.</p></dd>
 
 
 <dt id="arg-output-type-id-order">output_type_id_order<a class="anchor" aria-label="anchor" href="#arg-output-type-id-order"></a></dt>
