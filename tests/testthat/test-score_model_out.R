@@ -687,6 +687,73 @@ test_that("include_count appends a `count` column only when TRUE, with correct c
 })
 
 
+test_that("include_count = TRUE counts only forecasts with a matching oracle observation", {
+  skip_if_not_installed("hubExamples")
+  forecast_outputs <- hubExamples::forecast_outputs
+  forecast_oracle_output <- hubExamples::forecast_oracle_output
+
+  mean_out <- forecast_outputs |>
+    dplyr::filter(.data[["output_type"]] == "mean")
+  by <- c("model_id", "location")
+
+  # Drop every oracle observation for one location, so its mean forecasts have
+  # nothing to be scored against. Those forecasts must be excluded from `count`,
+  # not counted as submitted-but-unscored (the behaviour #134 relies on).
+  dropped_loc <- unique(mean_out[["location"]])[[1]]
+  partial_oracle <- forecast_oracle_output |>
+    dplyr::filter(
+      !(.data[["output_type"]] == "mean" & .data[["location"]] == dropped_loc)
+    )
+
+  scores_full <- score_model_out(
+    model_out_tbl = mean_out,
+    oracle_output = forecast_oracle_output,
+    by = by,
+    include_count = TRUE
+  )
+  scores_partial <- score_model_out(
+    model_out_tbl = mean_out,
+    oracle_output = partial_oracle,
+    by = by,
+    include_count = TRUE
+  )
+
+  # The dropped location is scored under the full oracle but drops out entirely
+  # under the partial one, since it has no observations left to score against.
+  expect_true(dropped_loc %in% scores_full[["location"]])
+  expect_false(dropped_loc %in% scores_partial[["location"]])
+
+  # Partial counts match a direct count of forecasts that survive the (partial)
+  # oracle join, per group.
+  exp_partial <- mean_out |>
+    dplyr::left_join(
+      partial_oracle |>
+        dplyr::filter(.data[["output_type"]] == "mean"),
+      by = c("location", "target_end_date", "target")
+    ) |>
+    dplyr::filter(!is.na(.data[["oracle_value"]])) |>
+    dplyr::count(dplyr::across(dplyr::all_of(by)), name = "count")
+  merged <- dplyr::left_join(
+    scores_partial,
+    exp_partial,
+    by = by,
+    suffix = c("", "_exp")
+  )
+  expect_equal(merged[["count"]], merged[["count_exp"]])
+
+  # Groups the drop did not touch keep their full-oracle count, so the only
+  # effect is the removed location, not a global recount, and the total falls.
+  shared <- dplyr::inner_join(
+    dplyr::select(scores_full, dplyr::all_of(c(by, "count"))),
+    dplyr::select(scores_partial, dplyr::all_of(c(by, "count"))),
+    by = by,
+    suffix = c("_full", "_partial")
+  )
+  expect_equal(shared[["count_full"]], shared[["count_partial"]])
+  expect_gt(sum(scores_full[["count"]]), sum(scores_partial[["count"]]))
+})
+
+
 test_that("include_count = TRUE keeps `count` out of the metrics attribute", {
   skip_if_not_installed("hubExamples")
   forecast_outputs <- hubExamples::forecast_outputs
