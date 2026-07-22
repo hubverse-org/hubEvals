@@ -34,9 +34,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="hubevals-development-version">hubEvals (development version)<a class="anchor" aria-label="anchor" href="#hubevals-development-version"></a></h2>
-</div>
+<ul><li>
+<code><a href="../reference/score_model_out.html">score_model_out()</a></code> is faster when computing relative skill, and no longer emits <code>scoringutils</code> “cannot compute exact p-value with ties” warnings. The underlying pairwise comparison was computing significance-test p-values that hubEvals discards; these tests are now skipped (<a href="https://github.com/hubverse-org/hubEvals/issues/142" class="external-link">#142</a>).</li>
+</ul></div>
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.1" id="hubevals-031">hubEvals 0.3.1<a class="anchor" aria-label="anchor" href="#hubevals-031"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.1" id="hubevals-031">hubEvals 0.3.1<a class="anchor" aria-label="anchor" href="#hubevals-031"></a></h2><p class="text-muted">CRAN release: 2026-07-17</p>
 <ul><li>
 <code><a href="../reference/score_model_out.html">score_model_out()</a></code> now handles disaggregated relative-skill scoring where some comparison groups (the <code>by</code> columns other than <code>model_id</code>) cannot be compared, instead of aborting the whole call with a cryptic <code>scoringutils</code> error (“Baseline comparator … missing”). A group containing only one model is treated like the global single-model case, with relative skill filled as <code>1</code> (a model has skill <code>1</code> relative to itself). A group from which a requested <code>baseline</code> is absent has its relative and scaled relative skill reported as <code>NA</code>, with a warning naming the affected groups; the absolute scores for those groups are still returned unchanged. A <code>baseline</code> that is absent from the data entirely remains an error (<a href="https://github.com/hubverse-org/hubEvals/issues/135" class="external-link">#135</a>).</li>
 </ul></div>
