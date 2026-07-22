@@ -12,6 +12,7 @@ score_model_out(
   baseline = NULL,
   summarize = TRUE,
   by = "model_id",
+  include_count = FALSE,
   output_type_id_order = NULL,
   compound_taskid_set = NULL,
   transform = NULL,
@@ -61,6 +62,10 @@ should be computed. Defaults to \code{TRUE}.}
 \item{by}{Character vector naming columns to summarize by. For example,
 specifying \code{by = "model_id"} (the default) will compute average scores for
 each model.}
+
+\item{include_count}{Boolean indicator of whether to add a column \code{count}
+giving the number of forecasts scored in each summary group. Only applies
+when \code{summarize = TRUE}. Defaults to \code{FALSE}.}
 
 \item{output_type_id_order}{For ordinal variables in pmf format, this is a
 vector of levels for pmf forecasts, in increasing order of the levels. The

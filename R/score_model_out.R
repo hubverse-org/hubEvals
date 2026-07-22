@@ -36,6 +36,9 @@
 #' @param by Character vector naming columns to summarize by. For example,
 #' specifying `by = "model_id"` (the default) will compute average scores for
 #' each model.
+#' @param include_count Boolean indicator of whether to add a column `count`
+#' giving the number of forecasts scored in each summary group. Only applies
+#' when `summarize = TRUE`. Defaults to `FALSE`.
 #' @param output_type_id_order For ordinal variables in pmf format, this is a
 #' vector of levels for pmf forecasts, in increasing order of the levels. The
 #' order of the values for the output_type_id can be found by referencing the
@@ -213,6 +216,7 @@ score_model_out <- function(
   baseline = NULL,
   summarize = TRUE,
   by = "model_id",
+  include_count = FALSE,
   output_type_id_order = NULL,
   compound_taskid_set = NULL,
   transform = NULL,
@@ -322,7 +326,23 @@ score_model_out <- function(
     # separately rather than collapsed into a meaningless average. The
     # user-facing `by` argument is not modified outside this block.
     summary_by <- if (isTRUE(transform_append)) union(by, "scale") else by
+
+    # If counts were requested, tally scored forecasts per group before
+    # summarize_scores() collapses the per-row scores: score() returns one row
+    # per forecast unit, so the count is simply rows per group. Joined back on
+    # after summarising with left_join_scores(), which preserves the `metrics`
+    # attribute (excluding `count`, so it stays out of the metrics).
+    if (include_count) {
+      counts <- dplyr::count(
+        scores,
+        dplyr::across(dplyr::all_of(summary_by)),
+        name = "count"
+      )
+    }
     scores <- scoringutils::summarize_scores(scores = scores, by = summary_by)
+    if (include_count) {
+      scores <- left_join_scores(scores, counts, by = summary_by)
+    }
   }
 
   # Convert to tibble for friendlier user-facing behaviour, but keep the
@@ -331,6 +351,27 @@ score_model_out <- function(
   scores <- tibble::as_tibble(scores)
   class(scores) <- c("scores", class(scores))
   scores
+}
+
+
+#' Left-join onto a scores object, preserving its `metrics` attribute
+#'
+#' [dplyr::left_join()] drops the `metrics` attribute that marks a scoringutils
+#' `scores` object's scoring-rule columns. This wraps the join to capture and
+#' restore it, so downstream scoringutils helpers (e.g.
+#' [scoringutils::get_metrics()]) keep working on the result. Columns joined in
+#' from `y` are not added to `metrics`, so they are treated as plain columns.
+#'
+#' @param x A scoringutils `scores` object.
+#' @param y A data frame to left-join onto `x`.
+#' @param by Character vector of join columns.
+#' @return `x` left-joined to `y`, with `x`'s `metrics` attribute restored.
+#' @noRd
+left_join_scores <- function(x, y, by) {
+  metrics <- attr(x, "metrics")
+  out <- dplyr::left_join(x, y, by = by)
+  attr(out, "metrics") <- metrics
+  out
 }
 
 
@@ -416,7 +457,6 @@ add_relative_skill_by_group <- function(
   baseline
 ) {
   group_cols <- by[by != "model_id"]
-  orig_metrics <- attr(scores, "metrics")
   skill_cols <- relative_skill_col_names(relative_metrics, baseline)
 
   # Classify each comparison group by how its relative skill must be produced
@@ -461,8 +501,8 @@ add_relative_skill_by_group <- function(
     ),
     assign_trivial_skills(scores, trivial_groups, group_cols, skill_cols)
   )
-  scores <- dplyr::left_join(scores, lookup, by = c("model_id", group_cols))
-  attr(scores, "metrics") <- c(orig_metrics, skill_cols)
+  scores <- left_join_scores(scores, lookup, by = c("model_id", group_cols))
+  attr(scores, "metrics") <- c(attr(scores, "metrics"), skill_cols)
 
   if (nrow(skipped_groups) > 0L) {
     warn_relative_skill_skipped(skipped_groups, group_cols, baseline)
