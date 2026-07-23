@@ -28,7 +28,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/hubverse-org/hubEvals/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/hubverse-org/hubEvals/blob/v0.4.0/DESCRIPTION)
 
 Krystalli A, Reich N, Ray E, Bosse N, Roosa K (2026). *hubEvals: Tools
 for Scoring and Evaluating Hubverse Model Outputs*. R package version
