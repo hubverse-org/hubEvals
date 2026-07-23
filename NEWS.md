@@ -1,3 +1,5 @@
+# hubEvals (development version)
+
 # hubEvals 0.4.0
 
 * `score_model_out()` gains an `include_count` argument. Set it to `TRUE` (with `summarize = TRUE`) to add a column `count` giving the number of forecasts scored in each summary group. Defaults to `FALSE` (#134).
