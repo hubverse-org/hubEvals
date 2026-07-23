@@ -1,6 +1,23 @@
 # Changelog
 
+## hubEvals 0.4.0
+
+CRAN release: 2026-07-22
+
+- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/reference/score_model_out.md)
+  gains an `include_count` argument. Set it to `TRUE` (with
+  `summarize = TRUE`) to add a column `count` giving the number of
+  forecasts scored in each summary group. Defaults to `FALSE`
+  ([\#134](https://github.com/hubverse-org/hubEvals/issues/134)).
+
+- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/reference/score_model_out.md)
+  is faster when computing relative skill, and no longer emits
+  `scoringutils` “cannot compute exact p-value with ties” warnings
+  ([\#142](https://github.com/hubverse-org/hubEvals/issues/142)).
+
 ## hubEvals 0.3.1
+
+CRAN release: 2026-07-17
 
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/reference/score_model_out.md)
   now handles disaggregated relative-skill scoring where some comparison

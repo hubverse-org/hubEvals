@@ -13,6 +13,7 @@ score_model_out(
   baseline = NULL,
   summarize = TRUE,
   by = "model_id",
+  include_count = FALSE,
   output_type_id_order = NULL,
   compound_taskid_set = NULL,
   transform = NULL,
@@ -80,6 +81,12 @@ score_model_out(
   Character vector naming columns to summarize by. For example,
   specifying `by = "model_id"` (the default) will compute average scores
   for each model.
+
+- include_count:
+
+  Boolean indicator of whether to add a column `count` giving the number
+  of forecasts scored in each summary group. Only applies when
+  `summarize = TRUE`. Defaults to `FALSE`.
 
 - output_type_id_order:
 
