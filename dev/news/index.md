@@ -2,6 +2,10 @@
 
 ## hubEvals (development version)
 
+## hubEvals 0.4.0
+
+CRAN release: 2026-07-22
+
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   gains an `include_count` argument. Set it to `TRUE` (with
   `summarize = TRUE`) to add a column `count` giving the number of
@@ -10,9 +14,7 @@
 
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   is faster when computing relative skill, and no longer emits
-  `scoringutils` “cannot compute exact p-value with ties” warnings. The
-  underlying pairwise comparison was computing significance-test
-  p-values that hubEvals discards; these tests are now skipped
+  `scoringutils` “cannot compute exact p-value with ties” warnings
   ([\#142](https://github.com/hubverse-org/hubEvals/issues/142)).
 
 ## hubEvals 0.3.1
