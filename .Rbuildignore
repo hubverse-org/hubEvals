@@ -25,3 +25,4 @@
 ^vignettes/articles$
 ^CRAN-SUBMISSION$
 ^revdep$
+^_pairwise-proto$
