@@ -52,6 +52,15 @@ nominal_forecast
 #> Forecast unit:
 #> model, reference_date, target, horizon, location, and target_end_date
 #> 
+#> Warning: ! Error in validating forecast object: Error in assert_forecast(forecast = out,
+#>   verbose = FALSE) : ! Found incomplete forecasts ℹ For a nominal forecast, all
+#>   possible outcomes must be assigned a probability explicitly. ℹ Found first
+#>   missing probabilities in the forecast identified by model ==
+#>   Flusight-baseline, reference_date == 2022-11-19, target == wk flu hosp rate
+#>   category, horizon == 1, location == 25, and target_end_date == 2022-11-26 .
+#> ℹ Run `assert_forecast()` (`?scoringutils::assert_forecast()`) to confirm. To
+#>   get rid of this warning entirely, call `as.data.table()` on the forecast
+#>   object.
 #>      predicted_label    predicted observed             model reference_date
 #>               <fctr>        <num>   <fctr>            <char>         <Date>
 #>   1:             low 9.999997e-01      low Flusight-baseline     2022-11-19
@@ -90,6 +99,15 @@ ordinal_forecast
 #> Forecast unit:
 #> model, reference_date, target, horizon, location, and target_end_date
 #> 
+#> Warning: ! Error in validating forecast object: Error in assert_forecast(forecast = out,
+#>   verbose = FALSE) : ! Found incomplete forecasts ℹ For an ordinal forecast,
+#>   all possible outcomes must be assigned a probability explicitly. ℹ Found
+#>   first missing probabilities in the forecast identified by model ==
+#>   Flusight-baseline, reference_date == 2022-11-19, target == wk flu hosp rate
+#>   category, horizon == 1, location == 25, and target_end_date == 2022-11-26 .
+#> ℹ Run `assert_forecast()` (`?scoringutils::assert_forecast()`) to confirm. To
+#>   get rid of this warning entirely, call `as.data.table()` on the forecast
+#>   object.
 #>      predicted_label    predicted observed             model reference_date
 #>                <ord>        <num>    <ord>            <char>         <Date>
 #>   1:             low 9.999997e-01      low Flusight-baseline     2022-11-19
