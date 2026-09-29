@@ -530,7 +530,7 @@ test_that("score_model_out works with all kinds of interval levels are requested
 
   suppressWarnings({
     # Non-standard interval level: scoringutils warns and produces no score
-    # columns, then score_model_out() aborts (mirroring scoringutils#1180).
+    # columns, then summarize_scores() aborts.
     expect_error(
       score_model_out(
         model_out_tbl = forecast_outputs |>
@@ -1545,21 +1545,26 @@ test_that("score_model_out reports both predicted and observed when both have no
   )
 
   # sqrt is applied to both predicted and observed columns, so each
-  # raises its own base-R "NaNs produced" warning -- hence two nested
-  # expect_warning() calls before the hubEvals error is asserted.
+  # raises its own base-R "NaNs produced" warning. With every row non-finite,
+  # scoringutils also warns that the transformed forecast object no longer
+  # validates. Hence three nested expect_warning() calls before the hubEvals
+  # error is asserted.
   expect_warning(
     expect_warning(
-      expect_error(
-        score_model_out(
-          model_out_tbl = model_out_tbl,
-          oracle_output = oracle_output,
-          metrics = "crps",
-          transform = sqrt
+      expect_warning(
+        expect_error(
+          score_model_out(
+            model_out_tbl = model_out_tbl,
+            oracle_output = oracle_output,
+            metrics = "crps",
+            transform = sqrt
+          ),
+          regexp = "predicted.*observed"
         ),
-        regexp = "predicted.*observed"
+        regexp = "NaNs produced"
       ),
       regexp = "NaNs produced"
     ),
-    regexp = "NaNs produced"
+    regexp = "no forecasts are left"
   )
 })

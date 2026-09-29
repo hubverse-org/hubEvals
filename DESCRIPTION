@@ -55,7 +55,7 @@ Imports:
     hubUtils (>= 1.2.0),
     purrr,
     rlang,
-    scoringutils (>= 2.2.0),
+    scoringutils (>= 2.3.0),
     tibble
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
