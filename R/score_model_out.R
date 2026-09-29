@@ -301,24 +301,6 @@ score_model_out <- function(
     # then collapsed by summarize_scores() below to one row per group. Pairwise
     # comparison needs the per-row scores, so this must run before summarising.
     scores <- add_relative_skill_metrics(scores, relative_metrics, by, baseline)
-    # BEGIN workaround mirror for https://github.com/epiforecasts/scoringutils/pull/1180
-    # Mirror the upstream check (merged but not yet on CRAN) so the
-    # user-facing behaviour of score_model_out() does not shift once we
-    # bump the scoringutils minimum version and delete this block. Wording
-    # and condition match the upstream implementation exactly.
-    metric_cols <- intersect(colnames(scores), attr(scores, "metrics"))
-    if (length(metric_cols) == 0) {
-      cli::cli_abort(
-        c(
-          `!` = "No score columns to summarise.",
-          i = "The {.cls scores} object has no columns matching its
-               {.code metrics} attribute. This usually means every metric
-               passed to {.fn score} failed (e.g. warned and returned no
-               values)."
-        )
-      )
-    }
-    # END workaround mirror for scoringutils#1180
 
     # When transform_append = TRUE, scoringutils emits both natural- and
     # transformed-scale rows distinguished by a `scale` column. Include
@@ -564,17 +546,12 @@ compute_skills <- function(
     group_cols
   )
   for (metric in relative_metrics) {
-    # We keep only the relative-skill columns below, so skip the Wilcoxon tests
-    # (test_type = NULL): their pval/adj_pval are discarded, and computing them
-    # for every model pair dominates runtime and floods the logs with ties
-    # warnings.
     computable_scores <- scoringutils::add_relative_skill(
       computable_scores,
       compare = "model_id",
       by = group_cols,
       metric = metric,
-      baseline = baseline,
-      test_type = NULL
+      baseline = baseline
     )
   }
   # The lookup we merge back onto the scored data needs only the join keys
