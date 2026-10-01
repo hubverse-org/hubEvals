@@ -1,10 +1,12 @@
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
+0 errors | 0 warnings | 0 notes
 
 * This is an update from the current CRAN release (0.4.0 to 0.5.0).
 
-* Suggests or Enhances not in mainstream repositories:
+* The CRAN incoming feasibility check reports the following as INFO:
+
+  Suggests or Enhances not in mainstream repositories:
     hubExamples
   Availability using Additional_repositories specification:
     hubExamples   yes   https://hubverse-org.r-universe.dev/
