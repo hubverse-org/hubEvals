@@ -1,3 +1,5 @@
+# hubEvals (development version)
+
 # hubEvals 0.5.0
 
 * hubEvals now requires `scoringutils` 2.3.0 or later. `score_model_out()` is substantially faster and uses much less memory when computing relative skill (#118, #144).
