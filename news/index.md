@@ -1,5 +1,14 @@
 # Changelog
 
+## hubEvals 0.5.0
+
+- hubEvals now requires `scoringutils` 2.3.0 or later.
+  [`score_model_out()`](https://hubverse-org.github.io/hubEvals/reference/score_model_out.md)
+  is substantially faster and uses much less memory when computing
+  relative skill
+  ([\#118](https://github.com/hubverse-org/hubEvals/issues/118),
+  [\#144](https://github.com/hubverse-org/hubEvals/issues/144)).
+
 ## hubEvals 0.4.0
 
 CRAN release: 2026-07-22
