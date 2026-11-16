@@ -1,5 +1,9 @@
 # hubEvals (development version)
 
+* New `summarize_model_out_scores()` summarizes per-forecast scores from `score_model_out(summarize = FALSE)`, giving the same result as `score_model_out()` with `summarize = TRUE`. Forecasts can then be scored once and summarized several ways, for example by different `by` columns or over different subsets of forecasts, without scoring them again (#143).
+
+* Relative skill is faster and uses less memory: `score_model_out()` no longer merges the skill columns onto every per-forecast row before summarizing. Results are unchanged.
+
 # hubEvals 0.5.0
 
 * hubEvals now requires `scoringutils` 2.3.0 or later. `score_model_out()` is substantially faster and uses much less memory when computing relative skill (#118, #144).

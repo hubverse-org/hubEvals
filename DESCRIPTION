@@ -51,6 +51,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
     cli,
+    data.table,
     dplyr,
     hubUtils (>= 1.2.0),
     purrr,
