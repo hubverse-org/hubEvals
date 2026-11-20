@@ -32,7 +32,9 @@
 #' every model, so relative skill is always defined and is never `NA`. A
 #' baseline absent from the data entirely is an error.
 #' @param summarize Boolean indicator of whether summaries of forecast scores
-#' should be computed. Defaults to `TRUE`.
+#' should be computed. Defaults to `TRUE`. To summarize the same scores in
+#' several ways, use `summarize = FALSE` and pass the result to
+#' [summarize_model_out_scores()].
 #' @param by Character vector naming columns to summarize by. For example,
 #' specifying `by = "model_id"` (the default) will compute average scores for
 #' each model.
@@ -201,7 +203,11 @@
 #' @return A tibble of scores, inheriting from scoringutils' `scores` class so
 #' that downstream scoringutils helpers (e.g. [scoringutils::get_metrics()])
 #' continue to work. The tibble has a `metrics` attribute holding the names of
-#' the scoring rules that were applied.
+#' the scoring rules that were applied. With `summarize = FALSE`, it also has a
+#' `transform_append` attribute recording whether scores on both the natural
+#' and transformed scales were returned, which [summarize_model_out_scores()]
+#' uses. Summarized scores have a `summarized` attribute, so that
+#' [summarize_model_out_scores()] doesn't summarize them again.
 #'
 #' @references
 #' Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the
@@ -238,6 +244,7 @@ score_model_out <- function(
   # Validate transformation parameters and capture expression for label inference
   transform_expr <- rlang::enexpr(transform)
   validate_transform(transform, transform_label, output_type)
+  checkmate::assert_flag(include_count)
   if (summarize) {
     # Note: The call to scoringutils::add_relative_skill below performs validation of `baseline`
     validate_relative_metrics(relative_metrics, metrics, by)
@@ -305,7 +312,13 @@ score_model_out <- function(
     )
   }
 
-  as_scores_tibble(scores)
+  scores <- as_scores_tibble(scores)
+  if (!summarize) {
+    # Whether rows on both scales were returned, so that
+    # summarize_model_out_scores() knows to report them separately.
+    attr(scores, "transform_append") <- !is.null(transform) && transform_append
+  }
+  scores
 }
 
 
@@ -320,16 +333,30 @@ score_model_out <- function(
 #'
 #' @param scores Per-forecast scores, as returned by
 #'   `score_model_out(summarize = FALSE)`, or a subset of their rows.
+#' @param relative_metrics Character vector of scoring metrics for which to
+#'   compute relative skill scores. Each must be one of the metrics in
+#'   `scores`, and relative skill requires that `"model_id"` is included in
+#'   `by`. See [score_model_out()] for which metrics are supported and how
+#'   comparison groups are formed. If `NULL` (the default), no relative
+#'   metrics are computed.
+#' @param include_count Boolean indicator of whether to add a column `count`
+#'   giving the number of forecasts scored in each summary group. Defaults to
+#'   `FALSE`.
 #' @inheritParams score_model_out
 #'
 #' @details
-#' If `scores` has a `scale` column (from scoring with
-#' `transform_append = TRUE`), the natural and transformed scales are
-#' summarized separately, as in [score_model_out()].
+#' If the scores were computed with `transform_append = TRUE` and a
+#' `transform`, average scores are reported separately for the natural and
+#' transformed scales (the `scale` column), as in [score_model_out()].
 #'
 #' Relative skill is computed within each group of the `by` columns other than
-#' `"model_id"`, using the forecasts in `scores`. When summarizing a subset of
-#' the scored forecasts, it is the same as scoring just that subset.
+#' `"model_id"`, using the forecasts in `scores`. Summarizing a subset of the
+#' scored forecasts therefore gives the same relative skill as scoring only
+#' that subset.
+#'
+#' Scores that have already been summarized can't be summarized again, since
+#' averaging group means gives the wrong result when groups have different
+#' numbers of forecasts.
 #'
 #' @return A tibble of summarized scores, in the same form as
 #'   [score_model_out()] returns with `summarize = TRUE`.
@@ -371,7 +398,20 @@ summarize_model_out_scores <- function(
       "i" = "It has no {.val metrics} attribute naming the score columns."
     ))
   }
+  if (isTRUE(attr(scores, "summarized"))) {
+    cli::cli_abort(c(
+      "{.arg scores} has already been summarized.",
+      "i" = "Use per-forecast scores from
+      {.code score_model_out(summarize = FALSE)}."
+    ))
+  }
+  checkmate::assert_flag(include_count)
   validate_relative_metrics(relative_metrics, metrics, by)
+  transform_append <- attr(scores, "transform_append")
+  if (is.null(transform_append)) {
+    # Not straight from score_model_out(): go by the `scale` column instead.
+    transform_append <- "scale" %in% colnames(scores)
+  }
 
   # score_model_out() summarizes the scoringutils `scores` data.table, so
   # rebuild that object from the tibble it returned to the caller.
@@ -385,7 +425,7 @@ summarize_model_out_scores <- function(
     baseline = baseline,
     by = by,
     include_count = include_count,
-    transform_append = "scale" %in% colnames(scores)
+    transform_append = transform_append
   )
   as_scores_tibble(scores)
 }
@@ -436,6 +476,8 @@ summarize_scores_by_group <- function(
   if (include_count) {
     scores <- left_join_scores(scores, counts, by = summary_by)
   }
+  # so summarize_model_out_scores() can refuse to summarize these again
+  attr(scores, "summarized") <- TRUE
   scores
 }
 
@@ -631,12 +673,10 @@ subset_scores_to_groups <- function(scores, groups, group_cols) {
 
 #' Per-(model_id, group) relative skill for groups scoringutils can score
 #'
-#' Runs [scoringutils::get_pairwise_comparisons()] on the computable subset
-#' (once per metric) and returns one row per `(model_id, group)`, since relative
-#' skill is constant within a group. This is what
-#' [scoringutils::add_relative_skill()] computes, without merging the skill
-#' columns onto every per-forecast row only to collapse them again here. Returns
-#' `NULL` when there are no computable groups, so [dplyr::bind_rows()] drops it.
+#' Scores the computable subset with [scoringutils::add_relative_skill()] (once
+#' per metric) and reduces it to one row per `(model_id, group)`, since relative
+#' skill is constant within a group. Returns `NULL` when there are no computable
+#' groups, so [dplyr::bind_rows()] drops it.
 #'
 #' @param scores The full per-row scores object.
 #' @param computable_groups One row per computable group, holding its
@@ -664,39 +704,23 @@ compute_skills <- function(
     computable_groups,
     group_cols
   )
-  # One row per (model_id, group) in the computable subset; each metric's skill
-  # columns are joined on below.
-  skills <- computable_scores |>
-    tibble::as_tibble() |>
-    dplyr::distinct(dplyr::across(dplyr::all_of(c("model_id", group_cols))))
   for (metric in relative_metrics) {
-    # As in add_relative_skill(): pairwise comparisons without significance
-    # tests, keeping one row per comparator and group.
-    pairwise <- scoringutils::get_pairwise_comparisons(
+    computable_scores <- scoringutils::add_relative_skill(
       computable_scores,
       compare = "model_id",
       by = group_cols,
       metric = metric,
-      baseline = baseline,
-      test_type = NULL
+      baseline = baseline
     )
-    pairwise <- tibble::as_tibble(pairwise) |>
-      dplyr::select(
-        !dplyr::any_of(c(
-          "compare_against",
-          "mean_scores_ratio",
-          "pval",
-          "adj_pval"
-        ))
-      ) |>
-      dplyr::distinct()
-    # add_relative_skill() merges on the comparator plus the `by` columns
-    # scoringutils kept; it drops `by` when `by` and `compare` together are a
-    # whole forecast unit, and the skill then applies to every group.
-    join_by <- intersect(c("model_id", group_cols), colnames(pairwise))
-    skills <- dplyr::left_join(skills, pairwise, by = join_by)
   }
-  dplyr::select(skills, dplyr::all_of(c("model_id", group_cols, skill_cols)))
+  # The lookup we merge back onto the scored data needs only the join keys
+  # (model_id, group_cols) and the skill columns. Scoring above used the per-row
+  # metric columns, so we drop them and de-dup to one row per group here, after
+  # add_relative_skill().
+  computable_scores |>
+    tibble::as_tibble() |>
+    dplyr::select(dplyr::all_of(c("model_id", group_cols, skill_cols))) |>
+    dplyr::distinct()
 }
 
 

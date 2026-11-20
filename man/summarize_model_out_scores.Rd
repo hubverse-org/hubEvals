@@ -17,18 +17,11 @@ summarize_model_out_scores(
 \code{score_model_out(summarize = FALSE)}, or a subset of their rows.}
 
 \item{relative_metrics}{Character vector of scoring metrics for which to
-compute relative skill scores. The \code{relative_metrics} should be a subset of
-\code{metrics} and should only include proper scores. Interval coverage metrics
-(e.g., \code{"interval_coverage_90"}) and \code{"bias"} are not supported as relative
-metrics: interval coverage targets a nominal level rather than a "lower is
-better" direction, and bias is a signed quantity for which a geometric-mean
-pairwise ratio has no clean interpretation. If \code{NULL} (the default), no
-relative metrics will be computed. Relative metrics are only computed if
-\code{summarize = TRUE}, and require that \code{"model_id"} is included in \code{by}.
-Relative skill is computed within each comparison group (the \code{by} columns
-other than \code{"model_id"}). If a comparison group contains only one model,
-that group's relative-skill columns are filled with \code{1} (a model has trivial
-skill \code{1} relative to itself) rather than erroring.}
+compute relative skill scores. Each must be one of the metrics in
+\code{scores}, and relative skill requires that \code{"model_id"} is included in
+\code{by}. See \code{\link[=score_model_out]{score_model_out()}} for which metrics are supported and how
+comparison groups are formed. If \code{NULL} (the default), no relative
+metrics are computed.}
 
 \item{baseline}{String with the name of a model to use as a baseline for
 relative skill scores. If a baseline is given, then a scaled relative skill
@@ -46,8 +39,8 @@ specifying \code{by = "model_id"} (the default) will compute average scores for
 each model.}
 
 \item{include_count}{Boolean indicator of whether to add a column \code{count}
-giving the number of forecasts scored in each summary group. Only applies
-when \code{summarize = TRUE}. Defaults to \code{FALSE}.}
+giving the number of forecasts scored in each summary group. Defaults to
+\code{FALSE}.}
 }
 \value{
 A tibble of summarized scores, in the same form as
@@ -62,13 +55,18 @@ are summarized several ways, for example by different \code{by} columns or over
 different subsets of the forecasts.
 }
 \details{
-If \code{scores} has a \code{scale} column (from scoring with
-\code{transform_append = TRUE}), the natural and transformed scales are
-summarized separately, as in \code{\link[=score_model_out]{score_model_out()}}.
+If the scores were computed with \code{transform_append = TRUE} and a
+\code{transform}, average scores are reported separately for the natural and
+transformed scales (the \code{scale} column), as in \code{\link[=score_model_out]{score_model_out()}}.
 
 Relative skill is computed within each group of the \code{by} columns other than
-\code{"model_id"}, using the forecasts in \code{scores}. When summarizing a subset of
-the scored forecasts, it is the same as scoring just that subset.
+\code{"model_id"}, using the forecasts in \code{scores}. Summarizing a subset of the
+scored forecasts therefore gives the same relative skill as scoring only
+that subset.
+
+Scores that have already been summarized can't be summarized again, since
+averaging group means gives the wrong result when groups have different
+numbers of forecasts.
 }
 \examples{
 \dontshow{if (requireNamespace("hubExamples", quietly = TRUE)) withAutoprint(\{ # examplesIf}

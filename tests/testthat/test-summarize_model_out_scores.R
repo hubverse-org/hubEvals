@@ -124,8 +124,8 @@ test_that("summarizing a subset of the scores matches scoring that subset", {
   keep <- function(df) {
     df$location %in% locations & df$reference_date == ref_date & df$horizon <= 1
   }
-  subset_scores <- row_scores[keep(row_scores), ]
-  attr(subset_scores, "metrics") <- attr(row_scores, "metrics")
+  # dplyr::filter() keeps the attributes score_model_out() sets
+  subset_scores <- dplyr::filter(row_scores, keep(row_scores))
 
   by <- c("model_id", "location", "scale")
   expected <- capture_outcome(score_model_out(
@@ -291,97 +291,108 @@ test_that("summarize_model_out_scores validates its inputs", {
     ),
     "not supported for relative skill"
   )
+  expect_error(
+    summarize_model_out_scores(row_scores, include_count = "yes"),
+    "include_count"
+  )
+  expect_error(
+    score_model_out(
+      quantile_outputs(),
+      hubExamples::forecast_oracle_output,
+      metrics = "wis",
+      include_count = "yes"
+    ),
+    "include_count"
+  )
 })
 
 
-test_that("compute_skills matches scoringutils::add_relative_skill", {
+test_that("summarize_model_out_scores refuses scores that are already summarized", {
   skip_if_not_installed("hubExamples")
   model_out_tbl <- quantile_outputs()
   oracle_output <- hubExamples::forecast_oracle_output
-  scores <- scoringutils::score(
-    transform_quantile_model_out(model_out_tbl, oracle_output),
-    get_metrics(
-      transform_quantile_model_out(model_out_tbl, oracle_output),
-      output_type = "quantile",
-      select = c("wis", "ae_median")
+  by_location <- score_model_out(
+    model_out_tbl,
+    oracle_output,
+    metrics = "wis",
+    by = c("model_id", "location")
+  )
+  expect_error(
+    summarize_model_out_scores(by_location),
+    "already been summarized"
+  )
+
+  row_scores <- score_model_out(
+    model_out_tbl,
+    oracle_output,
+    metrics = "wis",
+    summarize = FALSE
+  )
+  summarized <- summarize_model_out_scores(
+    row_scores,
+    by = c("model_id", "location")
+  )
+  expect_error(
+    summarize_model_out_scores(summarized),
+    "already been summarized"
+  )
+})
+
+
+test_that("scores are split by scale only when a transform was appended", {
+  skip_if_not_installed("hubExamples")
+  model_out_tbl <- quantile_outputs()
+  oracle_output <- hubExamples::forecast_oracle_output
+  row_scores <- score_model_out(
+    model_out_tbl,
+    oracle_output,
+    metrics = "wis",
+    summarize = FALSE
+  )
+  expect_false(attr(row_scores, "transform_append"))
+  expected <- summarize_model_out_scores(row_scores)
+
+  # an unrelated column called `scale` is not treated as a transform scale
+  with_scale <- dplyr::mutate(row_scores, scale = "other")
+  expect_identical(summarize_model_out_scores(with_scale), expected)
+
+  # transform_append is ignored without a transform, so nothing is appended
+  no_transform <- score_model_out(
+    model_out_tbl,
+    oracle_output,
+    metrics = "wis",
+    summarize = FALSE,
+    transform_append = TRUE
+  )
+  expect_false(attr(no_transform, "transform_append"))
+  expect_identical(summarize_model_out_scores(no_transform), expected)
+
+  # with an appended transform, scales are kept apart even if `by` doesn't
+  # include "scale"
+  log_shift_args <- list(
+    transform = scoringutils::log_shift,
+    transform_append = TRUE,
+    transform_label = "log",
+    offset = 1
+  )
+  appended <- do.call(
+    score_model_out,
+    c(
+      list(model_out_tbl, oracle_output, metrics = "wis", summarize = FALSE),
+      log_shift_args
     )
   )
-  scores <- dplyr::rename(scores, model_id = "model")
-  task_id_cols <- get_task_id_cols(model_out_tbl)
-
-  # The implementation compute_skills() replaced: add_relative_skill() per
-  # metric, then one row per (model_id, group).
-  via_add_relative_skill <- function(
-    scores,
-    group_cols,
-    relative_metrics,
-    baseline
-  ) {
-    skill_cols <- relative_skill_col_names(relative_metrics, baseline)
-    for (metric in relative_metrics) {
-      scores <- scoringutils::add_relative_skill(
-        scores,
-        compare = "model_id",
-        by = group_cols,
-        metric = metric,
-        baseline = baseline
-      )
-    }
-    scores |>
-      tibble::as_tibble() |>
-      dplyr::select(dplyr::all_of(c("model_id", group_cols, skill_cols))) |>
-      dplyr::distinct()
-  }
-
-  # Compare values only: the lookup is left-joined onto the scores, which keep
-  # their own `metrics` attribute, so the lookup's is never used.
-  tidy <- function(x, key) {
-    x <- dplyr::arrange(x, dplyr::across(dplyr::all_of(key)))
-    attr(x, "metrics") <- NULL
-    x
-  }
-  cases <- list(
-    list(group_cols = character(0), relative_metrics = "wis", baseline = NULL),
-    list(
-      group_cols = "location",
-      relative_metrics = c("wis", "ae_median"),
-      baseline = "Flusight-baseline"
-    ),
-    # every task id: scoringutils drops `by` and compares over all forecasts
-    list(
-      group_cols = task_id_cols,
-      relative_metrics = "wis",
-      baseline = "Flusight-baseline"
+  expect_true(attr(appended, "transform_append"))
+  expect_identical(
+    summarize_model_out_scores(appended),
+    do.call(
+      score_model_out,
+      c(list(model_out_tbl, oracle_output, metrics = "wis"), log_shift_args)
     )
   )
-  for (case in cases) {
-    groups <- scores |>
-      tibble::as_tibble() |>
-      dplyr::distinct(dplyr::across(dplyr::all_of(case$group_cols)))
-    skill_cols <- relative_skill_col_names(case$relative_metrics, case$baseline)
-    expected <- suppressMessages(
-      via_add_relative_skill(
-        scores,
-        case$group_cols,
-        case$relative_metrics,
-        case$baseline
-      )
-    )
-    actual <- suppressMessages(
-      compute_skills(
-        scores,
-        groups,
-        case$group_cols,
-        skill_cols,
-        case$relative_metrics,
-        case$baseline
-      )
-    )
-    key <- c("model_id", case$group_cols)
-    expect_identical(
-      tidy(actual, key),
-      tidy(expected, key),
-      label = toString(case$group_cols)
-    )
-  }
+
+  # scores without the attribute (not straight from score_model_out()) go by
+  # whether they have a `scale` column
+  attr(appended, "transform_append") <- NULL
+  expect_true("scale" %in% names(summarize_model_out_scores(appended)))
 })

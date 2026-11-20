@@ -57,7 +57,9 @@ every model, so relative skill is always defined and is never \code{NA}. A
 baseline absent from the data entirely is an error.}
 
 \item{summarize}{Boolean indicator of whether summaries of forecast scores
-should be computed. Defaults to \code{TRUE}.}
+should be computed. Defaults to \code{TRUE}. To summarize the same scores in
+several ways, use \code{summarize = FALSE} and pass the result to
+\code{\link[=summarize_model_out_scores]{summarize_model_out_scores()}}.}
 
 \item{by}{Character vector naming columns to summarize by. For example,
 specifying \code{by = "model_id"} (the default) will compute average scores for
@@ -112,7 +114,11 @@ example, allows use of the \code{offset} and \code{base} arguments of
 A tibble of scores, inheriting from scoringutils' \code{scores} class so
 that downstream scoringutils helpers (e.g. \code{\link[scoringutils:get_metrics]{scoringutils::get_metrics()}})
 continue to work. The tibble has a \code{metrics} attribute holding the names of
-the scoring rules that were applied.
+the scoring rules that were applied. With \code{summarize = FALSE}, it also has a
+\code{transform_append} attribute recording whether scores on both the natural
+and transformed scales were returned, which \code{\link[=summarize_model_out_scores]{summarize_model_out_scores()}}
+uses. Summarized scores have a \code{summarized} attribute, so that
+\code{\link[=summarize_model_out_scores]{summarize_model_out_scores()}} doesn't summarize them again.
 }
 \description{
 Scores model outputs with a single \code{output_type} against observed data.

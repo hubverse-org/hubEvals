@@ -50,6 +50,7 @@ Description:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
+    checkmate,
     cli,
     data.table,
     dplyr,
