@@ -50,7 +50,9 @@ Description:
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
+    checkmate,
     cli,
+    data.table,
     dplyr,
     hubUtils (>= 1.2.0),
     purrr,
