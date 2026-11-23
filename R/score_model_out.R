@@ -32,7 +32,9 @@
 #' every model, so relative skill is always defined and is never `NA`. A
 #' baseline absent from the data entirely is an error.
 #' @param summarize Boolean indicator of whether summaries of forecast scores
-#' should be computed. Defaults to `TRUE`.
+#' should be computed. Defaults to `TRUE`. To summarize the same scores in
+#' several ways, use `summarize = FALSE` and pass the result to
+#' [summarize_model_out_scores()].
 #' @param by Character vector naming columns to summarize by. For example,
 #' specifying `by = "model_id"` (the default) will compute average scores for
 #' each model.
@@ -201,7 +203,11 @@
 #' @return A tibble of scores, inheriting from scoringutils' `scores` class so
 #' that downstream scoringutils helpers (e.g. [scoringutils::get_metrics()])
 #' continue to work. The tibble has a `metrics` attribute holding the names of
-#' the scoring rules that were applied.
+#' the scoring rules that were applied. With `summarize = FALSE`, it also has a
+#' `transform_append` attribute recording whether scores on both the natural
+#' and transformed scales were returned, which [summarize_model_out_scores()]
+#' uses. Summarized scores have a `summarized` attribute, so that
+#' [summarize_model_out_scores()] doesn't summarize them again.
 #'
 #' @references
 #' Gneiting, Tilmann. 2011. "Making and Evaluating Point Forecasts." Journal of the
@@ -238,6 +244,7 @@ score_model_out <- function(
   # Validate transformation parameters and capture expression for label inference
   transform_expr <- rlang::enexpr(transform)
   validate_transform(transform, transform_label, output_type)
+  checkmate::assert_flag(include_count)
   if (summarize) {
     # Note: The call to scoringutils::add_relative_skill below performs validation of `baseline`
     validate_relative_metrics(relative_metrics, metrics, by)
@@ -295,41 +302,193 @@ score_model_out <- function(
 
   # if requested, summarize scores, including computation of relative metrics
   if (summarize) {
-    # Relative skill is a per-group quantity (one value per model per `by`
-    # group, not per scored forecast unit). It is added here on the per-row
-    # scores as a column that is constant within each (model_id, `by`) group,
-    # then collapsed by summarize_scores() below to one row per group. Pairwise
-    # comparison needs the per-row scores, so this must run before summarising.
-    scores <- add_relative_skill_metrics(scores, relative_metrics, by, baseline)
-
-    # When transform_append = TRUE, scoringutils emits both natural- and
-    # transformed-scale rows distinguished by a `scale` column. Include
-    # "scale" in `by` for the summary so the two scales are reported
-    # separately rather than collapsed into a meaningless average. The
-    # user-facing `by` argument is not modified outside this block.
-    summary_by <- if (isTRUE(transform_append)) union(by, "scale") else by
-
-    # If counts were requested, tally scored forecasts per group before
-    # summarize_scores() collapses the per-row scores: score() returns one row
-    # per forecast unit, so the count is simply rows per group. Joined back on
-    # after summarising with left_join_scores(), which preserves the `metrics`
-    # attribute (excluding `count`, so it stays out of the metrics).
-    if (include_count) {
-      counts <- dplyr::count(
-        scores,
-        dplyr::across(dplyr::all_of(summary_by)),
-        name = "count"
-      )
-    }
-    scores <- scoringutils::summarize_scores(scores = scores, by = summary_by)
-    if (include_count) {
-      scores <- left_join_scores(scores, counts, by = summary_by)
-    }
+    scores <- summarize_scores_by_group(
+      scores,
+      relative_metrics = relative_metrics,
+      baseline = baseline,
+      by = by,
+      include_count = include_count,
+      transform_append = transform_append
+    )
   }
 
-  # Convert to tibble for friendlier user-facing behaviour, but keep the
-  # `scores` class on top so scoringutils helpers (e.g. get_metrics) still
-  # dispatch. The `metrics` attribute is preserved by as_tibble().
+  scores <- as_scores_tibble(scores)
+  if (!summarize) {
+    # Whether rows on both scales were returned, so that
+    # summarize_model_out_scores() knows to report them separately.
+    attr(scores, "transform_append") <- !is.null(transform) && transform_append
+  }
+  scores
+}
+
+
+#' Summarize per-forecast scores
+#'
+#' Summarizes scores computed by [score_model_out()] with `summarize = FALSE`.
+#' The result is the same as calling [score_model_out()] with
+#' `summarize = TRUE` on the forecasts those scores came from, but the
+#' forecasts only need to be scored once. This is useful when the same scores
+#' are summarized several ways, for example by different `by` columns or over
+#' different subsets of the forecasts.
+#'
+#' @param scores Per-forecast scores, as returned by
+#'   `score_model_out(summarize = FALSE)`, or a subset of their rows.
+#' @param relative_metrics Character vector of scoring metrics for which to
+#'   compute relative skill scores. Each must be one of the metrics in
+#'   `scores`, and relative skill requires that `"model_id"` is included in
+#'   `by`. See [score_model_out()] for which metrics are supported and how
+#'   comparison groups are formed. If `NULL` (the default), no relative
+#'   metrics are computed.
+#' @param include_count Boolean indicator of whether to add a column `count`
+#'   giving the number of forecasts scored in each summary group. Defaults to
+#'   `FALSE`.
+#' @inheritParams score_model_out
+#'
+#' @details
+#' If the scores were computed with `transform_append = TRUE` and a
+#' `transform`, average scores are reported separately for the natural and
+#' transformed scales (the `scale` column), as in [score_model_out()].
+#'
+#' Relative skill is computed within each group of the `by` columns other than
+#' `"model_id"`, using the forecasts in `scores`. Summarizing a subset of the
+#' scored forecasts therefore gives the same relative skill as scoring only
+#' that subset.
+#'
+#' Scores that have already been summarized can't be summarized again, since
+#' averaging group means gives the wrong result when groups have different
+#' numbers of forecasts.
+#'
+#' @return A tibble of summarized scores, in the same form as
+#'   [score_model_out()] returns with `summarize = TRUE`.
+#'
+#' @examplesIf requireNamespace("hubExamples", quietly = TRUE)
+#' model_out_tbl <- hubExamples::forecast_outputs |>
+#'   dplyr::filter(.data[["output_type"]] == "quantile")
+#' oracle_output <- hubExamples::forecast_oracle_output
+#'
+#' # score once
+#' row_scores <- score_model_out(
+#'   model_out_tbl,
+#'   oracle_output,
+#'   metrics = c("wis", "interval_coverage_90"),
+#'   summarize = FALSE
+#' )
+#'
+#' # summarize two ways without scoring again
+#' summarize_model_out_scores(row_scores, relative_metrics = "wis")
+#' summarize_model_out_scores(
+#'   row_scores,
+#'   relative_metrics = "wis",
+#'   by = c("model_id", "location")
+#' )
+#'
+#' @export
+summarize_model_out_scores <- function(
+  scores,
+  relative_metrics = NULL,
+  baseline = NULL,
+  by = "model_id",
+  include_count = FALSE
+) {
+  metrics <- attr(scores, "metrics")
+  if (is.null(metrics) || !is.data.frame(scores)) {
+    cli::cli_abort(c(
+      "{.arg scores} must be per-forecast scores from
+      {.code score_model_out(summarize = FALSE)}.",
+      "i" = "It has no {.val metrics} attribute naming the score columns."
+    ))
+  }
+  if (isTRUE(attr(scores, "summarized"))) {
+    cli::cli_abort(c(
+      "{.arg scores} has already been summarized.",
+      "i" = "Use per-forecast scores from
+      {.code score_model_out(summarize = FALSE)}."
+    ))
+  }
+  checkmate::assert_flag(include_count)
+  validate_relative_metrics(relative_metrics, metrics, by)
+  transform_append <- attr(scores, "transform_append")
+  if (is.null(transform_append)) {
+    # Not straight from score_model_out(): go by the `scale` column instead.
+    transform_append <- "scale" %in% colnames(scores)
+  }
+
+  # score_model_out() summarizes the scoringutils `scores` data.table, so
+  # rebuild that object from the tibble it returned to the caller.
+  scores <- data.table::as.data.table(scores)
+  class(scores) <- c("scores", class(scores))
+  attr(scores, "metrics") <- metrics
+
+  scores <- summarize_scores_by_group(
+    scores,
+    relative_metrics = relative_metrics,
+    baseline = baseline,
+    by = by,
+    include_count = include_count,
+    transform_append = transform_append
+  )
+  as_scores_tibble(scores)
+}
+
+
+#' Summarize per-forecast scores by group
+#'
+#' The summarize step of [score_model_out()], shared with
+#' [summarize_model_out_scores()].
+#'
+#' @param scores A scoringutils `scores` object, one row per forecast unit.
+#' @noRd
+summarize_scores_by_group <- function(
+  scores,
+  relative_metrics,
+  baseline,
+  by,
+  include_count,
+  transform_append
+) {
+  # Relative skill is a per-group quantity (one value per model per `by`
+  # group, not per scored forecast unit). It is added here on the per-row
+  # scores as a column that is constant within each (model_id, `by`) group,
+  # then collapsed by summarize_scores() below to one row per group. Pairwise
+  # comparison needs the per-row scores, so this must run before summarising.
+  scores <- add_relative_skill_metrics(scores, relative_metrics, by, baseline)
+
+  # When transform_append = TRUE, scoringutils emits both natural- and
+  # transformed-scale rows distinguished by a `scale` column. Include
+  # "scale" in `by` for the summary so the two scales are reported
+  # separately rather than collapsed into a meaningless average. The
+  # user-facing `by` argument is not modified outside this function.
+  summary_by <- if (isTRUE(transform_append)) union(by, "scale") else by
+
+  # If counts were requested, tally scored forecasts per group before
+  # summarize_scores() collapses the per-row scores: score() returns one row
+  # per forecast unit, so the count is simply rows per group. Joined back on
+  # after summarising with left_join_scores(), which preserves the `metrics`
+  # attribute (excluding `count`, so it stays out of the metrics).
+  if (include_count) {
+    counts <- dplyr::count(
+      scores,
+      dplyr::across(dplyr::all_of(summary_by)),
+      name = "count"
+    )
+  }
+  scores <- scoringutils::summarize_scores(scores = scores, by = summary_by)
+  if (include_count) {
+    scores <- left_join_scores(scores, counts, by = summary_by)
+  }
+  # so summarize_model_out_scores() can refuse to summarize these again
+  attr(scores, "summarized") <- TRUE
+  scores
+}
+
+
+#' Convert scores to a tibble that keeps the scoringutils `scores` class
+#'
+#' Convert to tibble for friendlier user-facing behaviour, but keep the
+#' `scores` class on top so scoringutils helpers (e.g. get_metrics) still
+#' dispatch. The `metrics` attribute is preserved by as_tibble().
+#' @noRd
+as_scores_tibble <- function(scores) {
   scores <- tibble::as_tibble(scores)
   class(scores) <- c("scores", class(scores))
   scores
