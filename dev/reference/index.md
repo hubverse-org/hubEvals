@@ -4,6 +4,8 @@
 
 - [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
   : Score model output predictions
+- [`summarize_model_out_scores()`](https://hubverse-org.github.io/hubEvals/dev/reference/summarize_model_out_scores.md)
+  : Summarize per-forecast scores
 - [`transform_pmf_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/transform_pmf_model_out.md)
   : Transform pmf model output into a forecast object
 - [`transform_point_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/transform_point_model_out.md)
