@@ -2,7 +2,7 @@
 
 0 errors | 0 warnings | 0 notes
 
-* This is an update from the current CRAN release (0.4.0 to 0.5.0).
+* This is an update from the current CRAN release (0.5.0 to 0.6.0).
 
 * The CRAN incoming feasibility check reports the following as INFO:
 
