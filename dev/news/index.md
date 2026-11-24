@@ -2,6 +2,8 @@
 
 ## hubEvals (development version)
 
+## hubEvals 0.6.0
+
 - New
   [`summarize_model_out_scores()`](https://hubverse-org.github.io/hubEvals/dev/reference/summarize_model_out_scores.md)
   summarizes per-forecast scores from
@@ -11,9 +13,6 @@
   summarized several ways, for example by different `by` columns or over
   different subsets of forecasts, without scoring them again
   ([\#143](https://github.com/hubverse-org/hubEvals/issues/143)).
-
-- [`score_model_out()`](https://hubverse-org.github.io/hubEvals/dev/reference/score_model_out.md)
-  now gives a clear error when `include_count` is not `TRUE` or `FALSE`.
 
 ## hubEvals 0.5.0
 
