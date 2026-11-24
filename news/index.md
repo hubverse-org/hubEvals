@@ -1,6 +1,20 @@
 # Changelog
 
+## hubEvals 0.6.0
+
+- New
+  [`summarize_model_out_scores()`](https://hubverse-org.github.io/hubEvals/reference/summarize_model_out_scores.md)
+  summarizes per-forecast scores from
+  `score_model_out(summarize = FALSE)`, giving the same result as
+  [`score_model_out()`](https://hubverse-org.github.io/hubEvals/reference/score_model_out.md)
+  with `summarize = TRUE`. Forecasts can then be scored once and
+  summarized several ways, for example by different `by` columns or over
+  different subsets of forecasts, without scoring them again
+  ([\#143](https://github.com/hubverse-org/hubEvals/issues/143)).
+
 ## hubEvals 0.5.0
+
+CRAN release: 2026-10-05
 
 - hubEvals now requires `scoringutils` 2.3.0 or later.
   [`score_model_out()`](https://hubverse-org.github.io/hubEvals/reference/score_model_out.md)

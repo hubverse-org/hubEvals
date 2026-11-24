@@ -23,21 +23,23 @@
 
 - **Lucie Contamin**. Contributor.
 
+- **Nikhil Lebaka**. Contributor.
+
 - **Consortium of Infectious Disease Modeling Hubs**. Copyright holder.
 
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/hubverse-org/hubEvals/blob/v0.5.0/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/hubverse-org/hubEvals/blob/main/DESCRIPTION)
 
 Krystalli A, Reich N, Ray E, Bosse N, Roosa K (2026). *hubEvals: Tools
 for Scoring and Evaluating Hubverse Model Outputs*. R package version
-0.5.0, <https://hubverse-org.github.io/hubEvals/>.
+0.6.0, <https://hubverse-org.github.io/hubEvals/>.
 
     @Manual{,
       title = {hubEvals: Tools for Scoring and Evaluating Hubverse Model Outputs},
       author = {Anna Krystalli and Nicholas Reich and Evan Ray and Nikos Bosse and Kimberlyn Roosa},
       year = {2026},
-      note = {R package version 0.5.0},
+      note = {R package version 0.6.0},
       url = {https://hubverse-org.github.io/hubEvals/},
     }

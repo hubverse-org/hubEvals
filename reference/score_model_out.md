@@ -74,7 +74,9 @@ score_model_out(
 - summarize:
 
   Boolean indicator of whether summaries of forecast scores should be
-  computed. Defaults to `TRUE`.
+  computed. Defaults to `TRUE`. To summarize the same scores in several
+  ways, use `summarize = FALSE` and pass the result to
+  [`summarize_model_out_scores()`](https://hubverse-org.github.io/hubEvals/reference/summarize_model_out_scores.md).
 
 - by:
 
@@ -149,7 +151,13 @@ A tibble of scores, inheriting from scoringutils' `scores` class so that
 downstream scoringutils helpers (e.g.
 [`scoringutils::get_metrics()`](https://epiforecasts.io/scoringutils/reference/get_metrics.html))
 continue to work. The tibble has a `metrics` attribute holding the names
-of the scoring rules that were applied.
+of the scoring rules that were applied. With `summarize = FALSE`, it
+also has a `transform_append` attribute recording whether scores on both
+the natural and transformed scales were returned, which
+[`summarize_model_out_scores()`](https://hubverse-org.github.io/hubEvals/reference/summarize_model_out_scores.md)
+uses. Summarized scores have a `summarized` attribute, so that
+[`summarize_model_out_scores()`](https://hubverse-org.github.io/hubEvals/reference/summarize_model_out_scores.md)
+doesn't summarize them again.
 
 ## Details
 
