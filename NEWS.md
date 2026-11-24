@@ -1,3 +1,5 @@
+# hubEvals (development version)
+
 # hubEvals 0.6.0
 
 * New `summarize_model_out_scores()` summarizes per-forecast scores from `score_model_out(summarize = FALSE)`, giving the same result as `score_model_out()` with `summarize = TRUE`. Forecasts can then be scored once and summarized several ways, for example by different `by` columns or over different subsets of forecasts, without scoring them again (#143).
