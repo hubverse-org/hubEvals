@@ -1,6 +1,6 @@
 Package: hubEvals
 Title: Tools for Scoring and Evaluating Hubverse Model Outputs
-Version: 0.5.0.9000
+Version: 0.6.0
 Authors@R: c(
     person(given = "Anna",
            family = "Krystalli",
@@ -38,6 +38,9 @@ Authors@R: c(
            role = c("ctb")),
     person(given = "Lucie",
            family = "Contamin",
+           role = c("ctb")),
+    person(given = "Nikhil",
+           family = "Lebaka",
            role = c("ctb")),
     person("Consortium of Infectious Disease Modeling Hubs",
            role = "cph")
